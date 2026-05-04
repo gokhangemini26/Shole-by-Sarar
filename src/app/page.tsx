@@ -12,6 +12,7 @@ export default function HomePage() {
   const [aiOpen, setAiOpen] = React.useState(false);
   const [locale, setLocale] = React.useState<Locale>("en");
   const [highlight, setHighlight] = React.useState<string | null>(null);
+  const [highlightedProduct, setHighlightedProduct] = React.useState<string | null>(null);
   const palette = PALETTES.warmCream;
   const accent = palette.accent;
   const labels = getLabels(locale);
@@ -47,17 +48,37 @@ export default function HomePage() {
       }
 
       if (call.name === "show_product") {
-        // Scroll to collection and highlight
-        const el = document.getElementById("collection");
-        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-        setHighlight("collection");
-        setTimeout(() => setHighlight(null), 3000);
+        const productId = call.args.product_id;
+        if (productId) {
+          // First scroll to the specific product card
+          const productEl = document.getElementById(productId);
+          if (productEl) {
+            productEl.scrollIntoView({ behavior: "smooth", block: "center" });
+          } else {
+            // Fallback: scroll to collection section
+            const el = document.getElementById("collection");
+            if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+          // Highlight the specific product
+          setHighlightedProduct(productId);
+          setTimeout(() => setHighlightedProduct(null), 4000);
+        }
       }
 
       if (call.name === "recommend_outfit") {
         // Scroll to collection
         const el = document.getElementById("collection");
         if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+        // Try to highlight the first mentioned product
+        const items = call.args.items;
+        if (items) {
+          const firstProduct = items.split(",")[0]?.trim().toLowerCase()
+            .replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+          if (firstProduct) {
+            setHighlightedProduct(firstProduct);
+            setTimeout(() => setHighlightedProduct(null), 4000);
+          }
+        }
       }
 
       if (call.name === "start_tryon") {
@@ -100,7 +121,7 @@ export default function HomePage() {
       />
 
       <div style={highlightStyle("collection")}>
-        <CollectionGrid palette={palette} accent={accent} />
+        <CollectionGrid palette={palette} accent={accent} highlightedProduct={highlightedProduct} />
       </div>
 
       <div style={highlightStyle("press")}>

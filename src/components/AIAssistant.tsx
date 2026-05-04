@@ -92,12 +92,11 @@ export function AIAssistant({ open, onClose, palette, accent, labels, onToolCall
 
   const clientRef = React.useRef<GeminiLiveClient|null>(null);
   const audioCtxRef = React.useRef<AudioContext|null>(null);
-  const processorRef = React.useRef<ScriptProcessorNode|null>(null);
+  const workletRef = React.useRef<AudioWorkletNode|null>(null);
   const streamRef = React.useRef<MediaStream|null>(null);
   const audioQueueRef = React.useRef<string[]>([]);
   const isPlayingRef = React.useRef(false);
   const activeSourceRef = React.useRef<AudioBufferSourceNode|null>(null);
-  const pendingStreamRef = React.useRef<MediaStream|null>(null);
   const scrollRef = React.useRef<HTMLDivElement>(null);
   const fileRef = React.useRef<HTMLInputElement>(null);
 
@@ -105,7 +104,7 @@ export function AIAssistant({ open, onClose, palette, accent, labels, onToolCall
   React.useEffect(() => {
     if (!open) { const t = setTimeout(() => { setMessages([{ from: "sholé", text: labels.greeting }]); setChatHistory([]); }, 400); return () => clearTimeout(t); }
   }, [open, labels.greeting]);
-  React.useEffect(() => { return () => { clientRef.current?.close(); streamRef.current?.getTracks().forEach(t => t.stop()); processorRef.current?.disconnect(); }; }, []);
+  React.useEffect(() => { return () => { clientRef.current?.close(); streamRef.current?.getTracks().forEach(t => t.stop()); workletRef.current?.disconnect(); }; }, []);
 
   const getAudioCtx = React.useCallback(() => {
     if (!audioCtxRef.current) audioCtxRef.current = new AudioContext({ sampleRate: 16000 });
@@ -149,26 +148,37 @@ export function AIAssistant({ open, onClose, palette, accent, labels, onToolCall
     streamRef.current = stream;
     const ctx = getAudioCtx();
     if (ctx.state === "suspended") await ctx.resume();
+
+    // Load AudioWorklet for low-latency processing
+    try {
+      await ctx.audioWorklet.addModule("/audio-processor.js");
+    } catch {
+      // Module may already be registered
+    }
+
     const source = ctx.createMediaStreamSource(stream);
-    const proc = ctx.createScriptProcessor(4096, 1, 1);
-    proc.onaudioprocess = (e) => {
-      const inp = e.inputBuffer.getChannelData(0);
-      const pcm = new Int16Array(inp.length);
-      for (let i = 0; i < inp.length; i++) pcm[i] = Math.max(-1, Math.min(1, inp[i])) * 0x7FFF;
-      const b64 = btoa(String.fromCharCode(...new Uint8Array(pcm.buffer)));
-      clientRef.current?.sendAudio(b64);
-      const sum = inp.reduce((a, b) => a + Math.abs(b), 0);
-      setAudioLevel(sum / inp.length * 5);
+    const worklet = new AudioWorkletNode(ctx, "pcm-processor");
+
+    worklet.port.onmessage = (e) => {
+      if (e.data.type === "level") {
+        setAudioLevel(e.data.level);
+      } else if (e.data.type === "audio") {
+        const pcm = new Uint8Array(e.data.buffer);
+        const b64 = btoa(String.fromCharCode(...pcm));
+        clientRef.current?.sendAudio(b64);
+      }
     };
-    source.connect(proc); proc.connect(ctx.destination);
-    processorRef.current = proc;
+
+    source.connect(worklet);
+    worklet.connect(ctx.destination); // Required to keep the worklet alive
+    workletRef.current = worklet;
   }, [getAudioCtx]);
 
   // Toggle voice
   const toggleVoice = async () => {
     if (isLive) {
       clientRef.current?.close(); clientRef.current = null;
-      streamRef.current?.getTracks().forEach(t => t.stop()); processorRef.current?.disconnect();
+      streamRef.current?.getTracks().forEach(t => t.stop()); workletRef.current?.disconnect();
       setIsLive(false); setAudioLevel(0); stopAudio();
       return;
     }
@@ -185,10 +195,6 @@ export function AIAssistant({ open, onClose, palette, accent, labels, onToolCall
       onAudioData: (data) => {
         audioQueueRef.current.push(data);
         playNextAudio();
-        if (pendingStreamRef.current) {
-          const s = pendingStreamRef.current; pendingStreamRef.current = null;
-          setTimeout(() => startMicCapture(s), 1500);
-        }
       },
       onTranscription: (text, isUser) => {
         setMessages(p => [...p.slice(-30), { from: isUser ? "me" : "sholé", text }]);
@@ -201,7 +207,8 @@ export function AIAssistant({ open, onClose, palette, accent, labels, onToolCall
     try {
       await clientRef.current.connect();
       setIsLive(true); setIsConnecting(false);
-      pendingStreamRef.current = stream;
+      // Start mic capture immediately — no delay
+      await startMicCapture(stream);
       clientRef.current.triggerGreeting();
     } catch { stream.getTracks().forEach(t => t.stop()); setIsConnecting(false); }
   };

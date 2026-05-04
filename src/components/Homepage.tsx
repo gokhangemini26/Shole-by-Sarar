@@ -214,20 +214,25 @@ export function Hero({
 
 /* ── Collection Grid ─────────────────────────────────────────────────── */
 const collectionItems = [
-  { label: "wool coat — terra", tone: "camel", kind: "figure" as const, tag: "new", name: "The Atelier Coat", price: "€ 890" },
-  { label: "silk shirt — cream", tone: "cream", kind: "figure" as const, name: "Soft Rules Shirt", price: "€ 340" },
-  { label: "tailored trouser", tone: "sand", kind: "figure" as const, name: "Wide Atelier Trouser", price: "€ 420" },
-  { label: "leather mule", tone: "espresso", kind: "product" as const, tag: "late spring", name: "Mule No. 4", price: "€ 380" },
-  { label: "knit dress — saffron", tone: "saffron", kind: "figure" as const, tag: "✦ pick", name: "Sun-Up Knit", price: "€ 290" },
-  { label: "leather tote", tone: "camel", kind: "product" as const, name: "Atelier Tote", price: "€ 540" },
+  { id: "atelier-coat", label: "wool coat — terra", tone: "camel", kind: "figure" as const, tag: "new", name: "The Atelier Coat", price: "€ 890" },
+  { id: "soft-rules-shirt", label: "silk shirt — cream", tone: "cream", kind: "figure" as const, name: "Soft Rules Shirt", price: "€ 340" },
+  { id: "wide-trouser", label: "tailored trouser", tone: "sand", kind: "figure" as const, name: "Wide Atelier Trouser", price: "€ 420" },
+  { id: "mule-no4", label: "leather mule", tone: "espresso", kind: "product" as const, tag: "late spring", name: "Mule No. 4", price: "€ 380" },
+  { id: "sun-up-knit", label: "knit dress — saffron", tone: "saffron", kind: "figure" as const, tag: "✦ pick", name: "Sun-Up Knit", price: "€ 290" },
+  { id: "atelier-tote", label: "leather tote", tone: "camel", kind: "product" as const, name: "Atelier Tote", price: "€ 540" },
+  { id: "sun-up-scarf", label: "silk scarf — saffron", tone: "saffron", kind: "product" as const, name: "Sun-Up Scarf", price: "€ 140" },
+  { id: "soft-bomber", label: "silk bomber — cream", tone: "cream", kind: "figure" as const, tag: "evening", name: "Soft Bomber", price: "€ 540" },
+  { id: "atelier-mini", label: "wool mini — espresso", tone: "espresso", kind: "figure" as const, name: "Atelier Mini", price: "€ 410" },
 ];
 
 export function CollectionGrid({
   palette,
   accent,
+  highlightedProduct,
 }: {
   palette: Palette;
   accent: string;
+  highlightedProduct?: string | null;
 }) {
   return (
     <section id="collection" style={{ maxWidth: 1480, margin: "0 auto", padding: "60px 32px" }}>
@@ -299,7 +304,7 @@ export function CollectionGrid({
         }}
       >
         {collectionItems.map((it, i) => (
-          <ProductCard key={i} {...it} palette={palette} accent={accent} />
+          <ProductCard key={it.id || i} {...it} palette={palette} accent={accent} highlighted={highlightedProduct === it.id} />
         ))}
       </div>
     </section>
@@ -307,6 +312,7 @@ export function CollectionGrid({
 }
 
 function ProductCard({
+  id,
   label,
   tone,
   kind,
@@ -315,7 +321,9 @@ function ProductCard({
   price,
   palette,
   accent,
+  highlighted,
 }: {
+  id?: string;
   label: string;
   tone: string;
   kind: "figure" | "product" | "flat";
@@ -324,13 +332,25 @@ function ProductCard({
   price: string;
   palette: Palette;
   accent: string;
+  highlighted?: boolean;
 }) {
   const [hover, setHover] = React.useState(false);
   return (
     <article
+      id={id}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
-      style={{ cursor: "pointer" }}
+      style={{
+        cursor: "pointer",
+        outline: highlighted ? `3px solid ${accent}` : "none",
+        outlineOffset: 6,
+        borderRadius: 16,
+        transform: highlighted ? "scale(1.03)" : "none",
+        transition: "all 0.5s cubic-bezier(0.2, 0.7, 0.3, 1)",
+        boxShadow: highlighted ? `0 0 30px ${accent}44, 0 12px 40px rgba(0,0,0,0.12)` : "none",
+        position: "relative",
+        zIndex: highlighted ? 10 : "auto",
+      }}
     >
       <div
         style={{
