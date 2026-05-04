@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
     }));
 
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash-preview-05-20",
+      model: "gemini-3-flash-preview",
       contents,
       config: {
         systemInstruction: SYSTEM_PROMPT,
