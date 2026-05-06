@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { TYPE, Palette } from "@/lib/design";
 
 /* ── Product Images Map ──────────────────────────────────────────────── */
@@ -360,6 +361,7 @@ function ProductCard({
 }) {
   const [hover, setHover] = React.useState(false);
   return (
+    <Link href={id ? `/product/${id}` : "#"} style={{ textDecoration: "none", color: "inherit" }}>
     <article
       id={id}
       onMouseEnter={() => setHover(true)}
@@ -486,6 +488,7 @@ function ProductCard({
         </div>
       </div>
     </article>
+    </Link>
   );
 }
 
