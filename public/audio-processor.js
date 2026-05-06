@@ -22,9 +22,6 @@ class PCMProcessor extends AudioWorkletProcessor {
     // Send audio level for visualization
     this.port.postMessage({ type: 'level', level: avgEnergy * 5 });
 
-    // Only send if above noise floor (silence gate)
-    if (avgEnergy < 0.003) return true;
-
     // Convert Float32 to Int16 PCM
     const pcm = new Int16Array(channelData.length);
     for (let i = 0; i < channelData.length; i++) {

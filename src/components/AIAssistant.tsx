@@ -97,6 +97,7 @@ export function AIAssistant({ open, onClose, palette, accent, labels, onToolCall
   const audioQueueRef = React.useRef<string[]>([]);
   const isPlayingRef = React.useRef(false);
   const activeSourceRef = React.useRef<AudioBufferSourceNode|null>(null);
+  const pendingAudioStreamRef = React.useRef<MediaStream|null>(null);
   const scrollRef = React.useRef<HTMLDivElement>(null);
   const fileRef = React.useRef<HTMLInputElement>(null);
 
@@ -195,6 +196,11 @@ export function AIAssistant({ open, onClose, palette, accent, labels, onToolCall
       onAudioData: (data) => {
         audioQueueRef.current.push(data);
         playNextAudio();
+        if (pendingAudioStreamRef.current) {
+          const s = pendingAudioStreamRef.current;
+          pendingAudioStreamRef.current = null;
+          setTimeout(() => startMicCapture(s), 1500);
+        }
       },
       onTranscription: (text, isUser) => {
         setMessages(p => [...p.slice(-30), { from: isUser ? "me" : "sholé", text }]);
@@ -207,8 +213,7 @@ export function AIAssistant({ open, onClose, palette, accent, labels, onToolCall
     try {
       await clientRef.current.connect();
       setIsLive(true); setIsConnecting(false);
-      // Start mic capture immediately — no delay
-      await startMicCapture(stream);
+      pendingAudioStreamRef.current = stream;
       clientRef.current.triggerGreeting();
     } catch { stream.getTracks().forEach(t => t.stop()); setIsConnecting(false); }
   };
