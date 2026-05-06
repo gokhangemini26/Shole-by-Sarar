@@ -148,7 +148,7 @@ export class GeminiLiveClient {
   sendText(text: string) {
     if (this.session) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (this.session as any).send([{ text }]);
+      (this.session as any).send(text);
     }
   }
 
@@ -163,7 +163,7 @@ export class GeminiLiveClient {
   triggerGreeting() {
     if (this.session) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (this.session as any).send([{ text: "Başla" }]);
+      (this.session as any).send("Başla");
     }
   }
 
