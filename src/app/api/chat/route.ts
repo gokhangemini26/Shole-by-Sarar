@@ -57,7 +57,7 @@ Always respond in the same language the user writes to you in. If Turkish, respo
 
 export async function POST(request: NextRequest) {
   try {
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY;
     if (!apiKey) {
       return NextResponse.json(
         { error: "Gemini API key not configured. Set GEMINI_API_KEY environment variable." },
