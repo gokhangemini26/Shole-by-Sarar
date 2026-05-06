@@ -158,8 +158,12 @@ export function AIAssistant({ open, onClose, palette, accent, labels, onToolCall
       if (e.data.type === "level") {
         setAudioLevel(e.data.level);
       } else if (e.data.type === "audio") {
-        const pcm = new Uint8Array(e.data.buffer);
-        const b64 = btoa(String.fromCharCode(...pcm));
+        const bytes = new Uint8Array(e.data.buffer);
+        let binary = '';
+        for (let i = 0; i < bytes.byteLength; i++) {
+          binary += String.fromCharCode(bytes[i]);
+        }
+        const b64 = btoa(binary);
         clientRef.current?.sendAudio(b64);
       }
     };
@@ -228,6 +232,15 @@ export function AIAssistant({ open, onClose, palette, accent, labels, onToolCall
       const res = await fetch("/api/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ messages: hist }) });
       const data = await res.json();
       const reply = data.reply || "hmm ◇";
+      
+      if (data.toolCalls && data.toolCalls.length > 0) {
+        const calls = data.toolCalls.map((c: any) => ({
+          name: c.name,
+          args: c.args
+        }));
+        onToolCall(calls);
+      }
+
       setChatHistory(h => [...h, { role: "model", text: reply }]);
       setMessages(m => [...m, { from: "sholé", text: reply }]);
     } catch { setMessages(m => [...m, { from: "sholé", text: "connection lost ◇ — try again?" }]); }

@@ -1,4 +1,4 @@
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI, Type } from "@google/genai";
 import { NextRequest, NextResponse } from "next/server";
 
 /* ─────────────────────────────────────────────────────────────────────
@@ -83,20 +83,32 @@ export async function POST(request: NextRequest) {
       parts: [{ text: m.text }],
     }));
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const TOOLS: any = [{
+      functionDeclarations: [
+        { name: "navigate_to", description: "Scrolls the website to a specific section.", parameters: { type: Type.OBJECT, properties: { section: { type: Type.STRING } }, required: ["section"] } },
+        { name: "navigate_category", description: "Takes the user to a specific category page.", parameters: { type: Type.OBJECT, properties: { category: { type: Type.STRING } }, required: ["category"] } },
+        { name: "show_product", description: "Takes the user directly to the detailed product page.", parameters: { type: Type.OBJECT, properties: { product_id: { type: Type.STRING } }, required: ["product_id"] } },
+        { name: "recommend_outfit", description: "Recommends an outfit.", parameters: { type: Type.OBJECT, properties: { items: { type: Type.STRING } }, required: ["items"] } }
+      ]
+    }];
+
     const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
+      model: "gemini-3.1-flash",
       contents,
       config: {
         systemInstruction: SYSTEM_PROMPT,
         temperature: 0.85,
         topP: 0.92,
         maxOutputTokens: 512,
+        tools: TOOLS,
       },
     });
 
     const reply = response.text || "hmm, i lost my thread there ✦ — could you say that again?";
+    const functionCalls = response.functionCalls || [];
 
-    return NextResponse.json({ reply });
+    return NextResponse.json({ reply, toolCalls: functionCalls });
   } catch (error: unknown) {
     console.error("[SHOLÉ API] Gemini error:", error);
 
