@@ -3,7 +3,9 @@
 class PCMProcessor extends AudioWorkletProcessor {
   constructor() {
     super();
-    this._buffer = new Float32Array(0);
+    this.bufferSize = 4096;
+    this._buffer = new Float32Array(this.bufferSize);
+    this._bytesWritten = 0;
   }
 
   process(inputs) {
@@ -12,28 +14,35 @@ class PCMProcessor extends AudioWorkletProcessor {
 
     const channelData = input[0]; // mono
 
-    // Check energy — skip silence
+    // Check energy — skip silence for UI level, not for data
     let energy = 0;
     for (let i = 0; i < channelData.length; i++) {
       energy += Math.abs(channelData[i]);
     }
     const avgEnergy = energy / channelData.length;
-
-    // Send audio level for visualization
     this.port.postMessage({ type: 'level', level: avgEnergy * 5 });
 
-    // Convert Float32 to Int16 PCM
-    const pcm = new Int16Array(channelData.length);
+    // Append to buffer
     for (let i = 0; i < channelData.length; i++) {
-      const s = Math.max(-1, Math.min(1, channelData[i]));
-      pcm[i] = s * 0x7FFF;
-    }
+      this._buffer[this._bytesWritten++] = channelData[i];
 
-    // Send PCM buffer to main thread
-    this.port.postMessage(
-      { type: 'audio', buffer: pcm.buffer },
-      [pcm.buffer]
-    );
+      if (this._bytesWritten >= this.bufferSize) {
+        // Convert Float32 to Int16 PCM
+        const pcm = new Int16Array(this.bufferSize);
+        for (let j = 0; j < this.bufferSize; j++) {
+          const s = Math.max(-1, Math.min(1, this._buffer[j]));
+          pcm[j] = s * 0x7FFF;
+        }
+
+        // Send PCM buffer to main thread
+        this.port.postMessage(
+          { type: 'audio', buffer: pcm.buffer },
+          [pcm.buffer]
+        );
+
+        this._bytesWritten = 0;
+      }
+    }
 
     return true;
   }
