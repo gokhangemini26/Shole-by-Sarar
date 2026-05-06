@@ -36,9 +36,9 @@ export class GeminiLiveClient {
   async connect() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     this.session = await (this.ai as any).live.connect({
-      model: "models/gemini-3-flash",
+      model: "gemini-2.0-flash-exp",
       config: {
-        responseModalities: ["AUDIO", "TEXT"],
+        responseModalities: [Modality.AUDIO],
         speechConfig: {
           voiceConfig: { prebuiltVoiceConfig: { voiceName: "Zephyr" } },
         },
