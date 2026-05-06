@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { GlobalAssistant } from "@/components/GlobalAssistant";
 
 export const metadata: Metadata = {
   title: "SHOLÉ by SARAR — Modern Atelier",
@@ -43,7 +44,10 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        <GlobalAssistant />
+      </body>
     </html>
   );
 }

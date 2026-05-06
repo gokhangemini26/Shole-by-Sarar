@@ -5,11 +5,8 @@ import { PALETTES } from "@/lib/design";
 import { getLabels, Locale } from "@/lib/i18n";
 import { TopAnnounce, Nav, MarqueeRow, Footer } from "@/components/SiteShell";
 import { Hero, CollectionGrid, PressStrip, AIInvite, StorySplit } from "@/components/Homepage";
-import { AIAssistant, FloatingLauncher } from "@/components/AIAssistant";
-import type { FunctionCall } from "@/lib/gemini-live";
 
 export default function HomePage() {
-  const [aiOpen, setAiOpen] = React.useState(false);
   const [locale, setLocale] = React.useState<Locale>("en");
   const [highlight, setHighlight] = React.useState<string | null>(null);
   const [highlightedProduct, setHighlightedProduct] = React.useState<string | null>(null);
@@ -21,71 +18,6 @@ export default function HomePage() {
   React.useEffect(() => {
     document.documentElement.lang = locale;
   }, [locale]);
-
-  // Handle tool calls from AI
-  const handleToolCall = React.useCallback((calls: FunctionCall[]) => {
-    calls.forEach((call) => {
-      console.log("[SHOLÉ] Tool call:", call.name, call.args);
-
-      if (call.name === "navigate_to") {
-        const section = call.args.section || call.args.page;
-        if (section) {
-          const el = document.getElementById(section);
-          if (el) {
-            el.scrollIntoView({ behavior: "smooth", block: "start" });
-            // Highlight effect
-            setHighlight(section);
-            setTimeout(() => setHighlight(null), 3000);
-          }
-        }
-      }
-
-      if (call.name === "change_language") {
-        const newLocale = (call.args.locale || "en").toLowerCase() as Locale;
-        if (["en", "tr", "de", "it", "zh"].includes(newLocale)) {
-          setLocale(newLocale);
-        }
-      }
-
-      if (call.name === "show_product") {
-        const productId = call.args.product_id;
-        if (productId) {
-          // First scroll to the specific product card
-          const productEl = document.getElementById(productId);
-          if (productEl) {
-            productEl.scrollIntoView({ behavior: "smooth", block: "center" });
-          } else {
-            // Fallback: scroll to collection section
-            const el = document.getElementById("collection");
-            if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-          }
-          // Highlight the specific product
-          setHighlightedProduct(productId);
-          setTimeout(() => setHighlightedProduct(null), 4000);
-        }
-      }
-
-      if (call.name === "recommend_outfit") {
-        // Scroll to collection
-        const el = document.getElementById("collection");
-        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-        // Try to highlight the first mentioned product
-        const items = call.args.items;
-        if (items) {
-          const firstProduct = items.split(",")[0]?.trim().toLowerCase()
-            .replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
-          if (firstProduct) {
-            setHighlightedProduct(firstProduct);
-            setTimeout(() => setHighlightedProduct(null), 4000);
-          }
-        }
-      }
-
-      if (call.name === "start_tryon") {
-        // Already handled in AIAssistant
-      }
-    });
-  }, []);
 
   // Highlight style for sections
   const highlightStyle = (sectionId: string): React.CSSProperties =>
@@ -101,10 +33,10 @@ export default function HomePage() {
   return (
     <div style={{ background: palette.bg, color: palette.ink, minHeight: "100vh" }}>
       <TopAnnounce accent={accent} />
-      <Nav palette={palette} onOpenAI={() => setAiOpen(true)} />
+      <Nav palette={palette} onOpenAI={() => window.dispatchEvent(new CustomEvent("open-ai"))} />
 
       <div className="rise" style={highlightStyle("hero")}>
-        <Hero palette={palette} accent={accent} onOpenAI={() => setAiOpen(true)} />
+        <Hero palette={palette} accent={accent} onOpenAI={() => window.dispatchEvent(new CustomEvent("open-ai"))} />
       </div>
 
       <MarqueeRow
@@ -129,7 +61,7 @@ export default function HomePage() {
       </div>
 
       <div style={highlightStyle("ai-invite")}>
-        <AIInvite palette={palette} accent={accent} onOpenAI={() => setAiOpen(true)} />
+        <AIInvite palette={palette} accent={accent} onOpenAI={() => window.dispatchEvent(new CustomEvent("open-ai"))} />
       </div>
 
       <div style={highlightStyle("story")}>
@@ -137,26 +69,6 @@ export default function HomePage() {
       </div>
 
       <Footer palette={palette} accent={accent} />
-
-      {/* Floating launcher when chat is closed */}
-      {!aiOpen && (
-        <FloatingLauncher
-          palette={palette}
-          accent={accent}
-          onClick={() => setAiOpen(true)}
-          label={labels.askShole}
-        />
-      )}
-
-      {/* AI Assistant */}
-      <AIAssistant
-        open={aiOpen}
-        onClose={() => setAiOpen(false)}
-        palette={palette}
-        accent={accent}
-        labels={labels}
-        onToolCall={handleToolCall}
-      />
     </div>
   );
 }
