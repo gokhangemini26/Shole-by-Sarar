@@ -85,13 +85,14 @@ export function AIAssistant({ open, onClose, palette, accent, labels, onToolCall
   const [chatHistory, setChatHistory] = React.useState<{role:string;text:string}[]>([]);
 
   const clientRef = React.useRef<GeminiLiveClient|null>(null);
-  const audioCtxRef = React.useRef<AudioContext|null>(null);
+  const inputCtxRef = React.useRef<AudioContext|null>(null);
+  const outputCtxRef = React.useRef<AudioContext|null>(null);
   const workletRef = React.useRef<AudioWorkletNode|null>(null);
   const streamRef = React.useRef<MediaStream|null>(null);
   const audioQueueRef = React.useRef<string[]>([]);
   const isPlayingRef = React.useRef(false);
   const activeSourceRef = React.useRef<AudioBufferSourceNode|null>(null);
-  const pendingAudioStreamRef = React.useRef<MediaStream|null>(null);
+  const nextStartTimeRef = React.useRef(0);
   const scrollRef = React.useRef<HTMLDivElement>(null);
   const fileRef = React.useRef<HTMLInputElement>(null);
 
@@ -99,18 +100,30 @@ export function AIAssistant({ open, onClose, palette, accent, labels, onToolCall
   React.useEffect(() => {
     if (!open) { const t = setTimeout(() => { setMessages([{ from: "sholé", text: labels.greeting }]); setChatHistory([]); }, 400); return () => clearTimeout(t); }
   }, [open, labels.greeting]);
-  React.useEffect(() => { return () => { clientRef.current?.close(); streamRef.current?.getTracks().forEach(t => t.stop()); workletRef.current?.disconnect(); }; }, []);
+  React.useEffect(() => { return () => {
+    clientRef.current?.close();
+    streamRef.current?.getTracks().forEach(t => t.stop());
+    workletRef.current?.disconnect();
+    inputCtxRef.current?.close().catch(() => {});
+    outputCtxRef.current?.close().catch(() => {});
+  }; }, []);
 
-  const getAudioCtx = React.useCallback(() => {
-    if (!audioCtxRef.current) audioCtxRef.current = new AudioContext({ sampleRate: 16000 });
-    return audioCtxRef.current;
+  const getInputCtx = React.useCallback(() => {
+    if (!inputCtxRef.current) inputCtxRef.current = new AudioContext({ sampleRate: 16000 });
+    return inputCtxRef.current;
+  }, []);
+
+  const getOutputCtx = React.useCallback(() => {
+    if (!outputCtxRef.current) outputCtxRef.current = new AudioContext({ sampleRate: 24000 });
+    return outputCtxRef.current;
   }, []);
 
   const playNextAudio = React.useCallback(async () => {
     if (audioQueueRef.current.length === 0 || isPlayingRef.current) return;
     isPlayingRef.current = true;
     const b64 = audioQueueRef.current.shift()!;
-    const ctx = getAudioCtx();
+    const ctx = getOutputCtx();
+    if (ctx.state === "suspended") await ctx.resume().catch(() => {});
     const bin = atob(b64);
     const bytes = new Int16Array(bin.length / 2);
     for (let i = 0; i < bin.length; i += 2) bytes[i/2] = (bin.charCodeAt(i+1) << 8) | bin.charCodeAt(i);
@@ -119,15 +132,19 @@ export function AIAssistant({ open, onClose, palette, accent, labels, onToolCall
     const buf = ctx.createBuffer(1, f32.length, 24000);
     buf.getChannelData(0).set(f32);
     const src = ctx.createBufferSource();
-    src.buffer = buf; src.connect(ctx.destination);
+    src.buffer = buf;
+    src.connect(ctx.destination);
     activeSourceRef.current = src;
+    const startAt = Math.max(ctx.currentTime, nextStartTimeRef.current);
+    nextStartTimeRef.current = startAt + buf.duration;
     src.onended = () => { activeSourceRef.current = null; isPlayingRef.current = false; playNextAudio(); };
-    src.start();
-  }, [getAudioCtx]);
+    src.start(startAt);
+  }, [getOutputCtx]);
 
   const stopAudio = React.useCallback(() => {
     try { activeSourceRef.current?.stop(); } catch {}
     activeSourceRef.current = null; isPlayingRef.current = false; audioQueueRef.current = [];
+    nextStartTimeRef.current = 0;
   }, []);
 
   const handleToolCall = React.useCallback((calls: FunctionCall[]) => {
@@ -141,10 +158,9 @@ export function AIAssistant({ open, onClose, palette, accent, labels, onToolCall
 
   const startMicCapture = React.useCallback(async (stream: MediaStream) => {
     streamRef.current = stream;
-    const ctx = getAudioCtx();
+    const ctx = getInputCtx();
     if (ctx.state === "suspended") await ctx.resume();
 
-    // Load AudioWorklet for low-latency processing
     try {
       await ctx.audioWorklet.addModule("/audio-processor.js");
     } catch {
@@ -169,51 +185,75 @@ export function AIAssistant({ open, onClose, palette, accent, labels, onToolCall
     };
 
     source.connect(worklet);
-    worklet.connect(ctx.destination); // Required to keep the worklet alive
+    // Don't connect to destination — would echo the mic. Worklet stays alive
+    // because the MediaStreamSource keeps producing audio.
     workletRef.current = worklet;
-  }, [getAudioCtx]);
+  }, [getInputCtx]);
 
   // Toggle voice
   const toggleVoice = async () => {
-    if (isLive) {
+    if (isLive || isConnecting) {
       clientRef.current?.close(); clientRef.current = null;
       streamRef.current?.getTracks().forEach(t => t.stop()); workletRef.current?.disconnect();
-      setIsLive(false); setAudioLevel(0); stopAudio();
+      setIsLive(false); setIsConnecting(false); setAudioLevel(0); stopAudio();
       return;
     }
     let stream: MediaStream;
-    try { stream = await navigator.mediaDevices.getUserMedia({ audio: true }); } catch { alert("Microphone permission denied"); return; }
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } });
+    } catch (e) {
+      console.error("[SHOLÉ] Microphone error:", e);
+      setMessages(m => [...m, { from: "sholé", text: "i can't hear you ◇ — please allow microphone access and try again." }]);
+      return;
+    }
     setIsConnecting(true);
     const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
-    if (!apiKey) { alert("NEXT_PUBLIC_GEMINI_API_KEY not set"); stream.getTracks().forEach(t => t.stop()); setIsConnecting(false); return; }
+    if (!apiKey) {
+      setMessages(m => [...m, { from: "sholé", text: "voice mode isn't configured ◇ — but you can still chat with me here!" }]);
+      stream.getTracks().forEach(t => t.stop());
+      setIsConnecting(false);
+      return;
+    }
 
     const locale = (document.documentElement.lang || "en");
     clientRef.current = new GeminiLiveClient(apiKey, {
       systemInstruction: getSysInstruction(locale),
       tools: TOOLS,
+      onOpen: () => {
+        // Start mic capture as soon as the socket is open so the user can speak
+        // immediately. Don't wait for the model's first audio response.
+        startMicCapture(stream).catch(err => console.error("[SHOLÉ] Mic start error:", err));
+      },
       onAudioData: (data) => {
         audioQueueRef.current.push(data);
         playNextAudio();
-        if (pendingAudioStreamRef.current) {
-          const s = pendingAudioStreamRef.current;
-          pendingAudioStreamRef.current = null;
-          setTimeout(() => startMicCapture(s), 1500);
-        }
       },
       onTranscription: (text, isUser) => {
         setMessages(p => [...p.slice(-30), { from: isUser ? "me" : "sholé", text }]);
       },
       onToolCall: handleToolCall,
       onInterrupted: () => { audioQueueRef.current = []; stopAudio(); },
-      onClose: () => setIsLive(false),
-      onError: () => {},
+      onClose: () => { setIsLive(false); setIsConnecting(false); },
+      onError: (err) => {
+        console.error("[SHOLÉ] Live error:", err);
+        setMessages(m => [...m, { from: "sholé", text: "voice link dropped ◇ — try again, or keep chatting here." }]);
+      },
     });
     try {
       await clientRef.current.connect();
       setIsLive(true); setIsConnecting(false);
-      pendingAudioStreamRef.current = stream;
-      clientRef.current.triggerGreeting();
-    } catch { stream.getTracks().forEach(t => t.stop()); setIsConnecting(false); }
+      // Prime the model so it greets first.
+      clientRef.current.triggerGreeting(
+        locale === "tr"
+          ? "Müşteriyi sıcak bir şekilde Türkçe selamla ve nasıl yardımcı olabileceğini sor."
+          : "Warmly greet the customer in their language and ask how you can help them today."
+      );
+    } catch (err) {
+      console.error("[SHOLÉ] Connect error:", err);
+      stream.getTracks().forEach(t => t.stop());
+      setIsConnecting(false);
+      setMessages(m => [...m, { from: "sholé", text: "couldn't open voice link ◇ — try once more?" }]);
+    }
   };
 
   // Text send

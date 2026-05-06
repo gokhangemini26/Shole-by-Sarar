@@ -1,9 +1,9 @@
 import { GoogleGenAI, Modality } from "@google/genai";
-import type { LiveServerMessage } from "@google/genai";
+import type { LiveServerMessage, Session } from "@google/genai";
 
 /* ═══════════════════════════════════════════════════════════════════════
    Gemini Live Client — Real-time voice + function calling
-   Adapted from Merit-Web-With-AI for SHOLÉ by SARAR
+   Model: gemini-live-2.5-flash-preview (current GA-track Live model)
    ═══════════════════════════════════════════════════════════════════════ */
 
 export interface GeminiLiveConfig {
@@ -15,17 +15,20 @@ export interface GeminiLiveConfig {
   onInterrupted?: () => void;
   onError?: (error: unknown) => void;
   onClose?: () => void;
+  onOpen?: () => void;
 }
 
 export interface FunctionCall {
   id?: string;
   name: string;
-  args: Record<string, string>;
+  args: Record<string, unknown>;
 }
+
+const LIVE_MODEL = "gemini-live-2.5-flash-preview";
 
 export class GeminiLiveClient {
   private ai: GoogleGenAI;
-  private session: ReturnType<typeof Object.create> | null = null;
+  private session: Session | null = null;
   private config: GeminiLiveConfig;
 
   constructor(apiKey: string, config: GeminiLiveConfig) {
@@ -34,9 +37,8 @@ export class GeminiLiveClient {
   }
 
   async connect() {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    this.session = await (this.ai as any).live.connect({
-      model: "gemini-2.0-flash-exp",
+    this.session = await this.ai.live.connect({
+      model: LIVE_MODEL,
       config: {
         responseModalities: [Modality.AUDIO],
         speechConfig: {
@@ -44,19 +46,20 @@ export class GeminiLiveClient {
         },
         systemInstruction:
           this.config.systemInstruction || "You are a helpful assistant.",
-        tools: this.config.tools || [],
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        tools: (this.config.tools as any) || [],
         outputAudioTranscription: {},
         inputAudioTranscription: {},
       },
       callbacks: {
         onopen: () => {
           console.log("[SHOLÉ Live] Connected");
+          this.config.onOpen?.();
         },
-        onmessage: async (message: LiveServerMessage) => {
+        onmessage: (message: LiveServerMessage) => {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const msg = message as any;
 
-          // 1. Audio data from model turn parts
           if (msg.serverContent?.modelTurn?.parts) {
             for (const part of msg.serverContent.modelTurn.parts) {
               if (part.inlineData?.data) {
@@ -68,46 +71,27 @@ export class GeminiLiveClient {
             }
           }
 
-          // 2. Interruption signal
           if (msg.serverContent?.interrupted) {
             this.config.onInterrupted?.();
           }
 
-          // 3. Output audio transcription (bot speech → text)
           const outTranscript =
-            msg.serverContent?.outputAudioTranscription?.text ||
-            msg.outputAudioTranscription?.text ||
-            msg.serverContent?.outputTranscription?.text;
+            msg.serverContent?.outputTranscription?.text ||
+            msg.serverContent?.outputAudioTranscription?.text;
           if (outTranscript) {
             this.config.onTranscription?.(outTranscript, false);
           }
 
-          // 4. Input audio transcription (user speech → text)
           const inTranscript =
-            msg.serverContent?.inputAudioTranscription?.text ||
-            msg.inputAudioTranscription?.text ||
-            msg.serverContent?.inputTranscription?.text;
+            msg.serverContent?.inputTranscription?.text ||
+            msg.serverContent?.inputAudioTranscription?.text;
           if (inTranscript) {
             this.config.onTranscription?.(inTranscript, true);
           }
 
-          // 5. Tool Calls (Function Calling)
-          if (
-            msg.toolCall ||
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            msg.serverContent?.modelTurn?.parts?.some((p: any) => p.functionCall)
-          ) {
-            const calls =
-              msg.toolCall?.functionCalls ||
-              msg.serverContent?.modelTurn?.parts
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                ?.filter((p: any) => p.functionCall)
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                .map((p: any) => p.functionCall);
-            if (calls && calls.length > 0) {
-              console.log("[SHOLÉ Live] Tool Call:", calls);
-              this.config.onToolCall?.(calls);
-            }
+          if (msg.toolCall?.functionCalls?.length) {
+            console.log("[SHOLÉ Live] Tool Call:", msg.toolCall.functionCalls);
+            this.config.onToolCall?.(msg.toolCall.functionCalls);
           }
         },
         onclose: (event?: { code?: number; reason?: string }) => {
@@ -128,49 +112,44 @@ export class GeminiLiveClient {
   }
 
   sendAudio(base64Data: string) {
-    if (this.session) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (this.session as any).sendRealtimeInput({
-        audio: { data: base64Data, mimeType: "audio/pcm;rate=16000" },
-      });
-    }
+    if (!this.session) return;
+    this.session.sendRealtimeInput({
+      audio: { data: base64Data, mimeType: "audio/pcm;rate=16000" },
+    });
   }
 
   sendVideo(base64Data: string) {
-    if (this.session) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (this.session as any).sendRealtimeInput({
-        video: { data: base64Data, mimeType: "image/jpeg" },
-      });
-    }
+    if (!this.session) return;
+    this.session.sendRealtimeInput({
+      video: { data: base64Data, mimeType: "image/jpeg" },
+    });
   }
 
   sendText(text: string) {
-    if (this.session) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (this.session as any).send(text);
-    }
+    if (!this.session) return;
+    this.session.sendClientContent({
+      turns: [{ role: "user", parts: [{ text }] }],
+      turnComplete: true,
+    });
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   sendToolResponse(functionResponses: any[]) {
-    if (this.session) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (this.session as any).sendToolResponse({ functionResponses });
-    }
+    if (!this.session) return;
+    this.session.sendToolResponse({ functionResponses });
   }
 
-  triggerGreeting() {
-    if (this.session) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (this.session as any).send("Başla");
-    }
+  triggerGreeting(prompt = "Briefly greet the customer and ask how you can help.") {
+    if (!this.session) return;
+    this.session.sendClientContent({
+      turns: [{ role: "user", parts: [{ text: prompt }] }],
+      turnComplete: true,
+    });
   }
 
   close() {
     if (this.session) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (this.session as any).close();
+      this.session.close();
       this.session = null;
     }
   }

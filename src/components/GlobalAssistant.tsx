@@ -28,11 +28,12 @@ export function GlobalAssistant() {
   }, [locale]);
 
   const handleToolCall = React.useCallback((calls: FunctionCall[]) => {
+    const asStr = (v: unknown): string => (typeof v === "string" ? v : "");
     calls.forEach((call) => {
       console.log("[SHOLÉ] Tool call:", call.name, call.args);
 
       if (call.name === "navigate_to") {
-        const section = call.args.section || call.args.page;
+        const section = asStr(call.args.section) || asStr(call.args.page);
         if (section) {
           if (pathname !== "/") {
             router.push("/");
@@ -48,37 +49,33 @@ export function GlobalAssistant() {
       }
 
       if (call.name === "change_language") {
-        const newLocale = (call.args.locale || "en").toLowerCase() as Locale;
+        const newLocale = asStr(call.args.locale).toLowerCase() as Locale;
         if (["en", "tr", "de", "it", "zh"].includes(newLocale)) {
           setLocale(newLocale);
         }
       }
 
       if (call.name === "navigate_category") {
-        const category = call.args.category;
-        if (category) {
-          router.push(`/${category}`);
-        }
+        const category = asStr(call.args.category);
+        if (category) router.push(`/${category}`);
       }
 
       if (call.name === "show_product") {
-        const productId = call.args.product_id;
-        if (productId) {
-          // In Merit, we navigate to the product detail page!
-          router.push(`/product/${productId}`);
-        }
+        const productId = asStr(call.args.product_id);
+        if (productId) router.push(`/product/${productId}`);
       }
 
       if (call.name === "recommend_outfit") {
-        const items = call.args.items;
+        const items = asStr(call.args.items);
         if (items) {
-          const firstProduct = items.split(",")[0]?.trim().toLowerCase()
-            .replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
-          if (firstProduct) {
-            router.push(`/product/${firstProduct}`);
-          } else {
-            router.push("/");
-          }
+          const firstProduct = items
+            .split(",")[0]
+            ?.trim()
+            .toLowerCase()
+            .replace(/\s+/g, "-")
+            .replace(/[^a-z0-9-]/g, "");
+          if (firstProduct) router.push(`/product/${firstProduct}`);
+          else router.push("/");
         }
       }
     });

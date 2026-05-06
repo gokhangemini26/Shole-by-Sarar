@@ -1,13 +1,19 @@
 import { GoogleGenAI, Type } from "@google/genai";
+import type { Tool } from "@google/genai";
 import { NextRequest, NextResponse } from "next/server";
 
 /* ─────────────────────────────────────────────────────────────────────
-   SHOLÉ AI Stylist — Gemini 3.1 Flash API Route
-   
+   SHOLÉ AI Stylist — Gemini text route
    POST /api/chat
    Body: { messages: Array<{ role: "user" | "model"; text: string }> }
-   Returns: { reply: string }
+   Returns: { reply: string, toolCalls?: FunctionCall[] }
    ───────────────────────────────────────────────────────────────────── */
+
+export const runtime = "nodejs";
+export const maxDuration = 30;
+
+// Try models in order; fall back if one is unavailable for the project/key.
+const MODELS = ["gemini-2.5-flash", "gemini-2.0-flash"] as const;
 
 const SYSTEM_PROMPT = `You are SHOLÉ (pronounced "sho-LAY"), the AI fashion stylist and ACTIVE SALES ASSISTANT for SHOLÉ by SARAR — a modern Turkish luxury fashion house founded in 1947 in Istanbul.
 
@@ -19,109 +25,165 @@ YOUR PERSONALITY:
 - Playful and opinionated: "i'd skip the slim trouser here, the wide cut lets the coat breathe"
 
 ACTIVE SALES TECHNIQUES — use naturally, never feel pushy:
-- CROSS-SELL: When user likes an item, always suggest what pairs with it: "the mule completes this look ✦"
-- BUNDLE: Suggest outfit packages: "coat + trouser + tote = your new uniform — and you save on shipping"
-- URGENCY: "this is from a limited chapter — only 12 pieces per drop, once they're gone that's it"
-- CLOSE: Ask closing questions: "shall I add this to your bag?" or "want me to reserve your size?"
-- UPSELL: "if you love the knit, the scarf in the same saffron is stunning at €140"
+- CROSS-SELL: When user likes an item, suggest what pairs with it
+- BUNDLE: Suggest outfit packages
+- URGENCY: "limited chapter — only 12 pieces per drop"
+- CLOSE: "shall I add this to your bag?"
 
-PRODUCT PAIRINGS (always suggest these when relevant):
-- Coat → Trouser + Mule + Tote ("the full atelier look")
-- Shirt → Mini + Mule ("the effortless friday")
-- Knit → Trouser + Scarf ("the colour story")
-- Bomber → Trouser + Tote ("the evening uniform")
+NAVIGATION TOOLS — call them naturally, never mention names:
+- navigate_to(section): scroll homepage to "hero","collection","story","ai-invite","press","footer"
+- navigate_category(category): take user to "women","accessories","shoes","tailoring","journal"
+- show_product(product_id): open the product detail page when discussing a specific piece
+- recommend_outfit(items): suggest a pairing
 
 THE CURRENT COLLECTION (Spring/Summer 2026 — Chapter 01):
-1. The Atelier Coat — terra dye wool, €890 — structured shoulder, cropped sleeve, signature piece
-2. Soft Rules Shirt — cream silk, €340 — relaxed cut, french seam, works tucked or not
-3. Wide Atelier Trouser — sand linen, €420 — high waist, pleated, falls beautifully
-4. Mule No. 4 — espresso leather, €380 — squared toe, hand-stitched, cobblestone-ready
-5. Sun-Up Knit — saffron merino, €290 — ribbed, slight crop, the colour piece
-6. Atelier Tote — camel leather, €540 — unlined, softens with use, fits a laptop
-7. Sun-Up Scarf — saffron silk, €140 — the bright accent piece
-8. Soft Bomber — cream silk, €540 — lightweight, rolled cuff, evening piece
-9. Atelier Mini — espresso wool, €410 — above-knee, darted, works year-round
+1. The Atelier Coat — terra dye wool, €890 — slug: atelier-coat
+2. Soft Rules Shirt — cream silk, €340 — slug: soft-rules-shirt
+3. Wide Atelier Trouser — sand linen, €420 — slug: wide-atelier-trouser
+4. Mule No. 4 — espresso leather, €380 — slug: mule-no-4
+5. Sun-Up Knit — saffron merino, €290 — slug: sun-up-knit
+6. Atelier Tote — camel leather, €540 — slug: atelier-tote
+7. Sun-Up Scarf — saffron silk, €140 — slug: sun-up-scarf
+8. Soft Bomber — cream silk, €540 — slug: soft-bomber
+9. Atelier Mini — espresso wool, €410 — slug: atelier-mini
 
 BRAND CONTEXT:
 - SARAR: coats in Istanbul since 1947, three generations of tailors
-- SHOLÉ: the new face — softer, more playful, same quality
-- Chapter = seasonal drop of ~12 pieces (limited)
-- Free shipping over €200, worldwide
-- Made in Istanbul, natural fabrics (wool, silk, linen, leather)
-- Sizes: XS–XL, true to size
+- Free shipping over €200, worldwide; Made in Istanbul; Sizes XS–XL
 
-WHEN TALKING ABOUT PHOTOS/TRY-ON:
-If the user mentions sending a photo or trying something on, encourage them: "send me a full-body photo and i'll tell you exactly which pieces will work on you ✦ — i love this part"
+Always respond in the same language the user writes to you in.`;
 
-Always respond in the same language the user writes to you in. If Turkish, respond in Turkish. Match naturally.`;
+const TOOLS: Tool[] = [
+  {
+    functionDeclarations: [
+      {
+        name: "navigate_to",
+        description: "Scrolls the homepage to a specific section.",
+        parameters: {
+          type: Type.OBJECT,
+          properties: { section: { type: Type.STRING } },
+          required: ["section"],
+        },
+      },
+      {
+        name: "navigate_category",
+        description:
+          "Take the user to a category page. Use when the customer asks for a category.",
+        parameters: {
+          type: Type.OBJECT,
+          properties: { category: { type: Type.STRING } },
+          required: ["category"],
+        },
+      },
+      {
+        name: "show_product",
+        description:
+          "Open the product detail page. Use whenever the customer asks about a specific item.",
+        parameters: {
+          type: Type.OBJECT,
+          properties: { product_id: { type: Type.STRING } },
+          required: ["product_id"],
+        },
+      },
+      {
+        name: "recommend_outfit",
+        description: "Suggest a complete outfit (comma-separated product names).",
+        parameters: {
+          type: Type.OBJECT,
+          properties: {
+            items: { type: Type.STRING },
+            occasion: { type: Type.STRING },
+          },
+          required: ["items"],
+        },
+      },
+    ],
+  },
+];
 
 export async function POST(request: NextRequest) {
   try {
-    const apiKey = process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+    const apiKey =
+      process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY;
     if (!apiKey) {
+      console.error("[SHOLÉ API] No GEMINI_API_KEY configured");
       return NextResponse.json(
-        { error: "Gemini API key not configured. Set GEMINI_API_KEY environment variable." },
-        { status: 500 }
+        { reply: "i'm not fully wired up yet ◇ — the team is on it." },
+        { status: 200 }
       );
     }
 
-    const body = await request.json();
+    const body = await request.json().catch(() => ({}));
     const messages: Array<{ role: string; text: string }> = body.messages || [];
 
     if (!messages.length) {
-      return NextResponse.json(
-        { error: "No messages provided" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "No messages provided" }, { status: 400 });
     }
 
     const ai = new GoogleGenAI({ apiKey });
 
-    // Build the chat history for Gemini
     const contents = messages.map((m) => ({
       role: m.role === "user" ? ("user" as const) : ("model" as const),
       parts: [{ text: m.text }],
     }));
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const TOOLS: any = [{
-      functionDeclarations: [
-        { name: "navigate_to", description: "Scrolls the website to a specific section.", parameters: { type: Type.OBJECT, properties: { section: { type: Type.STRING } }, required: ["section"] } },
-        { name: "navigate_category", description: "Takes the user to a specific category page.", parameters: { type: Type.OBJECT, properties: { category: { type: Type.STRING } }, required: ["category"] } },
-        { name: "show_product", description: "Takes the user directly to the detailed product page.", parameters: { type: Type.OBJECT, properties: { product_id: { type: Type.STRING } }, required: ["product_id"] } },
-        { name: "recommend_outfit", description: "Recommends an outfit.", parameters: { type: Type.OBJECT, properties: { items: { type: Type.STRING } }, required: ["items"] } }
-      ]
-    }];
+    let lastErr: unknown = null;
+    for (const model of MODELS) {
+      try {
+        const response = await ai.models.generateContent({
+          model,
+          contents,
+          config: {
+            systemInstruction: SYSTEM_PROMPT,
+            temperature: 0.85,
+            topP: 0.92,
+            maxOutputTokens: 512,
+            tools: TOOLS,
+          },
+        });
 
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents,
-      config: {
-        systemInstruction: SYSTEM_PROMPT,
-        temperature: 0.85,
-        topP: 0.92,
-        maxOutputTokens: 512,
-        tools: TOOLS,
-      },
-    });
+        const reply =
+          response.text ||
+          "hmm, i lost my thread there ✦ — could you say that again?";
+        const functionCalls = response.functionCalls || [];
+        return NextResponse.json({ reply, toolCalls: functionCalls });
+      } catch (err) {
+        lastErr = err;
+        const msg = err instanceof Error ? err.message : String(err);
+        console.error(`[SHOLÉ API] ${model} failed:`, msg);
+        // Retry on next model only for transient/availability errors
+        if (
+          /404|NOT_FOUND|UNAVAILABLE|model|not found/i.test(msg) === false &&
+          /429|RESOURCE_EXHAUSTED/i.test(msg) === false
+        ) {
+          break;
+        }
+      }
+    }
 
-    const reply = response.text || "hmm, i lost my thread there ✦ — could you say that again?";
-    const functionCalls = response.functionCalls || [];
+    const errMsg =
+      lastErr instanceof Error ? lastErr.message : String(lastErr ?? "unknown");
+    console.error("[SHOLÉ API] All models failed:", errMsg);
 
-    return NextResponse.json({ reply, toolCalls: functionCalls });
-  } catch (error: unknown) {
-    console.error("[SHOLÉ API] Gemini error:", error);
-
-    // Handle specific Gemini errors
-    const errMsg = error instanceof Error ? error.message : String(error);
-
-    if (errMsg.includes("429") || errMsg.includes("RESOURCE_EXHAUSTED")) {
+    if (/API key|API_KEY_INVALID|PERMISSION_DENIED|UNAUTHENTICATED/i.test(errMsg)) {
+      return NextResponse.json(
+        { reply: "my voice key needs a refresh ◇ — try me again in a sec." },
+        { status: 200 }
+      );
+    }
+    if (/429|RESOURCE_EXHAUSTED/i.test(errMsg)) {
       return NextResponse.json(
         { reply: "i'm getting a lot of love right now ✦ — give me a moment and try again?" },
         { status: 200 }
       );
     }
-
+    return NextResponse.json(
+      { reply: "something went sideways on my end ◇ — try again in a sec?" },
+      { status: 200 }
+    );
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : String(error);
+    console.error("[SHOLÉ API] Unexpected:", msg);
     return NextResponse.json(
       { reply: "something went sideways on my end ◇ — try again in a sec?" },
       { status: 200 }
