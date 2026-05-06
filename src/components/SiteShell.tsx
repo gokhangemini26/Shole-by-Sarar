@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useRouter } from "next/navigation";
 import { TYPE, Palette } from "@/lib/design";
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -187,6 +188,7 @@ export function Nav({
   dark?: boolean;
   onOpenAI: () => void;
 }) {
+  const router = useRouter();
   const [scrolled, setScrolled] = React.useState(false);
   React.useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -233,11 +235,11 @@ export function Nav({
         }}
       >
         <nav className="hide-mobile" style={{ display: "flex", gap: 28 }}>
-          <a style={linkStyle}>Women</a>
-          <a style={linkStyle}>Accessories</a>
-          <a style={linkStyle}>Shoes</a>
-          <a style={linkStyle}>Tailoring</a>
-          <a style={linkStyle}>Journal</a>
+          <a style={linkStyle} onClick={() => router.push("/women")}>Women</a>
+          <a style={linkStyle} onClick={() => router.push("/accessories")}>Accessories</a>
+          <a style={linkStyle} onClick={() => router.push("/shoes")}>Shoes</a>
+          <a style={linkStyle} onClick={() => router.push("/tailoring")}>Tailoring</a>
+          <a style={linkStyle} onClick={() => router.push("/journal")}>Journal</a>
         </nav>
 
         <a

@@ -2,6 +2,8 @@
 import React from "react";
 import { TYPE, Palette } from "@/lib/design";
 import { GeminiLiveClient, FunctionCall } from "@/lib/gemini-live";
+import { PRODUCTS, getAllSlugs } from "@/lib/products";
+import { ARTICLES } from "@/lib/journal";
 import type { Labels } from "@/lib/i18n";
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -12,9 +14,10 @@ import type { Labels } from "@/lib/i18n";
 
 const TOOLS = [{
   functionDeclarations: [
-    { name: "navigate_to", description: "Scrolls the website to a specific section.", parameters: { type: "object", properties: { section: { type: "string", enum: ["hero","collection","story","ai-invite","press","footer"], description: "Target section" } }, required: ["section"] } },
+    { name: "navigate_to", description: "Scrolls the website to a specific section on the homepage.", parameters: { type: "object", properties: { section: { type: "string", enum: ["hero","collection","story","ai-invite","press","footer"], description: "Target section" } }, required: ["section"] } },
+    { name: "navigate_category", description: "Takes the user to a specific category page (Women, Accessories, Shoes, Tailoring, Journal). Use this when they ask to see a type of clothing or articles.", parameters: { type: "object", properties: { category: { type: "string", enum: ["women","accessories","shoes","tailoring","journal"], description: "Target category" } }, required: ["category"] } },
     { name: "change_language", description: "Changes website language.", parameters: { type: "object", properties: { locale: { type: "string", enum: ["en","tr","de","it","zh"], description: "ISO language code" } }, required: ["locale"] } },
-    { name: "show_product", description: "Highlights a product in the collection and tells the customer about it. Use when customer asks about a specific product or wants to see something.", parameters: { type: "object", properties: { product_id: { type: "string", enum: ["atelier-coat","soft-rules-shirt","wide-trouser","mule-no4","sun-up-knit","atelier-tote","sun-up-scarf","soft-bomber","atelier-mini"], description: "Product identifier" } }, required: ["product_id"] } },
+    { name: "show_product", description: "Takes the user directly to the detailed product page and highlights the product. Use this whenever the customer asks about a specific product or wants to see something.", parameters: { type: "object", properties: { product_id: { type: "string", description: "Product identifier slug" } }, required: ["product_id"] } },
     { name: "recommend_outfit", description: "Recommends a complete outfit combination to the customer. Use when suggesting pairings or complete looks.", parameters: { type: "object", properties: { items: { type: "string", description: "Comma-separated product names to recommend as an outfit" }, occasion: { type: "string", description: "What the outfit is for, e.g. dinner, office, weekend" } }, required: ["items"] } },
     { name: "start_tryon", description: "Opens virtual try-on — asks user to upload a photo so AI can suggest how pieces look on them.", parameters: { type: "object", properties: {} } },
   ]
@@ -23,6 +26,9 @@ const TOOLS = [{
 interface ChatMsg { from: "sholé"|"me"; text: string; }
 
 function getSysInstruction(locale: string) {
+  const productList = PRODUCTS.map((p, i) => `${i + 1}. ${p.name} (${p.category}) — ${p.subtitle}, ${p.price}. slug: '${p.slug}'`).join('\n');
+  const journalList = ARTICLES.map((a, i) => `${i + 1}. ${a.title} — ${a.category}`).join('\n');
+
   return `You are SHOLÉ (sho-LAY), the AI fashion stylist for SHOLÉ by SARAR — a modern Turkish luxury house, Istanbul, 1947.
 
 PERSONALITY: Warm, witty, confident. A stylish friend who knows fabric and fit. You are an ACTIVE SALES ASSISTANT.
@@ -30,48 +36,36 @@ PERSONALITY: Warm, witty, confident. A stylish friend who knows fabric and fit. 
 CURRENT LANGUAGE: ${locale.toUpperCase()}. Respond in whatever language the user speaks. If they switch, call change_language.
 
 HOW YOU WORK:
-- You sit in a small chat bubble on the website
-- You can NAVIGATE the website to show the customer specific products and sections
-- When talking about a product, ALWAYS call show_product to scroll the page to it
-- When recommending outfits, call recommend_outfit AND navigate_to("collection")
-- Listen to the customer, understand their needs, then guide them through the site
+- You sit in a small chat bubble on the website, which now spans multiple categories: Women, Accessories, Shoes, Tailoring, and Journal.
+- You can NAVIGATE the website. When a user asks about a category, call navigate_category("women"|"accessories"|"shoes"|"tailoring"|"journal").
+- When talking about a specific product, ALWAYS call show_product(product_id) to take them to the detail page!
+- When recommending outfits, call recommend_outfit.
+- Listen to the customer, understand their needs, then guide them through the site.
 
 ACTIVE SALES:
 - Cross-sell: "the mule completes this look ✦"
 - Bundle: "coat + trouser + tote = your new uniform — and you save on shipping"
 - Urgency: "limited chapter — only 12 pieces per drop"
 - Close: "shall I add this to your bag?"
-- Upsell: "the scarf in the same saffron is stunning at €140"
 
-PRODUCT PAIRINGS:
-- Coat → Trouser + Mule + Tote ("the full atelier look")
-- Shirt → Mini + Mule ("the effortless friday")
-- Knit → Trouser + Scarf ("the colour story")
-- Bomber → Trouser + Tote ("the evening uniform")
+FULL COLLECTION (Spring/Summer 2026):
+${productList}
 
-COLLECTION (Spring/Summer 2026 — Chapter 01):
-1. The Atelier Coat — terra wool, €890
-2. Soft Rules Shirt — cream silk, €340
-3. Wide Atelier Trouser — sand linen, €420
-4. Mule No. 4 — espresso leather, €380
-5. Sun-Up Knit — saffron merino, €290
-6. Atelier Tote — camel leather, €540
-7. Sun-Up Scarf — saffron silk, €140
-8. Soft Bomber — cream silk, €540
-9. Atelier Mini — espresso wool, €410
+JOURNAL ARTICLES:
+${journalList}
 
 CONVERSATION FLOW:
 1. Greet warmly, ask what they're looking for
 2. Listen to their needs (occasion, style, budget)
-3. Show relevant products by calling show_product
+3. Navigate them to the right category (navigate_category) or show a specific product (show_product)
 4. Suggest complete outfits with recommend_outfit
-5. Cross-sell complementary pieces
-6. Ask to close: "want me to add this to your bag?"
+5. Ask to close: "want me to add this to your bag?"
 
 TOOLS — use naturally, never mention function names:
-- navigate_to(section) → scroll to website sections
+- navigate_to(section) → scroll to homepage sections
+- navigate_category(category) → take user to a category page
 - change_language(locale) → switch site language
-- show_product(product_id) → scroll to and highlight a product
+- show_product(product_id) → take user to a product detail page
 - recommend_outfit(items, occasion) → show outfit combination
 - start_tryon() → photo try-on
 

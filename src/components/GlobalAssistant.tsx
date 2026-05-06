@@ -54,6 +54,13 @@ export function GlobalAssistant() {
         }
       }
 
+      if (call.name === "navigate_category") {
+        const category = call.args.category;
+        if (category) {
+          router.push(`/${category}`);
+        }
+      }
+
       if (call.name === "show_product") {
         const productId = call.args.product_id;
         if (productId) {

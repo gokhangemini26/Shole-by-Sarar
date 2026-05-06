@@ -8,6 +8,7 @@ export interface Product {
   subtitle: string;
   price: string;
   tag?: string;
+  category: "women" | "accessories" | "shoes" | "tailoring";
   image: string;
   detailImage: string;
   story: string;
@@ -24,6 +25,7 @@ export const PRODUCTS: Product[] = [
     name: "The Atelier Coat",
     subtitle: "terra dye wool · structured shoulder · cropped sleeve",
     price: "€ 890",
+    category: "tailoring",
     tag: "new",
     image: "/images/products/atelier-coat.png",
     detailImage: "/images/products/atelier-coat-detail.png",
@@ -63,6 +65,7 @@ Every coat is cut from a single bolt to match the grain. Twelve per drop, and wh
     name: "Soft Rules Shirt",
     subtitle: "cream silk · french seam · relaxed cut",
     price: "€ 340",
+    category: "women",
     image: "/images/products/soft-rules-shirt.png",
     detailImage: "/images/products/soft-rules-shirt-detail.png",
     story: `The Soft Rules Shirt breaks every office code worth breaking. Cut from cream silk that was sourced from a family mill in Bursa — one of the oldest silk-producing cities in the world — it falls differently from anything you've worn before.
@@ -100,6 +103,7 @@ We called it "Soft Rules" because that's the dress code it belongs to. Somewhere
     name: "Wide Atelier Trouser",
     subtitle: "sand linen · high waist · pleated",
     price: "€ 420",
+    category: "tailoring",
     image: "/images/products/wide-trouser.png",
     detailImage: "/images/products/wide-trouser-detail.png",
     story: `There's a reason the Wide Atelier Trouser was the first piece the team prototyped. It had to move like you're walking through a bazaar, but look like you just left the gallery.
@@ -138,6 +142,7 @@ This trouser was tested on Istanbul's cobblestones, on overnight flights, and at
     name: "Mule No. 4",
     subtitle: "espresso leather · squared toe · hand-stitched",
     price: "€ 380",
+    category: "shoes",
     tag: "late spring",
     image: "/images/products/mule-no4.png",
     detailImage: "/images/products/mule-no4-detail.png",
@@ -175,6 +180,7 @@ We added a foam-cushioned insole because we believe a shoe can look sharp and fe
     name: "Sun-Up Knit",
     subtitle: "saffron merino · ribbed · slight crop",
     price: "€ 290",
+    category: "women",
     tag: "✦ pick",
     image: "/images/products/sun-up-knit.png",
     detailImage: "/images/products/sun-up-knit-detail.png",
@@ -213,6 +219,7 @@ Wear it with the Wide Trouser and the Sun-Up Scarf for the full colour story, or
     name: "Atelier Tote",
     subtitle: "camel leather · unlined · everyday carry",
     price: "€ 540",
+    category: "accessories",
     image: "/images/products/atelier-tote.png",
     detailImage: "/images/products/atelier-tote-detail.png",
     story: `The Atelier Tote is an argument for simplicity. No hardware, no logos, no internal dividers. Just beautiful leather, cut and stitched by the same Izmir tannery that supplies our Mule No. 4.
@@ -249,6 +256,7 @@ Fits a 14" laptop, a water bottle, and the kind of life where you need everythin
     name: "Sun-Up Scarf",
     subtitle: "saffron silk · the bright accent",
     price: "€ 140",
+    category: "accessories",
     image: "/images/products/sun-up-scarf.png",
     detailImage: "/images/products/sun-up-scarf-detail.png",
     story: `The Sun-Up Scarf is the easiest way to buy into the saffron colour story. Same golden-yellow as the knit, but in Bursa silk — lighter, more luminous, and versatile enough to wear as a neck scarf, a hair tie, or a bag accessory.
@@ -285,6 +293,7 @@ At €140, it's our most accessible piece — and often the first SHOLÉ item pe
     name: "Soft Bomber",
     subtitle: "cream silk · lightweight · rolled cuff",
     price: "€ 540",
+    category: "tailoring",
     tag: "evening",
     image: "/images/products/soft-bomber.png",
     detailImage: "/images/products/soft-bomber-detail.png",
@@ -324,6 +333,7 @@ We think of it as the evening uniform piece. Layer it over the Soft Rules Shirt 
     name: "Atelier Mini",
     subtitle: "espresso wool · above-knee · darted",
     price: "€ 410",
+    category: "tailoring",
     image: "/images/products/atelier-mini.png",
     detailImage: "/images/products/atelier-mini-detail.png",
     story: `The Atelier Mini is the quiet favourite on the design team. The espresso wool matches the Mule No. 4 and creates a tonal leg line that makes everything above the waist pop.
@@ -356,6 +366,300 @@ Pair it with the Soft Rules Shirt and the Mule for what we call "the effortless 
       { slug: "sun-up-knit", name: "Sun-Up Knit" },
     ],
   },
+  // --- WOMEN ---
+  {
+    slug: "silk-slip-dress",
+    name: "Silk Slip Dress",
+    subtitle: "black silk · bias cut · midi length",
+    price: "€ 480",
+    category: "women",
+    image: "", detailImage: "",
+    story: "A masterclass in bias cutting. The Silk Slip Dress molds to the body without clinging, offering a fluid silhouette that works for both evening events and layered daytime looks.",
+    fabric: [{ name: "Silk", percentage: 100 }],
+    details: ["Bias cut", "V-neckline", "Adjustable straps", "Midi length"],
+    care: ["Dry clean only", "Do not hang by straps long term"],
+    sizes: ["XS", "S", "M", "L", "XL"],
+    pairsWith: [{ slug: "atelier-coat", name: "The Atelier Coat" }, { slug: "mule-no4", name: "Mule No. 4" }]
+  },
+  {
+    slug: "draped-silk-blouse",
+    name: "Draped Silk Blouse",
+    subtitle: "ivory silk · high neck · gathered sleeve",
+    price: "€ 360",
+    category: "women",
+    tag: "new",
+    image: "", detailImage: "",
+    story: "The Draped Silk Blouse reimagines the classic button-down with a sculptural high neck and softly gathered sleeves. Cut from fluid ivory silk.",
+    fabric: [{ name: "Silk", percentage: 100 }],
+    details: ["High draped neck", "Gathered cuffs", "Concealed back zip"],
+    care: ["Dry clean only"],
+    sizes: ["XS", "S", "M", "L"],
+    pairsWith: [{ slug: "wide-trouser", name: "Wide Atelier Trouser" }]
+  },
+  {
+    slug: "pleated-midi-skirt",
+    name: "Pleated Midi Skirt",
+    subtitle: "olive wool-blend · sunray pleats",
+    price: "€ 450",
+    category: "women",
+    image: "", detailImage: "",
+    story: "Permanent sunray pleats give this skirt extraordinary movement. The olive wool-blend provides enough weight to hold the shape beautifully.",
+    fabric: [{ name: "Wool", percentage: 60 }, { name: "Polyester", percentage: 40 }],
+    details: ["Sunray pleats", "Concealed side zip", "Midi length"],
+    care: ["Dry clean only", "Store hanging"],
+    sizes: ["XS", "S", "M", "L"],
+    pairsWith: [{ slug: "sun-up-knit", name: "Sun-Up Knit" }]
+  },
+  {
+    slug: "cashmere-wrap-sweater",
+    name: "Cashmere Wrap Sweater",
+    subtitle: "charcoal cashmere · ballet wrap",
+    price: "€ 520",
+    category: "women",
+    image: "", detailImage: "",
+    story: "Inspired by ballet warm-up gear but executed in pure cashmere. The wrap silhouette allows for adjustable fit and styling.",
+    fabric: [{ name: "Cashmere", percentage: 100 }],
+    details: ["Wrap front", "Side tie closure", "Ribbed cuffs"],
+    care: ["Hand wash cold", "Dry flat"],
+    sizes: ["XS", "S", "M", "L", "XL"],
+    pairsWith: [{ slug: "wide-trouser", name: "Wide Atelier Trouser" }]
+  },
+  {
+    slug: "tailored-vest",
+    name: "Tailored Vest",
+    subtitle: "sand linen · tailored fit",
+    price: "€ 280",
+    category: "women",
+    image: "", detailImage: "",
+    story: "The Tailored Vest can be worn as a top or layered over a shirt. Cut from the same Normandy linen as our Wide Trouser.",
+    fabric: [{ name: "Linen", percentage: 100 }],
+    details: ["Five-button front", "Welt pockets", "Adjustable back tab"],
+    care: ["Dry clean or hand wash"],
+    sizes: ["XS", "S", "M", "L"],
+    pairsWith: [{ slug: "wide-trouser", name: "Wide Atelier Trouser" }]
+  },
+
+  // --- ACCESSORIES ---
+  {
+    slug: "leather-belt-no1",
+    name: "Leather Belt No. 1",
+    subtitle: "espresso leather · brass buckle",
+    price: "€ 160",
+    category: "accessories",
+    image: "", detailImage: "",
+    story: "A simple, perfectly proportioned belt. The brass buckle is cast specifically for SHOLÉ and will develop a unique patina over time.",
+    fabric: [{ name: "Leather", percentage: 100 }],
+    details: ["25mm width", "Solid brass buckle", "Hand-burnished edges"],
+    care: ["Condition leather occasionally"],
+    sizes: ["S", "M", "L"],
+    pairsWith: [{ slug: "wide-trouser", name: "Wide Atelier Trouser" }]
+  },
+  {
+    slug: "oversized-sunglasses",
+    name: "Oversized Acetate Sunglasses",
+    subtitle: "tortoiseshell · polarized",
+    price: "€ 280",
+    category: "accessories",
+    image: "", detailImage: "",
+    story: "Handmade in Italy from premium acetate. The oversized square frame offers a cinematic, glamorous silhouette while providing full UV protection.",
+    fabric: [{ name: "Acetate", percentage: 100 }],
+    details: ["Polarized lenses", "Five-barrel hinges", "100% UVA/UVB protection"],
+    care: ["Clean with microfiber cloth"],
+    sizes: ["One Size"],
+    pairsWith: [{ slug: "atelier-coat", name: "The Atelier Coat" }]
+  },
+  {
+    slug: "silk-hair-tie",
+    name: "Silk Hair Tie Set",
+    subtitle: "saffron & black · pure silk",
+    price: "€ 65",
+    category: "accessories",
+    tag: "gift",
+    image: "", detailImage: "",
+    story: "Crafted from offcuts of our Bursa silk to minimize waste. Gentle on hair to prevent breakage.",
+    fabric: [{ name: "Silk", percentage: 100 }],
+    details: ["Set of two", "Internal elastic", "Zero-waste design"],
+    care: ["Hand wash cold"],
+    sizes: ["One Size"],
+    pairsWith: [{ slug: "soft-rules-shirt", name: "Soft Rules Shirt" }]
+  },
+  {
+    slug: "sculptural-cuff",
+    name: "Sculptural Brass Cuff",
+    subtitle: "solid brass · hand-cast",
+    price: "€ 320",
+    category: "accessories",
+    image: "", detailImage: "",
+    story: "A bold, undulating cuff bracelet cast in solid brass. Designed to be the only piece of jewelry you need to wear.",
+    fabric: [{ name: "Brass", percentage: 100 }],
+    details: ["Hand-cast in Istanbul", "Polished finish", "Adjustable fit"],
+    care: ["Polish with brass cleaner when needed"],
+    sizes: ["One Size"],
+    pairsWith: [{ slug: "soft-bomber", name: "Soft Bomber" }]
+  },
+  {
+    slug: "mini-crossbody-bag",
+    name: "Mini Crossbody Bag",
+    subtitle: "camel leather · structured",
+    price: "€ 420",
+    category: "accessories",
+    image: "", detailImage: "",
+    story: "A miniature companion to the Atelier Tote. Fits just the essentials: phone, cardholder, and keys.",
+    fabric: [{ name: "Leather", percentage: 100 }],
+    details: ["Magnetic closure", "Adjustable strap", "Suede lining"],
+    care: ["Condition leather occasionally"],
+    sizes: ["One Size"],
+    pairsWith: [{ slug: "atelier-tote", name: "Atelier Tote" }]
+  },
+
+  // --- SHOES ---
+  {
+    slug: "pointed-flat",
+    name: "Pointed Leather Flat",
+    subtitle: "black leather · slight heel",
+    price: "€ 340",
+    category: "shoes",
+    image: "", detailImage: "",
+    story: "The elegant alternative to the Mule. The pointed toe elongates the leg line, while the slight 15mm heel provides all-day support.",
+    fabric: [{ name: "Leather", percentage: 100 }],
+    details: ["Pointed toe", "15mm stacked heel", "Cushioned insole"],
+    care: ["Use leather conditioner"],
+    sizes: ["36", "37", "38", "39", "40"],
+    pairsWith: [{ slug: "wide-trouser", name: "Wide Atelier Trouser" }]
+  },
+  {
+    slug: "strappy-sandal",
+    name: "Minimalist Strappy Sandal",
+    subtitle: "espresso leather · 50mm heel",
+    price: "€ 390",
+    category: "shoes",
+    tag: "evening",
+    image: "", detailImage: "",
+    story: "Barely-there straps hold the foot securely atop a comfortable 50mm heel. The perfect evening shoe.",
+    fabric: [{ name: "Leather", percentage: 100 }],
+    details: ["Ankle strap", "50mm heel", "Leather sole"],
+    care: ["Wipe clean"],
+    sizes: ["36", "37", "38", "39", "40", "41"],
+    pairsWith: [{ slug: "atelier-mini", name: "Atelier Mini" }]
+  },
+  {
+    slug: "tall-leather-boot",
+    name: "Tall Leather Boot",
+    subtitle: "black leather · riding boot style",
+    price: "€ 680",
+    category: "shoes",
+    image: "", detailImage: "",
+    story: "A classic riding boot silhouette updated with a modern square toe. Hits just below the knee.",
+    fabric: [{ name: "Leather", percentage: 100 }],
+    details: ["Below-knee height", "Inside zip", "Block heel"],
+    care: ["Store with boot trees"],
+    sizes: ["37", "38", "39", "40", "41"],
+    pairsWith: [{ slug: "atelier-mini", name: "Atelier Mini" }]
+  },
+  {
+    slug: "woven-loafer",
+    name: "Woven Loafer",
+    subtitle: "camel leather · hand-woven",
+    price: "€ 460",
+    category: "shoes",
+    image: "", detailImage: "",
+    story: "Intricately hand-woven leather gives this loafer a rich texture and exceptional breathability for warmer months.",
+    fabric: [{ name: "Leather", percentage: 100 }],
+    details: ["Hand-woven upper", "Leather sole", "Slip-on"],
+    care: ["Condition gently"],
+    sizes: ["36", "37", "38", "39", "40"],
+    pairsWith: [{ slug: "wide-trouser", name: "Wide Atelier Trouser" }]
+  },
+  {
+    slug: "chunky-derby",
+    name: "Chunky Sole Derby",
+    subtitle: "black leather · platform",
+    price: "€ 420",
+    category: "shoes",
+    tag: "new",
+    image: "", detailImage: "",
+    story: "A robust take on the classic derby. The lightweight platform sole adds height and edge to tailored looks.",
+    fabric: [{ name: "Leather", percentage: 100 }],
+    details: ["Lace-up", "Lightweight rubber lug sole", "Leather lining"],
+    care: ["Polish regularly"],
+    sizes: ["36", "37", "38", "39", "40", "41"],
+    pairsWith: [{ slug: "wide-trouser", name: "Wide Atelier Trouser" }]
+  },
+
+  // --- TAILORING ---
+  {
+    slug: "double-breasted-blazer",
+    name: "Double-Breasted Blazer",
+    subtitle: "navy wool · sharp shoulder",
+    price: "€ 720",
+    category: "tailoring",
+    image: "", detailImage: "",
+    story: "The cornerstone of any tailored wardrobe. Strong shoulders, a nipped waist, and six horn buttons define this classic blazer.",
+    fabric: [{ name: "Wool", percentage: 100 }],
+    details: ["Double-breasted", "Peak lapel", "Fully lined"],
+    care: ["Dry clean only"],
+    sizes: ["XS", "S", "M", "L"],
+    pairsWith: [{ slug: "wide-trouser", name: "Wide Atelier Trouser" }]
+  },
+  {
+    slug: "pleated-trousers-navy",
+    name: "Pleated Trousers",
+    subtitle: "navy wool · matching blazer",
+    price: "€ 440",
+    category: "tailoring",
+    image: "", detailImage: "",
+    story: "Designed to pair perfectly with the Double-Breasted Blazer for a complete suit, or worn separately for an elevated everyday look.",
+    fabric: [{ name: "Wool", percentage: 100 }],
+    details: ["Single pleat", "Straight leg", "Belt loops"],
+    care: ["Dry clean only"],
+    sizes: ["XS", "S", "M", "L", "XL"],
+    pairsWith: [{ slug: "double-breasted-blazer", name: "Double-Breasted Blazer" }]
+  },
+  {
+    slug: "silk-tuxedo-jacket",
+    name: "Silk Tuxedo Jacket",
+    subtitle: "black silk · satin lapel",
+    price: "€ 850",
+    category: "tailoring",
+    tag: "evening",
+    image: "", detailImage: "",
+    story: "Evening tailoring at its finest. The contrast between the matte silk body and the glossy satin lapel creates a striking visual.",
+    fabric: [{ name: "Silk", percentage: 100 }],
+    details: ["Satin shawl lapel", "Single button closure", "Jet pockets"],
+    care: ["Dry clean only"],
+    sizes: ["XS", "S", "M", "L"],
+    pairsWith: [{ slug: "silk-slip-dress", name: "Silk Slip Dress" }]
+  },
+  {
+    slug: "wool-pencil-skirt",
+    name: "Tailored Pencil Skirt",
+    subtitle: "charcoal wool · back slit",
+    price: "€ 360",
+    category: "tailoring",
+    image: "", detailImage: "",
+    story: "A masterclass in fit. This pencil skirt is engineered to contour the body while allowing comfortable movement via a deep back slit.",
+    fabric: [{ name: "Wool", percentage: 95 }, { name: "Elastane", percentage: 5 }],
+    details: ["Knee length", "Back walking slit", "Concealed zip"],
+    care: ["Dry clean only"],
+    sizes: ["XS", "S", "M", "L"],
+    pairsWith: [{ slug: "soft-rules-shirt", name: "Soft Rules Shirt" }]
+  },
+  {
+    slug: "trench-coat-reimagined",
+    name: "The Reimagined Trench",
+    subtitle: "sand cotton-gabardine · oversized",
+    price: "€ 940",
+    category: "tailoring",
+    tag: "bestseller",
+    image: "", detailImage: "",
+    story: "We took the traditional trench and exaggerated the proportions. The dramatic sweep of the coat provides both shelter and style.",
+    fabric: [{ name: "Cotton", percentage: 100 }],
+    details: ["Oversized fit", "Storm flap", "Belted waist"],
+    care: ["Dry clean only"],
+    sizes: ["S", "M", "L"],
+    pairsWith: [{ slug: "wide-trouser", name: "Wide Atelier Trouser" }]
+  }
+
 ];
 
 export function getProduct(slug: string): Product | undefined {
@@ -365,3 +669,4 @@ export function getProduct(slug: string): Product | undefined {
 export function getAllSlugs(): string[] {
   return PRODUCTS.map((p) => p.slug);
 }
+
