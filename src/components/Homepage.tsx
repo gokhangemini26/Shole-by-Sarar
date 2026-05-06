@@ -2,7 +2,36 @@
 
 import React from "react";
 import { TYPE, Palette } from "@/lib/design";
-import { Placeholder } from "./SiteShell";
+
+/* ── Product Images Map ──────────────────────────────────────────────── */
+const PRODUCT_IMAGES: Record<string, string> = {
+  "hero-coat": "/images/products/hero-coat.png",
+  "atelier-coat": "/images/products/atelier-coat.png",
+  "soft-rules-shirt": "/images/products/soft-rules-shirt.png",
+  "wide-trouser": "/images/products/wide-trouser.png",
+  "mule-no4": "/images/products/mule-no4.png",
+  "sun-up-knit": "/images/products/sun-up-knit.png",
+  "atelier-tote": "/images/products/atelier-tote.png",
+  "sun-up-scarf": "/images/products/sun-up-scarf.png",
+  "soft-bomber": "/images/products/soft-bomber.png",
+  "atelier-mini": "/images/products/atelier-mini.png",
+  "story-atelier": "/images/products/story-atelier.png",
+};
+
+function ProductImage({ src, alt, ratio = "3 / 4", style = {} }: {
+  src: string; alt: string; ratio?: string; style?: React.CSSProperties;
+}) {
+  return (
+    <div style={{ position: "relative", aspectRatio: ratio, width: "100%", overflow: "hidden", borderRadius: 12, background: "#E8DFCF", ...style }}>
+      <img
+        src={src}
+        alt={alt}
+        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+        loading="lazy"
+      />
+    </div>
+  );
+}
 
 /* ═══════════════════════════════════════════════════════════════════════
    Homepage Sections: Hero, CollectionGrid, StorySplit, AIInvite, PressStrip
@@ -154,11 +183,10 @@ export function Hero({
       </div>
 
       <div style={{ position: "relative" }}>
-        <Placeholder
-          label="hero — wool coat, terra dye"
-          tone="camel"
+        <ProductImage
+          src={PRODUCT_IMAGES["hero-coat"]}
+          alt="SHOLÉ — The Atelier Coat in terra dye wool"
           ratio="3 / 4"
-          kind="figure"
         />
         <div
           style={{
@@ -214,15 +242,15 @@ export function Hero({
 
 /* ── Collection Grid ─────────────────────────────────────────────────── */
 const collectionItems = [
-  { id: "atelier-coat", label: "wool coat — terra", tone: "camel", kind: "figure" as const, tag: "new", name: "The Atelier Coat", price: "€ 890" },
-  { id: "soft-rules-shirt", label: "silk shirt — cream", tone: "cream", kind: "figure" as const, name: "Soft Rules Shirt", price: "€ 340" },
-  { id: "wide-trouser", label: "tailored trouser", tone: "sand", kind: "figure" as const, name: "Wide Atelier Trouser", price: "€ 420" },
-  { id: "mule-no4", label: "leather mule", tone: "espresso", kind: "product" as const, tag: "late spring", name: "Mule No. 4", price: "€ 380" },
-  { id: "sun-up-knit", label: "knit dress — saffron", tone: "saffron", kind: "figure" as const, tag: "✦ pick", name: "Sun-Up Knit", price: "€ 290" },
-  { id: "atelier-tote", label: "leather tote", tone: "camel", kind: "product" as const, name: "Atelier Tote", price: "€ 540" },
-  { id: "sun-up-scarf", label: "silk scarf — saffron", tone: "saffron", kind: "product" as const, name: "Sun-Up Scarf", price: "€ 140" },
-  { id: "soft-bomber", label: "silk bomber — cream", tone: "cream", kind: "figure" as const, tag: "evening", name: "Soft Bomber", price: "€ 540" },
-  { id: "atelier-mini", label: "wool mini — espresso", tone: "espresso", kind: "figure" as const, name: "Atelier Mini", price: "€ 410" },
+  { id: "atelier-coat", label: "wool coat — terra", tag: "new", name: "The Atelier Coat", price: "€ 890" },
+  { id: "soft-rules-shirt", label: "silk shirt — cream", name: "Soft Rules Shirt", price: "€ 340" },
+  { id: "wide-trouser", label: "tailored trouser", name: "Wide Atelier Trouser", price: "€ 420" },
+  { id: "mule-no4", label: "leather mule", tag: "late spring", name: "Mule No. 4", price: "€ 380" },
+  { id: "sun-up-knit", label: "knit dress — saffron", tag: "✦ pick", name: "Sun-Up Knit", price: "€ 290" },
+  { id: "atelier-tote", label: "leather tote", name: "Atelier Tote", price: "€ 540" },
+  { id: "sun-up-scarf", label: "silk scarf — saffron", name: "Sun-Up Scarf", price: "€ 140" },
+  { id: "soft-bomber", label: "silk bomber — cream", tag: "evening", name: "Soft Bomber", price: "€ 540" },
+  { id: "atelier-mini", label: "wool mini — espresso", name: "Atelier Mini", price: "€ 410" },
 ];
 
 export function CollectionGrid({
@@ -314,8 +342,6 @@ export function CollectionGrid({
 function ProductCard({
   id,
   label,
-  tone,
-  kind,
   tag,
   name,
   price,
@@ -325,8 +351,6 @@ function ProductCard({
 }: {
   id?: string;
   label: string;
-  tone: string;
-  kind: "figure" | "product" | "flat";
   tag?: string;
   name: string;
   price: string;
@@ -360,7 +384,11 @@ function ProductCard({
           transition: "transform 0.4s cubic-bezier(0.2, 0.7, 0.3, 1)",
         }}
       >
-        <Placeholder label={label} tone={tone} ratio="3 / 4" kind={kind} />
+        <ProductImage
+          src={id ? PRODUCT_IMAGES[id] || "/images/products/atelier-coat.png" : "/images/products/atelier-coat.png"}
+          alt={`SHOLÉ — ${name}`}
+          ratio="3 / 4"
+        />
         {tag && (
           <div
             style={{
@@ -482,11 +510,10 @@ export function StorySplit({
         alignItems: "center",
       }}
     >
-      <Placeholder
-        label="atelier — istanbul, no. 4"
-        tone="espresso"
+      <ProductImage
+        src={PRODUCT_IMAGES["story-atelier"]}
+        alt="SHOLÉ atelier workshop — Istanbul"
         ratio="4 / 5"
-        kind="flat"
       />
       <div>
         <div
@@ -832,13 +859,12 @@ function ChatPreview({ palette, accent }: { palette: Palette; accent: string }) 
           slightly off-duty:
         </Bubble>
         <div style={{ display: "flex", gap: 10, paddingLeft: 8 }}>
-          {(["saffron", "sand", "espresso"] as const).map((t, i) => (
-            <div key={t} style={{ width: 86 }}>
-              <Placeholder
-                label={`pick ${i + 1}`}
-                tone={t}
+          {(["sun-up-knit", "wide-trouser", "atelier-mini"] as const).map((pid) => (
+            <div key={pid} style={{ width: 86 }}>
+              <ProductImage
+                src={PRODUCT_IMAGES[pid]}
+                alt={pid}
                 ratio="3 / 4"
-                kind="figure"
               />
             </div>
           ))}
