@@ -29,9 +29,9 @@ export async function POST(req: Request) {
       Drive sales with elegant fashion advice. Highlight SARAR's 1947 heritage. Keep responses concise.
     `;
 
-    // Using gemini-1.5-flash-latest which is highly stable and available
+    // Using Gemini 3.1 Flash - The latest model from your list
     const response = await ai.models.generateContent({
-      model: "gemini-1.5-flash-latest",
+      model: "gemini-3.1-flash",
       contents: contents,
       config: {
         systemInstruction: {
@@ -50,6 +50,26 @@ export async function POST(req: Request) {
     return NextResponse.json({ reply: response.text });
   } catch (error: any) {
     console.error("Gemini API Route Error:", error.message || error);
+    
+    // Fallback if 3.1-flash is not yet available in the region/project
+    if (error.message?.includes("not found")) {
+       try {
+          const ai = new GoogleGenAI({ apiKey: apiKey! });
+          const response = await ai.models.generateContent({
+            model: "gemini-1.5-flash-latest",
+            contents: messages.map((m: any) => ({
+              role: m.role === "user" ? "user" : "model",
+              parts: [{ text: m.content || m.text }],
+            })),
+            config: {
+               temperature: 0.7,
+            }
+          });
+          return NextResponse.json({ reply: response.text });
+       } catch (e2: any) {
+          return NextResponse.json({ error: `Model fallback failed: ${e2.message}` }, { status: 500 });
+       }
+    }
     return NextResponse.json({ error: `Gemini Error: ${error.message || "Unknown error"}` }, { status: 500 });
   }
 }

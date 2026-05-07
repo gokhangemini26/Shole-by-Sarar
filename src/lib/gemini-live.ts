@@ -31,8 +31,9 @@ export class GeminiLiveClient {
   async connect() {
     this.isClosing = false;
     try {
+      // Using Gemini 3 Flash Live from your model list
       this.session = await this.ai.live.connect({
-        model: "gemini-2.0-flash-exp",
+        model: "gemini-3-flash-live",
         config: {
           systemInstruction: {
             role: "system",
@@ -56,21 +57,17 @@ export class GeminiLiveClient {
   private async listenToMessages() {
     try {
       while (!this.isClosing) {
-        // Use receive() method instead of iterator
         const message = await this.session.receive();
         if (!message || this.isClosing) break;
 
-        // Setup complete
         if (message.setupComplete) {
           console.log("Live Session Ready");
         }
 
-        // Transcription (User)
         if (message.serverContent?.transcription) {
           this.config.onTranscription?.(message.serverContent.transcription, true);
         }
 
-        // Model Output (Audio / Transcription)
         if (message.serverContent?.modelTurn?.parts) {
           for (const part of message.serverContent.modelTurn.parts) {
             if (part.inlineData?.data) {
@@ -82,7 +79,6 @@ export class GeminiLiveClient {
           }
         }
 
-        // Tool Calls
         if (message.serverContent?.modelTurn?.parts?.[0]?.functionCall) {
           const calls = message.serverContent.modelTurn.parts
             .filter((p: any) => p.functionCall)
@@ -93,8 +89,6 @@ export class GeminiLiveClient {
     } catch (err: any) {
       if (!this.isClosing) {
         console.error("Message loop error:", err);
-        // If it's a "receive is not a function" error, we might need another approach
-        // but based on SDK v1.51+, receive() is the correct way.
         this.config.onError?.(err);
       }
     } finally {
