@@ -23,7 +23,6 @@ export function AIAssistant({ open, onClose }: { open: boolean; onClose: () => v
   const workletRef = useRef<AudioWorkletNode | null>(null);
   const chatScrollRef = useRef<HTMLDivElement>(null);
 
-  // Audio queue for playback
   const audioQueueRef = useRef<string[]>([]);
   const isPlayingRef = useRef(false);
   const activeSourceRef = useRef<AudioBufferSourceNode | null>(null);
@@ -33,6 +32,10 @@ export function AIAssistant({ open, onClose }: { open: boolean; onClose: () => v
       chatScrollRef.current.scrollTop = chatScrollRef.current.scrollHeight;
     }
   }, [messages]);
+
+  const addErrorMessage = (text: string) => {
+    setMessages(prev => [...prev, { role: "model", content: `Error: ${text}` }]);
+  };
 
   const getAudioCtx = useCallback(() => {
     if (!audioCtxRef.current) {
@@ -44,28 +47,33 @@ export function AIAssistant({ open, onClose }: { open: boolean; onClose: () => v
   async function playNextAudio() {
     if (audioQueueRef.current.length === 0 || isPlayingRef.current) return;
     isPlayingRef.current = true;
-    const b64 = audioQueueRef.current.shift()!;
-    const ctx = getAudioCtx();
-    if (ctx.state === "suspended") await ctx.resume();
-    
-    const bin = atob(b64);
-    const bytes = new Int16Array(bin.length / 2);
-    for (let i = 0; i < bin.length; i += 2) bytes[i / 2] = (bin.charCodeAt(i + 1) << 8) | bin.charCodeAt(i);
-    const f32 = new Float32Array(bytes.length);
-    for (let i = 0; i < bytes.length; i++) f32[i] = bytes[i] / 32768.0;
-    
-    const buf = ctx.createBuffer(1, f32.length, 24000);
-    buf.getChannelData(0).set(f32);
-    const src = ctx.createBufferSource();
-    src.buffer = buf;
-    src.connect(ctx.destination);
-    activeSourceRef.current = src;
-    src.onended = () => {
-      activeSourceRef.current = null;
+    try {
+      const b64 = audioQueueRef.current.shift()!;
+      const ctx = getAudioCtx();
+      if (ctx.state === "suspended") await ctx.resume();
+      
+      const bin = atob(b64);
+      const bytes = new Int16Array(bin.length / 2);
+      for (let i = 0; i < bin.length; i += 2) bytes[i / 2] = (bin.charCodeAt(i + 1) << 8) | bin.charCodeAt(i);
+      const f32 = new Float32Array(bytes.length);
+      for (let i = 0; i < bytes.length; i++) f32[i] = bytes[i] / 32768.0;
+      
+      const buf = ctx.createBuffer(1, f32.length, 24000);
+      buf.getChannelData(0).set(f32);
+      const src = ctx.createBufferSource();
+      src.buffer = buf;
+      src.connect(ctx.destination);
+      activeSourceRef.current = src;
+      src.onended = () => {
+        activeSourceRef.current = null;
+        isPlayingRef.current = false;
+        playNextAudio();
+      };
+      src.start();
+    } catch (e) {
+      console.error("Playback error:", e);
       isPlayingRef.current = false;
-      playNextAudio();
-    };
-    src.start();
+    }
   }
 
   const startMicCapture = async (stream: MediaStream) => {
@@ -88,8 +96,8 @@ export function AIAssistant({ open, onClose }: { open: boolean; onClose: () => v
       
       source.connect(worklet);
       workletRef.current = worklet;
-    } catch (e) {
-      console.error("Worklet error:", e);
+    } catch (e: any) {
+      addErrorMessage(`Microphone processing failed: ${e.message}`);
     }
   };
 
@@ -105,10 +113,14 @@ export function AIAssistant({ open, onClose }: { open: boolean; onClose: () => v
 
     setIsConnecting(true);
     try {
+      const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+      if (!apiKey || apiKey === "your_gemini_api_key_here") {
+        throw new Error("Client API Key is missing. Please check your .env.local or Vercel settings.");
+      }
+
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
       
-      const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY || "";
       clientRef.current = new GeminiLiveClient(apiKey, {
         systemInstruction: "You are SHOLÉ, a luxury fashion stylist. Speak warmly and helpfully.",
         onAudioData: (data) => {
@@ -118,7 +130,7 @@ export function AIAssistant({ open, onClose }: { open: boolean; onClose: () => v
         onTranscription: (text, isUser) => {
           setMessages(prev => [...prev, { role: isUser ? "user" : "model", content: text }]);
         },
-        onError: (err) => console.error("Live Error:", err),
+        onError: (err: any) => addErrorMessage(`Live API Error: ${err.message || "Unknown error"}`),
         onClose: () => setIsLive(false)
       });
 
@@ -126,8 +138,9 @@ export function AIAssistant({ open, onClose }: { open: boolean; onClose: () => v
       startMicCapture(stream);
       setIsLive(true);
       setIsConnecting(false);
-    } catch (e) {
+    } catch (e: any) {
       console.error("Voice failed:", e);
+      addErrorMessage(e.message || "Failed to start voice assistant.");
       setIsConnecting(false);
     }
   };
@@ -145,10 +158,18 @@ export function AIAssistant({ open, onClose }: { open: boolean; onClose: () => v
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages: newMessages }),
       });
+      
       const data = await response.json();
-      if (data.reply) setMessages(prev => [...prev, { role: "model", content: data.reply }]);
-    } catch (error) {
+      if (!response.ok) throw new Error(data.error || "Server responded with an error.");
+      
+      if (data.reply) {
+        setMessages(prev => [...prev, { role: "model", content: data.reply }]);
+      } else {
+        throw new Error("Received empty reply from AI.");
+      }
+    } catch (error: any) {
       console.error("Chat error:", error);
+      addErrorMessage(error.message || "Failed to get reply from AI.");
     } finally {
       setIsLoading(false);
     }
@@ -171,7 +192,9 @@ export function AIAssistant({ open, onClose }: { open: boolean; onClose: () => v
           </div>
           <div>
             <h3 className="font-semibold text-gray-900 text-sm">Personal Shopper</h3>
-            <p className="text-xs text-gray-500">{isLive ? "Listening..." : "Ready to assist"}</p>
+            <p className="text-xs text-gray-500">
+              {isConnecting ? "Connecting..." : isLive ? "Listening..." : "Ready to assist"}
+            </p>
           </div>
         </div>
         <button onClick={onClose} className="p-2 hover:bg-gray-200 rounded-full text-gray-400">
@@ -183,11 +206,20 @@ export function AIAssistant({ open, onClose }: { open: boolean; onClose: () => v
       <div className="flex-1 overflow-hidden flex flex-col bg-gray-50">
         <div ref={chatScrollRef} className="flex-1 overflow-y-auto p-6 space-y-4">
           {messages.map((m, i) => (
-            <div key={i} className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm ${m.role === "user" ? "bg-black text-white ml-auto" : "bg-white border shadow-sm"}`}>
+            <div key={i} className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm ${
+              m.role === "user" ? "bg-black text-white ml-auto" : 
+              m.content.startsWith("Error:") ? "bg-red-50 text-red-600 border border-red-100" : "bg-white border shadow-sm"
+            }`}>
               {m.content}
             </div>
           ))}
-          {isLoading && <div className="text-xs text-gray-400 animate-pulse">SHOLÉ is thinking...</div>}
+          {isLoading && (
+            <div className="flex gap-1 p-2 items-center text-gray-400">
+              <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:-0.3s]" />
+              <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:-0.15s]" />
+              <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" />
+            </div>
+          )}
         </div>
       </div>
 
@@ -196,7 +228,11 @@ export function AIAssistant({ open, onClose }: { open: boolean; onClose: () => v
         <div className="flex items-center gap-3">
           <button
             onClick={toggleVoice}
-            className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${isLive ? "bg-red-500 text-white" : "bg-black text-white"}`}
+            disabled={isConnecting}
+            className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${
+              isConnecting ? "bg-gray-200 text-gray-400" : 
+              isLive ? "bg-red-500 text-white" : "bg-black text-white"
+            }`}
           >
             {isLive ? <MicOff size={20} /> : <Mic size={20} />}
           </button>
@@ -209,9 +245,9 @@ export function AIAssistant({ open, onClose }: { open: boolean; onClose: () => v
               onKeyDown={(e) => e.key === "Enter" && sendMessage()}
               placeholder="Type a message..."
               className="flex-1 bg-transparent border-none focus:ring-0 text-sm py-1"
-              disabled={isLoading}
+              disabled={isLoading || isConnecting}
             />
-            <button onClick={sendMessage} disabled={isLoading || !input.trim()} className="text-black">
+            <button onClick={sendMessage} disabled={isLoading || isConnecting || !input.trim()} className="text-black">
               <Send size={18} />
             </button>
           </div>
@@ -222,7 +258,7 @@ export function AIAssistant({ open, onClose }: { open: boolean; onClose: () => v
             {Array.from({ length: 20 }).map((_, i) => (
               <motion.div
                 key={i}
-                animate={{ height: Math.max(4, audioLevel * 20 * (1 + Math.sin(i))) }}
+                animate={{ height: Math.max(4, audioLevel * 30 * (1 + Math.sin(i * 0.5))) }}
                 className="flex-1 bg-black rounded-full opacity-40"
               />
             ))}
