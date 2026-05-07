@@ -1,27 +1,18 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mic, MicOff, X, ShoppingBag, ShoppingCart, ArrowRight } from "lucide-react";
-import { GeminiLiveClient, FunctionCall } from "@/lib/gemini-live";
-import { db, Product } from "@/lib/mock-db";
+import { X, ShoppingBag, ShoppingCart, Send } from "lucide-react";
+import { Product } from "@/lib/mock-db";
 
 export function AIAssistant({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const [isLive, setIsLive] = useState(false);
-  const [isConnecting, setIsConnecting] = useState(false);
-  const [audioLevel, setAudioLevel] = useState(0);
-  const [displayedProducts, setDisplayedProducts] = useState<Product[]>([]);
-  const [messages, setMessages] = useState<{ role: string; text: string }[]>([]);
-
-  const clientRef = useRef<GeminiLiveClient | null>(null);
-  const inputCtxRef = useRef<AudioContext | null>(null);
-  const outputCtxRef = useRef<AudioContext | null>(null);
-  const workletRef = useRef<AudioWorkletNode | null>(null);
-  const streamRef = useRef<MediaStream | null>(null);
-  const audioQueueRef = useRef<string[]>([]);
-  const isPlayingRef = useRef(false);
-  const activeSourceRef = useRef<AudioBufferSourceNode | null>(null);
-  const nextStartTimeRef = useRef(0);
+  const [messages, setMessages] = useState([
+    { role: "model", content: "Welcome to SHOLÉ by SARAR. How may I style you today?" }
+  ]);
+  const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [displayedProducts] = useState<Product[]>([]);
+  
   const chatScrollRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll chat
@@ -31,208 +22,33 @@ export function AIAssistant({ open, onClose }: { open: boolean; onClose: () => v
     }
   }, [messages]);
 
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      clientRef.current?.close();
-      streamRef.current?.getTracks().forEach((t) => t.stop());
-      workletRef.current?.disconnect();
-      inputCtxRef.current?.close().catch(() => {});
-      outputCtxRef.current?.close().catch(() => {});
-    };
-  }, []);
+  const sendMessage = async () => {
+    if (!input.trim() || isLoading) return;
 
-  const getInputCtx = useCallback(() => {
-    if (!inputCtxRef.current) inputCtxRef.current = new AudioContext({ sampleRate: 16000 });
-    return inputCtxRef.current;
-  }, []);
-
-  const getOutputCtx = useCallback(() => {
-    if (!outputCtxRef.current) outputCtxRef.current = new AudioContext({ sampleRate: 24000 });
-    return outputCtxRef.current;
-  }, []);
-
-  async function playNextAudio() {
-    if (audioQueueRef.current.length === 0 || isPlayingRef.current) return;
-    isPlayingRef.current = true;
-    const b64 = audioQueueRef.current.shift()!;
-    const ctx = getOutputCtx();
-    if (ctx.state === "suspended") await ctx.resume().catch(() => {});
-    const bin = atob(b64);
-    const bytes = new Int16Array(bin.length / 2);
-    for (let i = 0; i < bin.length; i += 2) bytes[i / 2] = (bin.charCodeAt(i + 1) << 8) | bin.charCodeAt(i);
-    const f32 = new Float32Array(bytes.length);
-    for (let i = 0; i < bytes.length; i++) f32[i] = bytes[i] / 32768.0;
-    const buf = ctx.createBuffer(1, f32.length, 24000);
-    buf.getChannelData(0).set(f32);
-    const src = ctx.createBufferSource();
-    src.buffer = buf;
-    src.connect(ctx.destination);
-    activeSourceRef.current = src;
-    const startAt = Math.max(ctx.currentTime, nextStartTimeRef.current);
-    nextStartTimeRef.current = startAt + buf.duration;
-    src.onended = () => {
-      activeSourceRef.current = null;
-      isPlayingRef.current = false;
-      playNextAudio();
-    };
-    src.start(startAt);
-  }
-
-  const stopAudio = useCallback(() => {
-    try { activeSourceRef.current?.stop(); } catch {}
-    activeSourceRef.current = null;
-    isPlayingRef.current = false;
-    audioQueueRef.current = [];
-    nextStartTimeRef.current = 0;
-  }, []);
-
-  const handleToolCall = useCallback((calls: FunctionCall[]) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const responses: any[] = [];
-
-    calls.forEach((call) => {
-      let resultData: unknown = { success: true };
-
-      if (call.name === "search_products") {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const { query, category, price_range } = call.args as any;
-        const results = db.searchProducts(query, category, price_range);
-        setDisplayedProducts(results);
-        resultData = { found: results.length, products: results.map(p => ({ id: p.id, name: p.name, price: p.price })) };
-      } 
-      else if (call.name === "get_product_details") {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const { product_id } = call.args as any;
-        const details = db.getProductDetails(product_id);
-        if (details) setDisplayedProducts([details]);
-        resultData = details || { error: "Product not found" };
-      }
-      else if (call.name === "suggest_style_combo") {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const { base_product_id } = call.args as any;
-        const combos = db.getStyleCombos(base_product_id);
-        setDisplayedProducts(combos);
-        resultData = { combosFound: combos.length, products: combos.map(p => p.name) };
-      }
-      else if (call.name === "navigate_to_product_page") {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const { product_id } = call.args as any;
-        const details = db.getProductDetails(product_id);
-        if (details) setDisplayedProducts([details]);
-        // Simulate routing change
-        console.log("Navigating to product page:", product_id);
-        resultData = { success: true, navigatedTo: product_id };
-      }
-      else if (call.name === "add_to_cart") {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const { product_id } = call.args as any;
-        console.log("Added to cart:", product_id);
-        resultData = { success: true, added: product_id };
-      }
-
-      responses.push({ id: call.id, name: call.name, response: resultData });
-    });
-
-    clientRef.current?.sendToolResponse(responses);
-  }, []);
-
-  const startMicCapture = useCallback(async (stream: MediaStream) => {
-    streamRef.current = stream;
-    const ctx = getInputCtx();
-    if (ctx.state === "suspended") await ctx.resume();
+    const userMessage = { role: "user", content: input };
+    const newMessages = [...messages, userMessage];
+    
+    setMessages(newMessages);
+    setInput("");
+    setIsLoading(true);
 
     try {
-      await ctx.audioWorklet.addModule("/audio-processor.js");
-    } catch {
-      // module might already be added
-    }
-
-    const source = ctx.createMediaStreamSource(stream);
-    const worklet = new AudioWorkletNode(ctx, "pcm-processor");
-
-    worklet.port.onmessage = (e) => {
-      if (e.data.type === "level") {
-        setAudioLevel(e.data.level);
-      } else if (e.data.type === "audio") {
-        const bytes = new Uint8Array(e.data.buffer);
-        let binary = "";
-        for (let i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i]);
-        const b64 = btoa(binary);
-        clientRef.current?.sendAudio(b64);
-      }
-    };
-
-    const silentGain = ctx.createGain();
-    silentGain.gain.value = 0;
-    source.connect(worklet);
-    worklet.connect(silentGain);
-    silentGain.connect(ctx.destination);
-    workletRef.current = worklet;
-  }, [getInputCtx]);
-
-  const toggleVoice = async () => {
-    if (isLive || isConnecting) {
-      clientRef.current?.close();
-      clientRef.current = null;
-      streamRef.current?.getTracks().forEach((t) => t.stop());
-      workletRef.current?.disconnect();
-      setIsLive(false);
-      setIsConnecting(false);
-      setAudioLevel(0);
-      stopAudio();
-      return;
-    }
-
-    let stream: MediaStream;
-    try {
-      stream = await navigator.mediaDevices.getUserMedia({
-        audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: newMessages }),
       });
-    } catch (e) {
-      console.error("Mic error:", e);
-      return;
-    }
 
-    setIsConnecting(true);
-    const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY || "";
+      const data = await response.json();
 
-    clientRef.current = new GeminiLiveClient(apiKey, {
-      onOpen: () => {
-        startMicCapture(stream);
-      },
-      onAudioData: (data) => {
-        audioQueueRef.current.push(data);
-        playNextAudio();
-      },
-      onTranscription: (text, isUser) => {
-        setMessages((prev) => [...prev, { role: isUser ? "user" : "model", text }]);
-      },
-      onToolCall: handleToolCall,
-      onInterrupted: () => {
-        audioQueueRef.current = [];
-        stopAudio();
-      },
-      onClose: () => {
-        setIsLive(false);
-        setIsConnecting(false);
-      },
-      onError: (err) => {
-        console.error("Live API Error:", err);
-        setIsLive(false);
-        setIsConnecting(false);
-      },
-    });
-
-    try {
-      await clientRef.current.connect();
-      setIsLive(true);
-      setIsConnecting(false);
-      clientRef.current.triggerGreeting();
-    } catch (err) {
-      console.error("Connect error:", err);
-      stream.getTracks().forEach((t) => t.stop());
-      setIsConnecting(false);
+      if (data.reply) {
+        setMessages((prev) => [...prev, { role: "model", content: data.reply }]);
+      }
+    } catch (error) {
+      console.error("Chat error:", error);
+      setMessages((prev) => [...prev, { role: "model", content: "I'm experiencing a brief interruption. Could you please repeat that?" }]);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -251,14 +67,11 @@ export function AIAssistant({ open, onClose }: { open: boolean; onClose: () => v
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-gray-900 to-gray-700 flex items-center justify-center text-white font-bold tracking-wider relative">
             AI
-            {isLive && (
-              <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 border-2 border-white rounded-full animate-pulse" />
-            )}
           </div>
           <div>
             <h3 className="font-semibold text-gray-900 text-sm tracking-wide">Personal Shopper</h3>
             <p className="text-xs text-gray-500 font-medium">
-              {isConnecting ? "Connecting..." : isLive ? "Listening..." : "Ready to assist"}
+              {isLoading ? "SHOLÉ is typing..." : "Ready to assist"}
             </p>
           </div>
         </div>
@@ -306,12 +119,6 @@ export function AIAssistant({ open, onClose }: { open: boolean; onClose: () => v
 
         {/* Transcripts Area */}
         <div ref={chatScrollRef} className="flex-1 overflow-y-auto p-6 space-y-4">
-          {messages.length === 0 && !isLive && (
-            <div className="h-full flex flex-col items-center justify-center text-center text-gray-400 space-y-4">
-              <ShoppingBag size={48} className="opacity-20" />
-              <p className="text-sm">Tap the microphone to start shopping with your AI stylist.</p>
-            </div>
-          )}
           {messages.map((m, i) => (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
@@ -323,45 +130,42 @@ export function AIAssistant({ open, onClose }: { open: boolean; onClose: () => v
                   : "bg-white text-gray-800 border border-gray-100 shadow-sm rounded-tl-sm"
               }`}
             >
-              {m.text}
+              {m.content}
             </motion.div>
           ))}
+          {isLoading && (
+            <div className="flex gap-1.5 p-2 items-center text-gray-400">
+              <div className="w-1.5 h-1.5 bg-gray-300 rounded-full animate-bounce [animation-delay:-0.3s]" />
+              <div className="w-1.5 h-1.5 bg-gray-300 rounded-full animate-bounce [animation-delay:-0.15s]" />
+              <div className="w-1.5 h-1.5 bg-gray-300 rounded-full animate-bounce" />
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Live Bubble Controls */}
+      {/* Input Area */}
       <div className="p-4 bg-white border-t border-gray-100">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-2xl px-4 py-2 focus-within:border-gray-900 transition-colors">
+          <input
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+            placeholder="Ask for an outfit..."
+            className="flex-1 bg-transparent border-none focus:ring-0 text-sm py-2 text-gray-900"
+            disabled={isLoading}
+          />
           <button
-            onClick={toggleVoice}
-            className={`w-14 h-14 rounded-full flex items-center justify-center transition-all duration-300 shadow-lg ${
-              isLive
-                ? "bg-red-500 text-white hover:bg-red-600 hover:scale-95"
-                : "bg-gray-900 text-white hover:bg-gray-800 hover:scale-105"
+            onClick={sendMessage}
+            disabled={isLoading || !input.trim()}
+            className={`p-2 rounded-xl transition-all ${
+              input.trim() && !isLoading
+                ? "bg-gray-900 text-white hover:scale-105 active:scale-95"
+                : "bg-gray-200 text-gray-400 cursor-not-allowed"
             }`}
           >
-            {isLive ? <MicOff size={24} /> : <Mic size={24} />}
+            <Send size={18} />
           </button>
-          
-          <div className="flex-1 h-12 bg-gray-50 rounded-full flex items-center justify-center relative overflow-hidden border border-gray-100">
-            {!isLive ? (
-              <span className="text-sm font-medium text-gray-400">Voice Assistant Inactive</span>
-            ) : (
-              <div className="flex items-center gap-1 h-full w-full px-8">
-                {/* Audio Waves Simulation */}
-                {Array.from({ length: 24 }).map((_, i) => (
-                  <motion.div
-                    key={i}
-                    animate={{
-                      height: isLive ? Math.max(4, ((i % 5) + 1) * audioLevel * 16) : 4,
-                    }}
-                    transition={{ type: "tween", duration: 0.1 }}
-                    className="flex-1 bg-gray-900 rounded-full opacity-60"
-                  />
-                ))}
-              </div>
-            )}
-          </div>
         </div>
       </div>
     </motion.div>
