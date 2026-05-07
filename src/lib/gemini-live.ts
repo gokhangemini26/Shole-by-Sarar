@@ -1,11 +1,6 @@
 import { GoogleGenAI, Modality } from "@google/genai";
 import type { LiveServerMessage, Session } from "@google/genai";
 
-/* ═══════════════════════════════════════════════════════════════════════
-   Gemini Live Client — Real-time voice + function calling
-   Model: gemini-live-2.5-flash-preview (current GA-track Live model)
-   ═══════════════════════════════════════════════════════════════════════ */
-
 export interface GeminiLiveConfig {
   systemInstruction?: string;
   tools?: unknown[];
@@ -24,7 +19,79 @@ export interface FunctionCall {
   args: Record<string, unknown>;
 }
 
+// We use 2.0-flash-exp because 3.1 does not support the Bidi Live API yet.
 const LIVE_MODEL = "gemini-2.0-flash-exp";
+
+export const SHOPPING_TOOLS = [
+  {
+    functionDeclarations: [
+      {
+        name: "search_products",
+        description: "To find items based on a query, category, or price range.",
+        parameters: {
+          type: "object",
+          properties: {
+            query: { type: "string", description: "Search term like 'linen shirt'" },
+            category: { type: "string", enum: ["shirts", "trousers", "dresses", "accessories", "shoes"], description: "Product category" },
+            price_range: { type: "number", description: "Maximum price the user is willing to pay" }
+          }
+        }
+      },
+      {
+        name: "get_product_details",
+        description: "To fetch specs and stock status of a specific product.",
+        parameters: {
+          type: "object",
+          properties: {
+            product_id: { type: "string", description: "The ID of the product" }
+          },
+          required: ["product_id"]
+        }
+      },
+      {
+        name: "navigate_to_product_page",
+        description: "To programmatically change the route/view for the user to a specific product.",
+        parameters: {
+          type: "object",
+          properties: {
+            product_id: { type: "string", description: "The ID of the product to navigate to" }
+          },
+          required: ["product_id"]
+        }
+      },
+      {
+        name: "add_to_cart",
+        description: "To perform actions based on voice commands to add an item to the cart.",
+        parameters: {
+          type: "object",
+          properties: {
+            product_id: { type: "string", description: "The ID of the product to add" }
+          },
+          required: ["product_id"]
+        }
+      },
+      {
+        name: "suggest_style_combo",
+        description: "To trigger a logic that finds matching accessories or clothing items for a base product.",
+        parameters: {
+          type: "object",
+          properties: {
+            base_product_id: { type: "string", description: "The ID of the product the user is currently looking at or interested in" }
+          },
+          required: ["base_product_id"]
+        }
+      }
+    ]
+  }
+];
+
+export const SYSTEM_INSTRUCTION = `You are an expert personal shopper: sophisticated, helpful, and proactive.
+You live on an e-commerce site. 
+Instead of just answering, you should proactively use your tools. For example, if you suggest a matching item, say: 'Since you're looking at that linen shirt, I've just opened the matching trousers page for you. They’d look great together!' and IMMEDIATELY call navigate_to_product_page.
+Use your tools heavily. If a user asks for a linen shirt, call search_products.
+If they ask for details, call get_product_details.
+If they say "I'll take it" or "buy this", call add_to_cart.
+Keep your responses very short, conversational, and natural.`;
 
 export class GeminiLiveClient {
   private ai: GoogleGenAI;
@@ -37,29 +104,26 @@ export class GeminiLiveClient {
   }
 
   async connect() {
-    console.log("[SHOLÉ Live] Connecting to model:", LIVE_MODEL);
+    console.log("[Shopping Assistant] Connecting to model:", LIVE_MODEL);
     this.session = await this.ai.live.connect({
       model: LIVE_MODEL,
       config: {
         responseModalities: [Modality.AUDIO],
         speechConfig: {
-          voiceConfig: { prebuiltVoiceConfig: { voiceName: "Zephyr" } },
+          voiceConfig: { prebuiltVoiceConfig: { voiceName: "Aoede" } }, // Sophisticated voice
         },
-        systemInstruction:
-          this.config.systemInstruction || "You are a helpful assistant.",
+        systemInstruction: this.config.systemInstruction || SYSTEM_INSTRUCTION,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        tools: (this.config.tools as any) || [],
+        tools: (this.config.tools as any) || SHOPPING_TOOLS,
         outputAudioTranscription: {},
         inputAudioTranscription: {},
         realtimeInputConfig: {
-          // Use server-side automatic VAD so the model knows when the user
-          // stops speaking and can begin responding.
           automaticActivityDetection: {},
         },
       },
       callbacks: {
         onopen: () => {
-          console.log("[SHOLÉ Live] Connected");
+          console.log("[Shopping Assistant] Connected");
           this.config.onOpen?.();
         },
         onmessage: (message: LiveServerMessage) => {
@@ -81,36 +145,27 @@ export class GeminiLiveClient {
             this.config.onInterrupted?.();
           }
 
-          const outTranscript =
-            msg.serverContent?.outputTranscription?.text ||
-            msg.serverContent?.outputAudioTranscription?.text;
+          const outTranscript = msg.serverContent?.outputTranscription?.text || msg.serverContent?.outputAudioTranscription?.text;
           if (outTranscript) {
             this.config.onTranscription?.(outTranscript, false);
           }
 
-          const inTranscript =
-            msg.serverContent?.inputTranscription?.text ||
-            msg.serverContent?.inputAudioTranscription?.text;
+          const inTranscript = msg.serverContent?.inputTranscription?.text || msg.serverContent?.inputAudioTranscription?.text;
           if (inTranscript) {
             this.config.onTranscription?.(inTranscript, true);
           }
 
           if (msg.toolCall?.functionCalls?.length) {
-            console.log("[SHOLÉ Live] Tool Call:", msg.toolCall.functionCalls);
+            console.log("[Shopping Assistant] Tool Call:", msg.toolCall.functionCalls);
             this.config.onToolCall?.(msg.toolCall.functionCalls);
           }
         },
         onclose: (event?: { code?: number; reason?: string }) => {
-          console.log(
-            "[SHOLÉ Live] Closed. Code:",
-            event?.code,
-            "Reason:",
-            event?.reason
-          );
+          console.log("[Shopping Assistant] Closed. Code:", event?.code, "Reason:", event?.reason);
           this.config.onClose?.();
         },
         onerror: (error: unknown) => {
-          console.error("[SHOLÉ Live] Error:", error);
+          console.error("[Shopping Assistant] Error:", error);
           this.config.onError?.(error);
         },
       },
@@ -124,31 +179,16 @@ export class GeminiLiveClient {
     });
   }
 
-  sendVideo(base64Data: string) {
-    if (!this.session) return;
-    this.session.sendRealtimeInput({
-      video: { data: base64Data, mimeType: "image/jpeg" },
-    });
-  }
-
-  sendText(text: string) {
-    if (!this.session) return;
-    this.session.sendClientContent({
-      turns: [{ role: "user", parts: [{ text }] }],
-      turnComplete: true,
-    });
-  }
-
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   sendToolResponse(functionResponses: any[]) {
     if (!this.session) return;
     this.session.sendToolResponse({ functionResponses });
   }
 
-  triggerGreeting(prompt = "Briefly greet the customer and ask how you can help.") {
+  triggerGreeting() {
     if (!this.session) return;
     this.session.sendClientContent({
-      turns: [{ role: "user", parts: [{ text: prompt }] }],
+      turns: [{ role: "user", parts: [{ text: "Hello! Please introduce yourself briefly as my personal shopper." }] }],
       turnComplete: true,
     });
   }
