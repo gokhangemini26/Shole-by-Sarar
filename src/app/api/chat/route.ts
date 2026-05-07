@@ -4,72 +4,58 @@ import { NextResponse } from "next/server";
 const apiKey = process.env.GEMINI_API_KEY;
 
 export async function POST(req: Request) {
-  let messages: any[] = [];
-  
   try {
-    if (!apiKey || apiKey === "your_gemini_api_key_here") {
-      return NextResponse.json({ error: "Server API Key is missing." }, { status: 500 });
+    if (!apiKey) {
+      return NextResponse.json({ error: "API Key missing." }, { status: 500 });
     }
 
+    const { messages } = await req.json();
     const ai = new GoogleGenAI({ apiKey });
-    const body = await req.json();
-    messages = body.messages || [];
-
-    if (!messages.length) {
-      return NextResponse.json({ error: "No messages provided." }, { status: 400 });
-    }
-
-    const contents = messages.map((m: any) => ({
-      role: m.role === "user" ? "user" : "model",
-      parts: [{ text: m.content || m.text }],
-    }));
+    
+    // Using 1.5-flash for maximum speed and streaming reliability
+    const model = ai.models.get({ model: "gemini-1.5-flash" });
 
     const systemInstruction = `
-      You are SHOLÉ, the exclusive AI personal stylist and expert sales assistant for "SHOLÉ by SARAR".
-      Drive sales with elegant fashion advice. Highlight SARAR's 1947 heritage. Keep responses concise.
+      You are SHOLÉ, a luxury fashion stylist.
+      You MUST respond in a way that is friendly and concise.
+      You have access to website controls: sayfa_degistir, urun_detayi_goster.
     `;
 
-    // Trying the most fundamental model name: gemini-1.5-flash
-    const response = await ai.models.generateContent({
+    // Setup streaming response
+    const result = await ai.models.generateContentStream({
       model: "gemini-1.5-flash",
-      contents: contents,
+      contents: messages.map((m: any) => ({
+        role: m.role === "user" ? "user" : "model",
+        parts: [{ text: m.content || m.text }],
+      })),
       config: {
         systemInstruction: {
           role: "system",
           parts: [{ text: systemInstruction }]
         },
         temperature: 0.7,
-        maxOutputTokens: 512,
+      }
+    });
+
+    // Create a ReadableStream to pipe Gemini response back to frontend
+    const stream = new ReadableStream({
+      async start(controller) {
+        for await (const chunk of result.stream) {
+          const text = chunk.text();
+          if (text) {
+            controller.enqueue(new TextEncoder().encode(JSON.stringify({ text }) + "\n"));
+          }
+        }
+        controller.close();
       },
     });
 
-    if (!response || !response.text) {
-      return NextResponse.json({ error: "AI returned an empty response." }, { status: 500 });
-    }
+    return new Response(stream, {
+      headers: { "Content-Type": "application/x-ndjson" },
+    });
 
-    return NextResponse.json({ reply: response.text });
   } catch (error: any) {
-    console.error("Gemini API Route Error:", error.message || error);
-    
-    // Last resort: gemini-1.5-pro
-    if (error.message?.includes("not found")) {
-       try {
-          const ai = new GoogleGenAI({ apiKey: apiKey! });
-          const response = await ai.models.generateContent({
-            model: "gemini-1.5-pro",
-            contents: messages.map((m: any) => ({
-              role: m.role === "user" ? "user" : "model",
-              parts: [{ text: m.content || m.text }],
-            })),
-            config: {
-               temperature: 0.7,
-            }
-          });
-          return NextResponse.json({ reply: response.text });
-       } catch (e2: any) {
-          return NextResponse.json({ error: `All models failed (404). Please check your API key permissions.` }, { status: 500 });
-       }
-    }
-    return NextResponse.json({ error: `Gemini Error: ${error.message || "Unknown error"}` }, { status: 500 });
+    console.error("Streaming Error:", error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
