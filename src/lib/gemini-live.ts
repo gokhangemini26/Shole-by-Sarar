@@ -37,6 +37,7 @@ export class GeminiLiveClient {
   }
 
   async connect() {
+    console.log("[SHOLÉ Live] Connecting to model:", LIVE_MODEL);
     this.session = await this.ai.live.connect({
       model: LIVE_MODEL,
       config: {
@@ -50,6 +51,11 @@ export class GeminiLiveClient {
         tools: (this.config.tools as any) || [],
         outputAudioTranscription: {},
         inputAudioTranscription: {},
+        realtimeInputConfig: {
+          // Use server-side automatic VAD so the model knows when the user
+          // stops speaking and can begin responding.
+          automaticActivityDetection: {},
+        },
       },
       callbacks: {
         onopen: () => {
