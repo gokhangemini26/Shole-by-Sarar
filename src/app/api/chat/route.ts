@@ -11,7 +11,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Server configuration error." }, { status: 500 });
     }
 
-    const ai = new GoogleGenAI(apiKey);
+    const ai = new GoogleGenAI({ apiKey });
     const { messages } = await req.json();
 
     if (!messages || !messages.length) {
