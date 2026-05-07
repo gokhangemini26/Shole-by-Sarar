@@ -30,22 +30,21 @@ export async function POST(req: Request) {
       Highlight SARAR's 1947 heritage. Keep responses concise.
     `;
 
-    // Standard non-streaming content generation
-    const model = ai.getGenerativeModel({
+    // New SDK syntax: ai.models.generateContent
+    const response = await ai.models.generateContent({
       model: "gemini-1.5-flash",
-      systemInstruction: systemInstruction,
-    });
-
-    const result = await model.generateContent({
       contents: contents,
-      generationConfig: {
+      config: {
+        systemInstruction: {
+          role: "system",
+          parts: [{ text: systemInstruction }]
+        },
         temperature: 0.7,
         maxOutputTokens: 512,
       },
     });
 
-    const text = result.response.text();
-    return NextResponse.json({ reply: text });
+    return NextResponse.json({ reply: response.text });
   } catch (error: any) {
     console.error("Gemini API Error:", error.message || error);
     return NextResponse.json({ error: "Failed to communicate with AI." }, { status: 500 });
