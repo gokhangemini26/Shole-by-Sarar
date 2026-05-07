@@ -24,7 +24,7 @@ export interface FunctionCall {
   args: Record<string, unknown>;
 }
 
-const LIVE_MODEL = "gemini-live-2.5-flash-preview";
+const LIVE_MODEL = "gemini-3.1-flash-preview";
 
 export class GeminiLiveClient {
   private ai: GoogleGenAI;
