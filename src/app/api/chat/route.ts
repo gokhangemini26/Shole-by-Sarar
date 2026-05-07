@@ -41,7 +41,7 @@ export async function POST(req: Request) {
     const stream = new ReadableStream({
       async start(controller) {
         for await (const chunk of result) {
-          const text = chunk.text();
+          const text = typeof chunk.text === 'function' ? chunk.text() : "";
           if (text) {
             controller.enqueue(new TextEncoder().encode(JSON.stringify({ text }) + "\n"));
           }
