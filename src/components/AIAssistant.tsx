@@ -53,23 +53,24 @@ export function AIAssistant({ open, onClose }: { open: boolean; onClose: () => v
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
       let fullText = "";
+      let buffer = ""; // Buffer for partial lines
       
-      // Add initial empty AI message
       setMessages(prev => [...prev, { role: "model", content: "" }]);
 
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
 
-        const chunk = decoder.decode(value);
-        const lines = chunk.split("\n").filter(l => l.trim());
-        
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || ""; // Keep the last partial line in buffer
+
         for (const line of lines) {
+          if (!line.trim()) continue;
           try {
             const data = JSON.parse(line);
             if (data.text) {
               fullText += data.text;
-              // Update last message
               setMessages(prev => {
                 const updated = [...prev];
                 updated[updated.length - 1].content = fullText;
@@ -77,7 +78,7 @@ export function AIAssistant({ open, onClose }: { open: boolean; onClose: () => v
               });
             }
           } catch (e) {
-            console.warn("Parse error in stream:", line);
+            console.warn("Parse error in stream line:", line, e);
           }
         }
       }
