@@ -40,7 +40,7 @@ export async function POST(req: Request) {
     // Create a ReadableStream to pipe Gemini response back to frontend
     const stream = new ReadableStream({
       async start(controller) {
-        for await (const chunk of result.stream) {
+        for await (const chunk of result) {
           const text = chunk.text();
           if (text) {
             controller.enqueue(new TextEncoder().encode(JSON.stringify({ text }) + "\n"));
