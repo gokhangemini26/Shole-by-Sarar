@@ -1,33 +1,140 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ShoppingBag, ShoppingCart, Send } from "lucide-react";
+import { X, ShoppingBag, ShoppingCart, Send, Mic, MicOff } from "lucide-react";
+import { GeminiLiveClient } from "@/lib/gemini-live";
 import { Product } from "@/lib/mock-db";
 
 export function AIAssistant({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const [messages, setMessages] = useState([
+  const [isLive, setIsLive] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
+  const [audioLevel, setAudioLevel] = useState(0);
+  const [messages, setMessages] = useState<{ role: string; content: string }[]>([
     { role: "model", content: "Welcome to SHOLÉ by SARAR. How may I style you today?" }
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [displayedProducts] = useState<Product[]>([]);
   
+  const clientRef = useRef<GeminiLiveClient | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const workletRef = useRef<AudioWorkletNode | null>(null);
   const chatScrollRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll chat
+  // Audio queue for playback
+  const audioQueueRef = useRef<string[]>([]);
+  const isPlayingRef = useRef(false);
+  const activeSourceRef = useRef<AudioBufferSourceNode | null>(null);
+
   useEffect(() => {
     if (chatScrollRef.current) {
       chatScrollRef.current.scrollTop = chatScrollRef.current.scrollHeight;
     }
   }, [messages]);
 
+  const getAudioCtx = useCallback(() => {
+    if (!audioCtxRef.current) {
+      audioCtxRef.current = new AudioContext({ sampleRate: 24000 });
+    }
+    return audioCtxRef.current;
+  }, []);
+
+  async function playNextAudio() {
+    if (audioQueueRef.current.length === 0 || isPlayingRef.current) return;
+    isPlayingRef.current = true;
+    const b64 = audioQueueRef.current.shift()!;
+    const ctx = getAudioCtx();
+    if (ctx.state === "suspended") await ctx.resume();
+    
+    const bin = atob(b64);
+    const bytes = new Int16Array(bin.length / 2);
+    for (let i = 0; i < bin.length; i += 2) bytes[i / 2] = (bin.charCodeAt(i + 1) << 8) | bin.charCodeAt(i);
+    const f32 = new Float32Array(bytes.length);
+    for (let i = 0; i < bytes.length; i++) f32[i] = bytes[i] / 32768.0;
+    
+    const buf = ctx.createBuffer(1, f32.length, 24000);
+    buf.getChannelData(0).set(f32);
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    src.connect(ctx.destination);
+    activeSourceRef.current = src;
+    src.onended = () => {
+      activeSourceRef.current = null;
+      isPlayingRef.current = false;
+      playNextAudio();
+    };
+    src.start();
+  }
+
+  const startMicCapture = async (stream: MediaStream) => {
+    const ctx = getAudioCtx();
+    if (ctx.state === "suspended") await ctx.resume();
+    try {
+      await ctx.audioWorklet.addModule("/audio-processor.js");
+      const source = ctx.createMediaStreamSource(stream);
+      const worklet = new AudioWorkletNode(ctx, "pcm-processor");
+      
+      worklet.port.onmessage = (e) => {
+        if (e.data.type === "level") setAudioLevel(e.data.level);
+        if (e.data.type === "audio") {
+          const bytes = new Uint8Array(e.data.buffer);
+          let binary = "";
+          for (let i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i]);
+          clientRef.current?.sendAudio(btoa(binary));
+        }
+      };
+      
+      source.connect(worklet);
+      workletRef.current = worklet;
+    } catch (e) {
+      console.error("Worklet error:", e);
+    }
+  };
+
+  const toggleVoice = async () => {
+    if (isLive || isConnecting) {
+      clientRef.current?.close();
+      clientRef.current = null;
+      streamRef.current?.getTracks().forEach(t => t.stop());
+      setIsLive(false);
+      setIsConnecting(false);
+      return;
+    }
+
+    setIsConnecting(true);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream;
+      
+      const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY || "";
+      clientRef.current = new GeminiLiveClient(apiKey, {
+        systemInstruction: "You are SHOLÉ, a luxury fashion stylist. Speak warmly and helpfully.",
+        onAudioData: (data) => {
+          audioQueueRef.current.push(data);
+          playNextAudio();
+        },
+        onTranscription: (text, isUser) => {
+          setMessages(prev => [...prev, { role: isUser ? "user" : "model", content: text }]);
+        },
+        onError: (err) => console.error("Live Error:", err),
+        onClose: () => setIsLive(false)
+      });
+
+      await clientRef.current.connect();
+      startMicCapture(stream);
+      setIsLive(true);
+      setIsConnecting(false);
+    } catch (e) {
+      console.error("Voice failed:", e);
+      setIsConnecting(false);
+    }
+  };
+
   const sendMessage = async () => {
     if (!input.trim() || isLoading) return;
-
-    const userMessage = { role: "user", content: input };
-    const newMessages = [...messages, userMessage];
-    
+    const newMessages = [...messages, { role: "user", content: input }];
     setMessages(newMessages);
     setInput("");
     setIsLoading(true);
@@ -38,15 +145,10 @@ export function AIAssistant({ open, onClose }: { open: boolean; onClose: () => v
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages: newMessages }),
       });
-
       const data = await response.json();
-
-      if (data.reply) {
-        setMessages((prev) => [...prev, { role: "model", content: data.reply }]);
-      }
+      if (data.reply) setMessages(prev => [...prev, { role: "model", content: data.reply }]);
     } catch (error) {
       console.error("Chat error:", error);
-      setMessages((prev) => [...prev, { role: "model", content: "I'm experiencing a brief interruption. Could you please repeat that?" }]);
     } finally {
       setIsLoading(false);
     }
@@ -59,114 +161,73 @@ export function AIAssistant({ open, onClose }: { open: boolean; onClose: () => v
       initial={{ opacity: 0, y: 50, scale: 0.95 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: 50, scale: 0.95 }}
-      transition={{ duration: 0.3, ease: "easeOut" }}
       className="fixed bottom-6 right-6 w-full max-w-[440px] max-h-[80vh] flex flex-col bg-white border border-gray-200 shadow-2xl rounded-3xl overflow-hidden z-[100] font-sans"
     >
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50/50 backdrop-blur-md">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-gray-900 to-gray-700 flex items-center justify-center text-white font-bold tracking-wider relative">
-            AI
+          <div className="w-10 h-10 rounded-full bg-black flex items-center justify-center text-white font-bold relative">
+            AI {isLive && <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse" />}
           </div>
           <div>
-            <h3 className="font-semibold text-gray-900 text-sm tracking-wide">Personal Shopper</h3>
-            <p className="text-xs text-gray-500 font-medium">
-              {isLoading ? "SHOLÉ is typing..." : "Ready to assist"}
-            </p>
+            <h3 className="font-semibold text-gray-900 text-sm">Personal Shopper</h3>
+            <p className="text-xs text-gray-500">{isLive ? "Listening..." : "Ready to assist"}</p>
           </div>
         </div>
-        <button onClick={onClose} className="p-2 hover:bg-gray-200 rounded-full transition-colors text-gray-400 hover:text-gray-600">
+        <button onClick={onClose} className="p-2 hover:bg-gray-200 rounded-full text-gray-400">
           <X size={20} />
         </button>
       </div>
 
-      {/* Dynamic Display Area */}
+      {/* Content Area */}
       <div className="flex-1 overflow-hidden flex flex-col bg-gray-50">
-        <AnimatePresence>
-          {displayedProducts.length > 0 && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              className="bg-white border-b border-gray-100 p-4 shadow-sm"
-            >
-              <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Suggested for you</h4>
-              <div className="flex gap-4 overflow-x-auto pb-2 snap-x hide-scrollbar">
-                {displayedProducts.map((p) => (
-                  <motion.div
-                    key={p.id}
-                    layoutId={p.id}
-                    className="min-w-[160px] snap-center bg-gray-50 rounded-2xl overflow-hidden border border-gray-100 group cursor-pointer"
-                  >
-                    <div className="h-[180px] overflow-hidden relative">
-                      <img src={p.image} alt={p.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                    </div>
-                    <div className="p-3">
-                      <h5 className="font-semibold text-gray-900 text-sm truncate">{p.name}</h5>
-                      <div className="flex items-center justify-between mt-1">
-                        <span className="text-sm font-medium text-gray-600">${p.price}</span>
-                        <button className="w-6 h-6 bg-black text-white rounded-full flex items-center justify-center hover:scale-110 transition-transform">
-                          <ShoppingCart size={12} />
-                        </button>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Transcripts Area */}
         <div ref={chatScrollRef} className="flex-1 overflow-y-auto p-6 space-y-4">
           {messages.map((m, i) => (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              key={i}
-              className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
-                m.role === "user"
-                  ? "bg-gray-900 text-white ml-auto rounded-tr-sm"
-                  : "bg-white text-gray-800 border border-gray-100 shadow-sm rounded-tl-sm"
-              }`}
-            >
+            <div key={i} className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm ${m.role === "user" ? "bg-black text-white ml-auto" : "bg-white border shadow-sm"}`}>
               {m.content}
-            </motion.div>
-          ))}
-          {isLoading && (
-            <div className="flex gap-1.5 p-2 items-center text-gray-400">
-              <div className="w-1.5 h-1.5 bg-gray-300 rounded-full animate-bounce [animation-delay:-0.3s]" />
-              <div className="w-1.5 h-1.5 bg-gray-300 rounded-full animate-bounce [animation-delay:-0.15s]" />
-              <div className="w-1.5 h-1.5 bg-gray-300 rounded-full animate-bounce" />
             </div>
-          )}
+          ))}
+          {isLoading && <div className="text-xs text-gray-400 animate-pulse">SHOLÉ is thinking...</div>}
         </div>
       </div>
 
-      {/* Input Area */}
-      <div className="p-4 bg-white border-t border-gray-100">
-        <div className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-2xl px-4 py-2 focus-within:border-gray-900 transition-colors">
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-            placeholder="Ask for an outfit..."
-            className="flex-1 bg-transparent border-none focus:ring-0 text-sm py-2 text-gray-900"
-            disabled={isLoading}
-          />
+      {/* Controls */}
+      <div className="p-4 bg-white border-t space-y-4">
+        <div className="flex items-center gap-3">
           <button
-            onClick={sendMessage}
-            disabled={isLoading || !input.trim()}
-            className={`p-2 rounded-xl transition-all ${
-              input.trim() && !isLoading
-                ? "bg-gray-900 text-white hover:scale-105 active:scale-95"
-                : "bg-gray-200 text-gray-400 cursor-not-allowed"
-            }`}
+            onClick={toggleVoice}
+            className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${isLive ? "bg-red-500 text-white" : "bg-black text-white"}`}
           >
-            <Send size={18} />
+            {isLive ? <MicOff size={20} /> : <Mic size={20} />}
           </button>
+          
+          <div className="flex-1 flex items-center gap-2 bg-gray-100 rounded-full px-4 py-2">
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+              placeholder="Type a message..."
+              className="flex-1 bg-transparent border-none focus:ring-0 text-sm py-1"
+              disabled={isLoading}
+            />
+            <button onClick={sendMessage} disabled={isLoading || !input.trim()} className="text-black">
+              <Send size={18} />
+            </button>
+          </div>
         </div>
+
+        {isLive && (
+          <div className="flex gap-1 h-2 px-12">
+            {Array.from({ length: 20 }).map((_, i) => (
+              <motion.div
+                key={i}
+                animate={{ height: Math.max(4, audioLevel * 20 * (1 + Math.sin(i))) }}
+                className="flex-1 bg-black rounded-full opacity-40"
+              />
+            ))}
+          </div>
+        )}
       </div>
     </motion.div>
   );
@@ -174,10 +235,7 @@ export function AIAssistant({ open, onClose }: { open: boolean; onClose: () => v
 
 export function FloatingLauncher({ onClick }: { onClick: () => void }) {
   return (
-    <button
-      onClick={onClick}
-      className="fixed bottom-6 right-6 z-50 bg-gray-900 text-white px-6 py-4 rounded-full shadow-2xl flex items-center gap-3 font-semibold hover:scale-105 transition-transform"
-    >
+    <button onClick={onClick} className="fixed bottom-6 right-6 z-50 bg-black text-white px-6 py-4 rounded-full shadow-2xl flex items-center gap-3 font-semibold">
       <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
       Ask AI Stylist
     </button>
