@@ -20,6 +20,7 @@ export class GeminiLiveClient {
   private session: any;
   private apiKey: string;
   private config: GeminiLiveConfig;
+  private isClosing = false;
 
   constructor(apiKey: string, config: GeminiLiveConfig) {
     this.apiKey = apiKey;
@@ -28,8 +29,8 @@ export class GeminiLiveClient {
   }
 
   async connect() {
+    this.isClosing = false;
     try {
-      // Using the new SDK live connection method
       this.session = await this.ai.live.connect({
         model: "gemini-2.0-flash-exp",
         config: {
@@ -43,36 +44,8 @@ export class GeminiLiveClient {
         }
       });
 
-      this.session.on("setupcomplete", () => {
-        console.log("Live Session Ready");
-      });
-
-      this.session.on("usercontent", (content: any) => {
-        if (content.transcription) {
-          this.config.onTranscription?.(content.transcription, true);
-        }
-      });
-
-      this.session.on("modelcontent", (content: any) => {
-        if (content.parts?.[0]?.inlineData?.data) {
-          this.config.onAudioData?.(content.parts[0].inlineData.data);
-        }
-        if (content.transcription) {
-          this.config.onTranscription?.(content.transcription, false);
-        }
-      });
-
-      this.session.on("toolcall", (call: any) => {
-        this.config.onToolCall?.(call.functionCalls);
-      });
-
-      this.session.on("error", (err: any) => {
-        this.config.onError?.(err);
-      });
-
-      this.session.on("close", () => {
-        this.config.onClose?.();
-      });
+      // Handle messages using the async iterator pattern (new SDK style)
+      this.listenToMessages();
 
     } catch (err) {
       console.error("Connection failed:", err);
@@ -80,7 +53,54 @@ export class GeminiLiveClient {
     }
   }
 
+  private async listenToMessages() {
+    try {
+      for await (const message of this.session) {
+        if (this.isClosing) break;
+
+        // Setup complete
+        if (message.setupComplete) {
+          console.log("Live Session Ready");
+        }
+
+        // Transcription (User)
+        if (message.serverContent?.transcription) {
+          this.config.onTranscription?.(message.serverContent.transcription, true);
+        }
+
+        // Model Output (Audio / Transcription)
+        if (message.serverContent?.modelTurn?.parts) {
+          for (const part of message.serverContent.modelTurn.parts) {
+            if (part.inlineData?.data) {
+              this.config.onAudioData?.(part.inlineData.data);
+            }
+          }
+          if (message.serverContent.modelTurn.transcription) {
+            this.config.onTranscription?.(message.serverContent.modelTurn.transcription, false);
+          }
+        }
+
+        // Tool Calls
+        if (message.serverContent?.modelTurn?.parts?.[0]?.functionCall) {
+          // Wrap in array for compatibility with our existing handler
+          const calls = message.serverContent.modelTurn.parts
+            .filter((p: any) => p.functionCall)
+            .map((p: any) => p.functionCall);
+          this.config.onToolCall?.(calls);
+        }
+      }
+    } catch (err) {
+      if (!this.isClosing) {
+        console.error("Message loop error:", err);
+        this.config.onError?.(err);
+      }
+    } finally {
+      this.config.onClose?.();
+    }
+  }
+
   sendAudio(base64Data: string) {
+    if (this.isClosing) return;
     this.session?.send({
       realtimeInput: {
         mediaChunks: [{
@@ -92,6 +112,7 @@ export class GeminiLiveClient {
   }
 
   sendToolResponse(responses: any[]) {
+    if (this.isClosing) return;
     this.session?.send({
       toolResponse: {
         functionResponses: responses.map(r => ({
@@ -104,6 +125,7 @@ export class GeminiLiveClient {
   }
 
   close() {
+    this.isClosing = true;
     this.session?.close();
   }
 }

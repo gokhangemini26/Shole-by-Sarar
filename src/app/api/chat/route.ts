@@ -6,7 +6,7 @@ const apiKey = process.env.GEMINI_API_KEY;
 export async function POST(req: Request) {
   try {
     if (!apiKey || apiKey === "your_gemini_api_key_here") {
-      return NextResponse.json({ error: "Server API Key is missing or invalid. Please set GEMINI_API_KEY on Vercel." }, { status: 500 });
+      return NextResponse.json({ error: "Server API Key is missing. Check Vercel ENV." }, { status: 500 });
     }
 
     const ai = new GoogleGenAI({ apiKey });
@@ -26,8 +26,9 @@ export async function POST(req: Request) {
       Drive sales with elegant fashion advice. Highlight SARAR's 1947 heritage. Keep responses concise.
     `;
 
+    // Trying gemini-2.0-flash which is widely available in the new SDK
     const response = await ai.models.generateContent({
-      model: "gemini-1.5-flash",
+      model: "gemini-2.0-flash",
       contents: contents,
       config: {
         systemInstruction: {
@@ -40,13 +41,31 @@ export async function POST(req: Request) {
     });
 
     if (!response || !response.text) {
-      console.error("Empty response from Gemini:", response);
-      return NextResponse.json({ error: "AI returned an empty response. Try again." }, { status: 500 });
+      return NextResponse.json({ error: "AI returned an empty response." }, { status: 500 });
     }
 
     return NextResponse.json({ reply: response.text });
   } catch (error: any) {
     console.error("Gemini API Route Error:", error.message || error);
+    // If 2.0-flash is not found, fallback to 1.5-flash-latest
+    if (error.message?.includes("not found")) {
+       try {
+          const ai = new GoogleGenAI({ apiKey: apiKey! });
+          const response = await ai.models.generateContent({
+            model: "gemini-1.5-flash-latest",
+            contents: messages.map((m: any) => ({
+              role: m.role === "user" ? "user" : "model",
+              parts: [{ text: m.content || m.text }],
+            })),
+            config: {
+               temperature: 0.7,
+            }
+          });
+          return NextResponse.json({ reply: response.text });
+       } catch (e2: any) {
+          return NextResponse.json({ error: `Fallback failed: ${e2.message}` }, { status: 500 });
+       }
+    }
     return NextResponse.json({ error: `Gemini Error: ${error.message || "Unknown error"}` }, { status: 500 });
   }
 }
