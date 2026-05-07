@@ -31,7 +31,6 @@ export class GeminiLiveClient {
   async connect() {
     this.isClosing = false;
     try {
-      // Setup tools as per the user's architectural guide
       const tools = [
         {
           functionDeclarations: [
@@ -40,25 +39,25 @@ export class GeminiLiveClient {
               description: "Kullanıcıyı belirli bir ürün kategorisine veya sayfaya yönlendirir.",
               parameters: {
                 type: "OBJECT",
-                properties: { url_slug: { type: "STRING", description: "Yönlendirilecek sayfa veya kategori adı" } },
+                properties: { url_slug: { type: "STRING" } },
                 required: ["url_slug"]
               }
             },
             {
               name: "urun_detayi_goster",
-              description: "Kullanıcı belirli bir ürünü sorduğunda ürün kartını veya detayını ekranda açar.",
+              description: "Ürün kartını ekranda açar.",
               parameters: {
                 type: "OBJECT",
-                properties: { urun_id: { type: "STRING", description: "Gösterilecek ürünün benzersiz ID'si" } },
+                properties: { urun_id: { type: "STRING" } },
                 required: ["urun_id"]
               }
             },
             {
               name: "kombin_oner",
-              description: "Ekranda açık olan ürüne uygun aksesuarları veya kombin parçalarını listeler.",
+              description: "Uygun aksesuarları listeler.",
               parameters: {
                 type: "OBJECT",
-                properties: { urun_id: { type: "STRING", description: "Kombin yapılacak ana ürünün ID'si" } },
+                properties: { urun_id: { type: "STRING" } },
                 required: ["urun_id"]
               }
             }
@@ -66,48 +65,55 @@ export class GeminiLiveClient {
         }
       ];
 
-      // Using Gemini 3 Flash Live - The best for Bidi as per the user's list
+      // Fix Deprecation: Move generationConfig fields to top-level
+      // Fix Connection: Using the latest supported live model name
       this.session = await this.ai.live.connect({
-        model: "gemini-3-flash-live",
-        config: {
-          tools,
-          systemInstruction: {
-            role: "system",
-            parts: [{ text: this.config.systemInstruction || "" }]
-          },
-          generationConfig: {
-            responseModalities: ["audio"]
-          }
+        model: "gemini-2.0-flash-exp",
+        systemInstruction: {
+          role: "system",
+          parts: [{ text: this.config.systemInstruction || "" }]
+        },
+        tools: tools,
+        generationConfig: {
+          responseModalities: ["audio"]
         }
       });
 
+      console.log("[SHOLÉ] Live Session connected:", this.session);
       this.listenToMessages();
     } catch (err) {
-      console.error("Connection failed:", err);
+      console.error("[SHOLÉ] Connection failed:", err);
       throw err;
     }
   }
 
   private async listenToMessages() {
     try {
-      const messageStream = this.session.messages || this.session.receive || this.session;
+      // In some SDK versions, the iterator is the session itself, 
+      // in others it is session.receive()
+      const source = (typeof this.session.receive === 'function') ? this.session : this.session;
 
-      if (typeof messageStream[Symbol.asyncIterator] === 'function') {
-        for await (const message of messageStream) {
-          if (this.isClosing) break;
-          this.handleMessage(message);
-        }
+      if (this.session[Symbol.asyncIterator] || (this.session.receive && typeof this.session.receive === 'function')) {
+         // Pattern A: for await on session
+         if (this.session[Symbol.asyncIterator]) {
+            for await (const message of this.session) {
+              if (this.isClosing) break;
+              this.handleMessage(message);
+            }
+         } else {
+            // Pattern B: while await receive
+            while (!this.isClosing) {
+              const message = await this.session.receive();
+              if (!message) break;
+              this.handleMessage(message);
+            }
+         }
       } else {
-        // Fallback for non-iterable session
-        while (!this.isClosing) {
-          const message = await this.session.receive();
-          if (!message) break;
-          this.handleMessage(message);
-        }
+        console.error("[SHOLÉ] Session is not iterable and has no receive method", this.session);
       }
     } catch (err: any) {
       if (!this.isClosing) {
-        console.error("Message loop error:", err);
+        console.error("[SHOLÉ] Message loop error:", err);
         this.config.onError?.(err);
       }
     } finally {
@@ -116,15 +122,11 @@ export class GeminiLiveClient {
   }
 
   private handleMessage(message: any) {
-    // Model turn with audio/transcription
+    // Model Output
     if (message.serverContent?.modelTurn?.parts) {
       for (const part of message.serverContent.modelTurn.parts) {
         if (part.inlineData?.data) {
           this.config.onAudioData?.(part.inlineData.data);
-        }
-        if (part.text) {
-          // Sometimes transcription is in parts.text
-          this.config.onTranscription?.(part.text, false);
         }
       }
       if (message.serverContent.modelTurn.transcription) {
@@ -132,12 +134,12 @@ export class GeminiLiveClient {
       }
     }
 
-    // Transcription (User side)
+    // User Transcription
     if (message.serverContent?.transcription) {
       this.config.onTranscription?.(message.serverContent.transcription, true);
     }
 
-    // TOOL CALLS (The core of website control)
+    // Tool Calls
     if (message.serverContent?.modelTurn?.parts) {
       const calls = message.serverContent.modelTurn.parts
         .filter((p: any) => p.functionCall)
@@ -150,32 +152,43 @@ export class GeminiLiveClient {
   }
 
   sendAudio(base64Data: string) {
-    if (this.isClosing) return;
-    this.session?.send({
-      realtimeInput: {
-        mediaChunks: [{
-          mimeType: "audio/pcm",
-          data: base64Data
-        }]
-      }
-    });
+    if (this.isClosing || !this.session) return;
+    
+    // Ensure we are using the correct send method
+    const sendFn = this.session.send || this.session.sendAudio;
+    if (typeof sendFn === 'function') {
+      this.session.send({
+        realtimeInput: {
+          mediaChunks: [{
+            mimeType: "audio/pcm",
+            data: base64Data
+          }]
+        }
+      });
+    } else {
+      console.warn("[SHOLÉ] Session has no send method");
+    }
   }
 
   sendToolResponse(responses: any[]) {
-    if (this.isClosing) return;
-    this.session?.send({
-      toolResponse: {
-        functionResponses: responses.map(r => ({
-          id: r.id,
-          name: r.name,
-          response: r.response
-        }))
-      }
-    });
+    if (this.isClosing || !this.session) return;
+    if (typeof this.session.send === 'function') {
+      this.session.send({
+        toolResponse: {
+          functionResponses: responses.map(r => ({
+            id: r.id,
+            name: r.name,
+            response: r.response
+          }))
+        }
+      });
+    }
   }
 
   close() {
     this.isClosing = true;
-    this.session?.close();
+    try {
+      this.session?.close();
+    } catch (e) {}
   }
 }
