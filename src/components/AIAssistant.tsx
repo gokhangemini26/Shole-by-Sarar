@@ -52,7 +52,7 @@ export function AIAssistant({ open, onClose }: { open: boolean; onClose: () => v
     return outputCtxRef.current;
   }, []);
 
-  const playNextAudio = useCallback(async () => {
+  async function playNextAudio() {
     if (audioQueueRef.current.length === 0 || isPlayingRef.current) return;
     isPlayingRef.current = true;
     const b64 = audioQueueRef.current.shift()!;
@@ -77,7 +77,7 @@ export function AIAssistant({ open, onClose }: { open: boolean; onClose: () => v
       playNextAudio();
     };
     src.start(startAt);
-  }, [getOutputCtx]);
+  }
 
   const stopAudio = useCallback(() => {
     try { activeSourceRef.current?.stop(); } catch {}
@@ -95,24 +95,28 @@ export function AIAssistant({ open, onClose }: { open: boolean; onClose: () => v
       let resultData: unknown = { success: true };
 
       if (call.name === "search_products") {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { query, category, price_range } = call.args as any;
         const results = db.searchProducts(query, category, price_range);
         setDisplayedProducts(results);
         resultData = { found: results.length, products: results.map(p => ({ id: p.id, name: p.name, price: p.price })) };
       } 
       else if (call.name === "get_product_details") {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { product_id } = call.args as any;
         const details = db.getProductDetails(product_id);
         if (details) setDisplayedProducts([details]);
         resultData = details || { error: "Product not found" };
       }
       else if (call.name === "suggest_style_combo") {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { base_product_id } = call.args as any;
         const combos = db.getStyleCombos(base_product_id);
         setDisplayedProducts(combos);
         resultData = { combosFound: combos.length, products: combos.map(p => p.name) };
       }
       else if (call.name === "navigate_to_product_page") {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { product_id } = call.args as any;
         const details = db.getProductDetails(product_id);
         if (details) setDisplayedProducts([details]);
@@ -121,6 +125,7 @@ export function AIAssistant({ open, onClose }: { open: boolean; onClose: () => v
         resultData = { success: true, navigatedTo: product_id };
       }
       else if (call.name === "add_to_cart") {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { product_id } = call.args as any;
         console.log("Added to cart:", product_id);
         resultData = { success: true, added: product_id };
@@ -348,7 +353,7 @@ export function AIAssistant({ open, onClose }: { open: boolean; onClose: () => v
                   <motion.div
                     key={i}
                     animate={{
-                      height: isLive ? Math.max(4, Math.random() * audioLevel * 80) : 4,
+                      height: isLive ? Math.max(4, ((i % 5) + 1) * audioLevel * 16) : 4,
                     }}
                     transition={{ type: "tween", duration: 0.1 }}
                     className="flex-1 bg-gray-900 rounded-full opacity-60"

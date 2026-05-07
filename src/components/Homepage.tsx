@@ -758,35 +758,40 @@ export function AIInvite({
   );
 }
 
+const Bubble = ({
+  side,
+  children,
+  palette,
+  accent,
+}: {
+  side: "me" | "them";
+  children: React.ReactNode;
+  palette: Palette;
+  accent: string;
+}) => {
+  const isMe = side === "me";
+  return (
+    <div
+      style={{
+        alignSelf: isMe ? "flex-end" : "flex-start",
+        maxWidth: "82%",
+        background: isMe ? accent : "rgba(255,255,255,0.08)",
+        color: isMe ? "#1C1814" : palette.bg,
+        padding: "10px 14px",
+        borderRadius: 18,
+        borderTopRightRadius: isMe ? 4 : 18,
+        borderTopLeftRadius: isMe ? 18 : 4,
+        fontFamily: TYPE.sans,
+        fontSize: 13.5,
+        lineHeight: 1.5,
+      }}
+    >
+      {children}
+    </div>
+  );
+};
+
 function ChatPreview({ palette, accent }: { palette: Palette; accent: string }) {
-  const Bubble = ({
-    side,
-    children,
-  }: {
-    side: "me" | "them";
-    children: React.ReactNode;
-  }) => {
-    const isMe = side === "me";
-    return (
-      <div
-        style={{
-          alignSelf: isMe ? "flex-end" : "flex-start",
-          maxWidth: "82%",
-          background: isMe ? accent : "rgba(255,255,255,0.08)",
-          color: isMe ? "#1C1814" : palette.bg,
-          padding: "10px 14px",
-          borderRadius: 18,
-          borderTopRightRadius: isMe ? 4 : 18,
-          borderTopLeftRadius: isMe ? 18 : 4,
-          fontFamily: TYPE.sans,
-          fontSize: 13.5,
-          lineHeight: 1.5,
-        }}
-      >
-        {children}
-      </div>
-    );
-  };
 
   return (
     <div
@@ -855,9 +860,9 @@ function ChatPreview({ palette, accent }: { palette: Palette; accent: string }) 
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-        <Bubble side="them">hi! it&apos;s sholé ✦ what are you styling today?</Bubble>
-        <Bubble side="me">A dinner Friday. not too dressed up. need a dress.</Bubble>
-        <Bubble side="them">
+        <Bubble side="them" palette={palette} accent={accent}>hi! it&apos;s sholé ✦ what are you styling today?</Bubble>
+        <Bubble side="me" palette={palette} accent={accent}>A dinner Friday. not too dressed up. need a dress.</Bubble>
+        <Bubble side="them" palette={palette} accent={accent}>
           got it. weather says 17°C — i&apos;ll lean knit. three picks, low-effort,
           slightly off-duty:
         </Bubble>
@@ -872,7 +877,7 @@ function ChatPreview({ palette, accent }: { palette: Palette; accent: string }) 
             </div>
           ))}
         </div>
-        <Bubble side="them">
+        <Bubble side="them" palette={palette} accent={accent}>
           want to try one on? send a full-body photo and i&apos;ll mock it up.
         </Bubble>
       </div>
