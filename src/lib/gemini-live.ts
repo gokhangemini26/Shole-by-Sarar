@@ -1,7 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
 
 export interface FunctionCall {
-  id?: string;
+  id: string;
   name: string;
   args: Record<string, unknown>;
 }
@@ -31,10 +31,46 @@ export class GeminiLiveClient {
   async connect() {
     this.isClosing = false;
     try {
-      // Reverting to gemini-2.0-flash-exp for Live API as it is the most stable for bidi
+      // Setup tools as per the user's architectural guide
+      const tools = [
+        {
+          functionDeclarations: [
+            {
+              name: "sayfa_degistir",
+              description: "Kullanıcıyı belirli bir ürün kategorisine veya sayfaya yönlendirir.",
+              parameters: {
+                type: "OBJECT",
+                properties: { url_slug: { type: "STRING", description: "Yönlendirilecek sayfa veya kategori adı" } },
+                required: ["url_slug"]
+              }
+            },
+            {
+              name: "urun_detayi_goster",
+              description: "Kullanıcı belirli bir ürünü sorduğunda ürün kartını veya detayını ekranda açar.",
+              parameters: {
+                type: "OBJECT",
+                properties: { urun_id: { type: "STRING", description: "Gösterilecek ürünün benzersiz ID'si" } },
+                required: ["urun_id"]
+              }
+            },
+            {
+              name: "kombin_oner",
+              description: "Ekranda açık olan ürüne uygun aksesuarları veya kombin parçalarını listeler.",
+              parameters: {
+                type: "OBJECT",
+                properties: { urun_id: { type: "STRING", description: "Kombin yapılacak ana ürünün ID'si" } },
+                required: ["urun_id"]
+              }
+            }
+          ]
+        }
+      ];
+
+      // Using Gemini 3 Flash Live - The best for Bidi as per the user's list
       this.session = await this.ai.live.connect({
-        model: "gemini-2.0-flash-exp",
+        model: "gemini-3-flash-live",
         config: {
+          tools,
           systemInstruction: {
             role: "system",
             parts: [{ text: this.config.systemInstruction || "" }]
@@ -54,8 +90,6 @@ export class GeminiLiveClient {
 
   private async listenToMessages() {
     try {
-      // Trying the most compatible stream reading pattern for @google/genai
-      // We check multiple possible ways to iterate over messages
       const messageStream = this.session.messages || this.session.receive || this.session;
 
       if (typeof messageStream[Symbol.asyncIterator] === 'function') {
@@ -63,14 +97,13 @@ export class GeminiLiveClient {
           if (this.isClosing) break;
           this.handleMessage(message);
         }
-      } else if (typeof this.session.receive === 'function') {
+      } else {
+        // Fallback for non-iterable session
         while (!this.isClosing) {
           const message = await this.session.receive();
           if (!message) break;
           this.handleMessage(message);
         }
-      } else {
-        throw new Error("Could not find a way to read messages from the session object.");
       }
     } catch (err: any) {
       if (!this.isClosing) {
@@ -83,18 +116,15 @@ export class GeminiLiveClient {
   }
 
   private handleMessage(message: any) {
-    if (message.setupComplete) {
-      console.log("Live Session Ready");
-    }
-
-    if (message.serverContent?.transcription) {
-      this.config.onTranscription?.(message.serverContent.transcription, true);
-    }
-
+    // Model turn with audio/transcription
     if (message.serverContent?.modelTurn?.parts) {
       for (const part of message.serverContent.modelTurn.parts) {
         if (part.inlineData?.data) {
           this.config.onAudioData?.(part.inlineData.data);
+        }
+        if (part.text) {
+          // Sometimes transcription is in parts.text
+          this.config.onTranscription?.(part.text, false);
         }
       }
       if (message.serverContent.modelTurn.transcription) {
@@ -102,11 +132,20 @@ export class GeminiLiveClient {
       }
     }
 
-    if (message.serverContent?.modelTurn?.parts?.[0]?.functionCall) {
+    // Transcription (User side)
+    if (message.serverContent?.transcription) {
+      this.config.onTranscription?.(message.serverContent.transcription, true);
+    }
+
+    // TOOL CALLS (The core of website control)
+    if (message.serverContent?.modelTurn?.parts) {
       const calls = message.serverContent.modelTurn.parts
         .filter((p: any) => p.functionCall)
         .map((p: any) => p.functionCall);
-      this.config.onToolCall?.(calls);
+      
+      if (calls.length > 0) {
+        this.config.onToolCall?.(calls);
+      }
     }
   }
 
