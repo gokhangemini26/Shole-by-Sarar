@@ -8,7 +8,7 @@ export async function POST(req: Request) {
   
   try {
     if (!apiKey || apiKey === "your_gemini_api_key_here") {
-      return NextResponse.json({ error: "Server API Key is missing. Check Vercel ENV." }, { status: 500 });
+      return NextResponse.json({ error: "Server API Key is missing." }, { status: 500 });
     }
 
     const ai = new GoogleGenAI({ apiKey });
@@ -29,9 +29,9 @@ export async function POST(req: Request) {
       Drive sales with elegant fashion advice. Highlight SARAR's 1947 heritage. Keep responses concise.
     `;
 
-    // Using Gemini 3.1 Flash - The latest model from your list
+    // Trying the most fundamental model name: gemini-1.5-flash
     const response = await ai.models.generateContent({
-      model: "gemini-3.1-flash",
+      model: "gemini-1.5-flash",
       contents: contents,
       config: {
         systemInstruction: {
@@ -51,12 +51,12 @@ export async function POST(req: Request) {
   } catch (error: any) {
     console.error("Gemini API Route Error:", error.message || error);
     
-    // Fallback if 3.1-flash is not yet available in the region/project
+    // Last resort: gemini-1.5-pro
     if (error.message?.includes("not found")) {
        try {
           const ai = new GoogleGenAI({ apiKey: apiKey! });
           const response = await ai.models.generateContent({
-            model: "gemini-1.5-flash-latest",
+            model: "gemini-1.5-pro",
             contents: messages.map((m: any) => ({
               role: m.role === "user" ? "user" : "model",
               parts: [{ text: m.content || m.text }],
@@ -67,7 +67,7 @@ export async function POST(req: Request) {
           });
           return NextResponse.json({ reply: response.text });
        } catch (e2: any) {
-          return NextResponse.json({ error: `Model fallback failed: ${e2.message}` }, { status: 500 });
+          return NextResponse.json({ error: `All models failed (404). Please check your API key permissions.` }, { status: 500 });
        }
     }
     return NextResponse.json({ error: `Gemini Error: ${error.message || "Unknown error"}` }, { status: 500 });
