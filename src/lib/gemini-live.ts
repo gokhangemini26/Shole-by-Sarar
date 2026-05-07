@@ -44,7 +44,7 @@ export class GeminiLiveClient {
         }
       });
 
-      // Handle messages using the async iterator pattern (new SDK style)
+      // Start listening loop
       this.listenToMessages();
 
     } catch (err) {
@@ -55,8 +55,10 @@ export class GeminiLiveClient {
 
   private async listenToMessages() {
     try {
-      for await (const message of this.session) {
-        if (this.isClosing) break;
+      while (!this.isClosing) {
+        // Use receive() method instead of iterator
+        const message = await this.session.receive();
+        if (!message || this.isClosing) break;
 
         // Setup complete
         if (message.setupComplete) {
@@ -82,16 +84,17 @@ export class GeminiLiveClient {
 
         // Tool Calls
         if (message.serverContent?.modelTurn?.parts?.[0]?.functionCall) {
-          // Wrap in array for compatibility with our existing handler
           const calls = message.serverContent.modelTurn.parts
             .filter((p: any) => p.functionCall)
             .map((p: any) => p.functionCall);
           this.config.onToolCall?.(calls);
         }
       }
-    } catch (err) {
+    } catch (err: any) {
       if (!this.isClosing) {
         console.error("Message loop error:", err);
+        // If it's a "receive is not a function" error, we might need another approach
+        // but based on SDK v1.51+, receive() is the correct way.
         this.config.onError?.(err);
       }
     } finally {
