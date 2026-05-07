@@ -4,15 +4,18 @@ import { NextResponse } from "next/server";
 const apiKey = process.env.GEMINI_API_KEY;
 
 export async function POST(req: Request) {
+  let messages: any[] = [];
+  
   try {
     if (!apiKey || apiKey === "your_gemini_api_key_here") {
       return NextResponse.json({ error: "Server API Key is missing. Check Vercel ENV." }, { status: 500 });
     }
 
     const ai = new GoogleGenAI({ apiKey });
-    const { messages } = await req.json();
+    const body = await req.json();
+    messages = body.messages || [];
 
-    if (!messages || !messages.length) {
+    if (!messages.length) {
       return NextResponse.json({ error: "No messages provided." }, { status: 400 });
     }
 
@@ -47,8 +50,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ reply: response.text });
   } catch (error: any) {
     console.error("Gemini API Route Error:", error.message || error);
+    
     // If 2.0-flash is not found, fallback to 1.5-flash-latest
-    if (error.message?.includes("not found")) {
+    if (error.message?.includes("not found") && messages.length > 0) {
        try {
           const ai = new GoogleGenAI({ apiKey: apiKey! });
           const response = await ai.models.generateContent({
