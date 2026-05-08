@@ -69,6 +69,7 @@ export function AIAssistant({
   const clientRef = useRef<GeminiLiveClient | null>(null);
   const inputCtxRef = useRef<AudioContext | null>(null);
   const outputCtxRef = useRef<AudioContext | null>(null);
+  const micGainRef = useRef<GainNode | null>(null);
   const workletRef = useRef<AudioWorkletNode | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const audioQueueRef = useRef<string[]>([]);
@@ -107,6 +108,19 @@ export function AIAssistant({
       logScrollRef.current.scrollTop = logScrollRef.current.scrollHeight;
     }
   }, [logs]);
+
+  /* ── Mic gain ducking — soften echo while AI talks ────────────────── */
+  useEffect(() => {
+    const gain = micGainRef.current;
+    if (!gain) return;
+    const ctx = inputCtxRef.current;
+    if (!ctx) return;
+    const target = isSpeaking ? 0.3 : 1.0;
+    // Smooth 30 ms ramp avoids audible pops
+    gain.gain.cancelScheduledValues(ctx.currentTime);
+    gain.gain.setValueAtTime(gain.gain.value, ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(target, ctx.currentTime + 0.03);
+  }, [isSpeaking]);
 
   /* ── Cleanup ───────────────────────────────────────────────────────── */
   useEffect(() => {
@@ -190,12 +204,30 @@ export function AIAssistant({
       }
 
       const source = ctx.createMediaStreamSource(stream);
+      // Mic-gain node: ducked to 0.3 while AI plays so the speaker echo
+      // stays under the VAD threshold but real user speech still cuts
+      // through (barge-in keeps working without headphones).
+      const micGain = ctx.createGain();
+      micGain.gain.value = 1.0;
+      micGainRef.current = micGain;
       const worklet = new AudioWorkletNode(ctx, "pcm-processor");
 
       let chunkCount = 0;
+      const SPEAKING_INTERRUPT_LEVEL = 0.04; // empirical: well above ducked echo
       worklet.port.onmessage = (e) => {
         if (e.data.type === "level") {
           setAudioLevel(e.data.level);
+          // Client-side instant barge-in: if mic level spikes while the AI
+          // is speaking, kill the audio queue immediately — don't wait for
+          // Gemini's `interrupted` round-trip.
+          if (
+            isPlayingRef.current &&
+            e.data.level > SPEAKING_INTERRUPT_LEVEL
+          ) {
+            pushLog(`local interrupt (mic level=${e.data.level.toFixed(3)})`);
+            audioQueueRef.current = [];
+            stopAudio();
+          }
         } else if (e.data.type === "audio") {
           // Continuous capture — required for barge-in. The Gemini Live VAD
           // (START_OF_ACTIVITY_INTERRUPTS) detects when the user starts
@@ -217,11 +249,12 @@ export function AIAssistant({
 
       const silentGain = ctx.createGain();
       silentGain.gain.value = 0;
-      source.connect(worklet);
+      source.connect(micGain);
+      micGain.connect(worklet);
       worklet.connect(silentGain);
       silentGain.connect(ctx.destination);
       workletRef.current = worklet;
-      pushLog(`mic capture active (sampleRate=${ctx.sampleRate})`);
+      pushLog(`mic capture active (sampleRate=${ctx.sampleRate}, 20ms chunks)`);
     },
     [getInputCtx, pushLog]
   );

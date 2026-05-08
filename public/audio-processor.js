@@ -1,9 +1,12 @@
-// AudioWorklet processor for low-latency microphone capture
-// Runs on the audio rendering thread — no main-thread jank
+// AudioWorklet processor for low-latency microphone capture.
+// Runs on the audio rendering thread — no main-thread jank.
+//
+// Buffer size: 320 samples = 20 ms at 16 kHz. Smaller chunks = lower
+// barge-in latency (Gemini Live VAD reacts faster to start-of-speech).
 class PCMProcessor extends AudioWorkletProcessor {
   constructor() {
     super();
-    this.bufferSize = 4096;
+    this.bufferSize = 320;
     this._buffer = new Float32Array(this.bufferSize);
     this._bytesWritten = 0;
   }
@@ -14,7 +17,7 @@ class PCMProcessor extends AudioWorkletProcessor {
 
     const channelData = input[0]; // mono
 
-    // Check energy — skip silence for UI level, not for data
+    // Energy → UI level meter (amplified for visual feedback)
     let energy = 0;
     for (let i = 0; i < channelData.length; i++) {
       energy += Math.abs(channelData[i]);
@@ -22,19 +25,17 @@ class PCMProcessor extends AudioWorkletProcessor {
     const avgEnergy = energy / channelData.length;
     this.port.postMessage({ type: 'level', level: avgEnergy * 5 });
 
-    // Append to buffer
+    // Append to PCM buffer; flush every 20 ms
     for (let i = 0; i < channelData.length; i++) {
       this._buffer[this._bytesWritten++] = channelData[i];
 
       if (this._bytesWritten >= this.bufferSize) {
-        // Convert Float32 to Int16 PCM
         const pcm = new Int16Array(this.bufferSize);
         for (let j = 0; j < this.bufferSize; j++) {
           const s = Math.max(-1, Math.min(1, this._buffer[j]));
           pcm[j] = s * 0x7FFF;
         }
 
-        // Send PCM buffer to main thread
         this.port.postMessage(
           { type: 'audio', buffer: pcm.buffer },
           [pcm.buffer]
