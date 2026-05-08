@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 import { X, Mic, MicOff, Send, Terminal, AlertTriangle } from "lucide-react";
 import { GeminiLiveClient, FunctionCall } from "@/lib/gemini-live";
+import { startVADMic, type VADMicHandle } from "@/lib/vad-mic";
 import { PRODUCTS } from "@/lib/products";
 
 function buildLiveSystemPrompt() {
@@ -70,7 +71,7 @@ export function AIAssistant({
   const inputCtxRef = useRef<AudioContext | null>(null);
   const outputCtxRef = useRef<AudioContext | null>(null);
   const micGainRef = useRef<GainNode | null>(null);
-  const workletRef = useRef<AudioWorkletNode | null>(null);
+  const vadHandleRef = useRef<VADMicHandle | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const audioQueueRef = useRef<string[]>([]);
   const isPlayingRef = useRef(false);
@@ -127,7 +128,7 @@ export function AIAssistant({
     return () => {
       clientRef.current?.close();
       streamRef.current?.getTracks().forEach((t) => t.stop());
-      workletRef.current?.disconnect();
+      vadHandleRef.current?.destroy().catch(() => {});
       inputCtxRef.current?.close().catch(() => {});
       outputCtxRef.current?.close().catch(() => {});
     };
@@ -189,74 +190,62 @@ export function AIAssistant({
     setIsSpeaking(false);
   }, []);
 
-  /* ── Mic capture ──────────────────────────────────────────────────── */
+  /* ── VAD-gated mic capture ────────────────────────────────────────── */
   const startMicCapture = useCallback(
-    async (stream: MediaStream) => {
-      streamRef.current = stream;
+    async (rawStream: MediaStream) => {
+      streamRef.current = rawStream;
       const ctx = getInputCtx();
       if (ctx.state === "suspended") await ctx.resume();
 
-      try {
-        await ctx.audioWorklet.addModule("/audio-processor.js");
-      } catch (e) {
-        // already registered
-        void e;
-      }
-
-      const source = ctx.createMediaStreamSource(stream);
-      // Mic-gain node: ducked to 0.3 while AI plays so the speaker echo
-      // stays under the VAD threshold but real user speech still cuts
-      // through (barge-in keeps working without headphones).
+      // Route the raw mic through a GainNode so we can duck it during AI
+      // playback (lowers acoustic echo below the VAD threshold without
+      // muting the user). The output of the gain feeds a
+      // MediaStreamDestinationNode which becomes the stream Silero VAD
+      // sees.
+      const sourceNode = ctx.createMediaStreamSource(rawStream);
       const micGain = ctx.createGain();
       micGain.gain.value = 1.0;
       micGainRef.current = micGain;
-      const worklet = new AudioWorkletNode(ctx, "pcm-processor");
+      const dest = ctx.createMediaStreamDestination();
+      sourceNode.connect(micGain);
+      micGain.connect(dest);
+      const gatedStream = dest.stream;
 
-      let chunkCount = 0;
-      const SPEAKING_INTERRUPT_LEVEL = 0.04; // empirical: well above ducked echo
-      worklet.port.onmessage = (e) => {
-        if (e.data.type === "level") {
-          setAudioLevel(e.data.level);
-          // Client-side instant barge-in: if mic level spikes while the AI
-          // is speaking, kill the audio queue immediately — don't wait for
-          // Gemini's `interrupted` round-trip.
-          if (
-            isPlayingRef.current &&
-            e.data.level > SPEAKING_INTERRUPT_LEVEL
-          ) {
-            pushLog(`local interrupt (mic level=${e.data.level.toFixed(3)})`);
-            audioQueueRef.current = [];
-            stopAudio();
-          }
-        } else if (e.data.type === "audio") {
-          // Continuous capture — required for barge-in. The Gemini Live VAD
-          // (START_OF_ACTIVITY_INTERRUPTS) detects when the user starts
-          // speaking and immediately cuts off the model's current reply.
-          // Caveat: without headphones the mic picks up the speaker output
-          // and creates feedback. We surface a headphone hint in the UI.
-          const u8 = new Uint8Array(e.data.buffer);
-          let bin = "";
-          for (let i = 0; i < u8.byteLength; i++)
-            bin += String.fromCharCode(u8[i]);
-          const b64 = btoa(bin);
-          clientRef.current?.sendAudio(b64);
-          chunkCount++;
-          if (chunkCount === 1 || chunkCount % 100 === 0) {
-            pushLog(`mic → sent ${chunkCount} chunk(s)`);
-          }
-        }
-      };
-
-      const silentGain = ctx.createGain();
-      silentGain.gain.value = 0;
-      source.connect(micGain);
-      micGain.connect(worklet);
-      worklet.connect(silentGain);
-      silentGain.connect(ctx.destination);
-      workletRef.current = worklet;
-      pushLog(`mic capture active (sampleRate=${ctx.sampleRate}, 20ms chunks)`);
+      try {
+        const handle = await startVADMic({
+          stream: gatedStream,
+          audioContext: ctx,
+          onLog: pushLog,
+          onLevel: (lvl) => setAudioLevel(lvl),
+          onSpeechStart: () => {
+            // Instant barge-in: kill the AI audio queue the moment Silero
+            // confirms the user is speaking. No round-trip latency.
+            if (isPlayingRef.current || audioQueueRef.current.length > 0) {
+              pushLog("local interrupt → clearing AI audio queue");
+              audioQueueRef.current = [];
+              stopAudio();
+            }
+          },
+          onSpeechFrameB64: (b64) => {
+            clientRef.current?.sendAudio(b64);
+          },
+        });
+        vadHandleRef.current = handle;
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        pushLog(`VAD load FAILED: ${msg}`);
+        setMessages((m) => [
+          ...m,
+          {
+            role: "model",
+            content:
+              "couldn't load the voice model ◇ — refresh the page and try again.",
+          },
+        ]);
+        throw err;
+      }
     },
-    [getInputCtx, pushLog]
+    [getInputCtx, pushLog, stopAudio]
   );
 
   /* ── Tool calls ───────────────────────────────────────────────────── */
@@ -281,7 +270,8 @@ export function AIAssistant({
       clientRef.current?.close();
       clientRef.current = null;
       streamRef.current?.getTracks().forEach((t) => t.stop());
-      workletRef.current?.disconnect();
+      vadHandleRef.current?.destroy().catch(() => {});
+      vadHandleRef.current = null;
       stopAudio();
       setIsLive(false);
       setIsConnecting(false);
