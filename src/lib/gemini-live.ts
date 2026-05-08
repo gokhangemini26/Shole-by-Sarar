@@ -1,6 +1,13 @@
 "use client";
 
-import { GoogleGenAI, Modality, Type } from "@google/genai";
+import {
+  GoogleGenAI,
+  Modality,
+  Type,
+  ActivityHandling,
+  StartSensitivity,
+  EndSensitivity,
+} from "@google/genai";
 import type { LiveServerMessage, Session, Tool } from "@google/genai";
 import { getAllSlugs } from "@/lib/products";
 
@@ -33,16 +40,10 @@ export interface GeminiLiveConfig {
   onLog?: LogFn;
 }
 
-// Models the public Gemini Developer API key tier supports for bidiGenerateContent.
-// We try them in order; the first successful connect wins.
-// gemini-3.1-flash-live-preview uses cascaded TTS → noticeably more fluid for
-// chat. Native-audio models are higher quality but slower per-token, so they
-// fall back behind for conversational use.
-const LIVE_MODEL_CANDIDATES = [
-  "gemini-3.1-flash-live-preview",
-  "gemini-2.5-flash-native-audio-latest",
-  "gemini-2.5-flash-native-audio-preview-09-2025",
-] as const;
+// Pinned to gemini-3.1-flash-live-preview per product decision: cascaded TTS
+// is the most fluid option for conversational shopping and supports proper
+// barge-in / interruption.
+const LIVE_MODEL_CANDIDATES = ["gemini-3.1-flash-live-preview"] as const;
 
 const DEFAULT_TOOLS: Tool[] = [
   {
@@ -146,7 +147,17 @@ export class GeminiLiveClient {
         tools: DEFAULT_TOOLS,
         outputAudioTranscription: {},
         inputAudioTranscription: {},
-        realtimeInputConfig: { automaticActivityDetection: {} },
+        realtimeInputConfig: {
+          // Barge-in: the moment the user speaks, cut off the model's reply
+          // and start listening. Required for natural back-and-forth.
+          activityHandling: ActivityHandling.START_OF_ACTIVITY_INTERRUPTS,
+          automaticActivityDetection: {
+            startOfSpeechSensitivity: StartSensitivity.START_SENSITIVITY_HIGH,
+            endOfSpeechSensitivity: EndSensitivity.END_SENSITIVITY_HIGH,
+            prefixPaddingMs: 20,
+            silenceDurationMs: 500,
+          },
+        },
       },
       callbacks: {
         onopen: () => {

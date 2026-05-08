@@ -193,22 +193,15 @@ export function AIAssistant({
       const worklet = new AudioWorkletNode(ctx, "pcm-processor");
 
       let chunkCount = 0;
-      let mutedCount = 0;
       worklet.port.onmessage = (e) => {
         if (e.data.type === "level") {
-          // Don't show mic-level animation while AI is talking either
-          setAudioLevel(isPlayingRef.current ? 0 : e.data.level);
+          setAudioLevel(e.data.level);
         } else if (e.data.type === "audio") {
-          // Echo-cancellation: while the AI's audio is playing through speakers
-          // the mic picks it up and the model would treat it as user speech,
-          // creating a feedback loop. Drop those chunks.
-          if (isPlayingRef.current || audioQueueRef.current.length > 0) {
-            mutedCount++;
-            if (mutedCount === 1 || mutedCount % 100 === 0) {
-              pushLog(`mic muted while AI speaks (${mutedCount} chunks dropped)`);
-            }
-            return;
-          }
+          // Continuous capture — required for barge-in. The Gemini Live VAD
+          // (START_OF_ACTIVITY_INTERRUPTS) detects when the user starts
+          // speaking and immediately cuts off the model's current reply.
+          // Caveat: without headphones the mic picks up the speaker output
+          // and creates feedback. We surface a headphone hint in the UI.
           const u8 = new Uint8Array(e.data.buffer);
           let bin = "";
           for (let i = 0; i < u8.byteLength; i++)
@@ -216,8 +209,8 @@ export function AIAssistant({
           const b64 = btoa(bin);
           clientRef.current?.sendAudio(b64);
           chunkCount++;
-          if (chunkCount === 1 || chunkCount % 50 === 0) {
-            pushLog(`mic → sent ${chunkCount} chunk(s) (last ${u8.byteLength}b)`);
+          if (chunkCount === 1 || chunkCount % 100 === 0) {
+            pushLog(`mic → sent ${chunkCount} chunk(s)`);
           }
         }
       };
@@ -489,9 +482,15 @@ export function AIAssistant({
     ? "◌ connecting voice..."
     : isLive
     ? isSpeaking
-      ? "🔊 SHOLÉ speaking · mic paused"
+      ? "🔊 SHOLÉ speaking · just talk to interrupt"
       : "🔴 live voice · listening"
     : "◇ powered by gemini";
+
+  const interruptNow = () => {
+    pushLog("user pressed interrupt → clearing audio queue");
+    audioQueueRef.current = [];
+    stopAudio();
+  };
 
   return (
     <motion.div
@@ -571,8 +570,24 @@ export function AIAssistant({
         </div>
       )}
 
+      {/* Live mode hint — once, when voice is open */}
+      {isLive && !isSpeaking && (
+        <div className="bg-emerald-50 border-b border-emerald-200 px-4 py-1.5 text-[10px] text-emerald-900 text-center">
+          ✦ tip: use headphones for the cleanest barge-in (mic stays open while SHOLÉ speaks)
+        </div>
+      )}
+
       {/* Messages */}
-      <div className="flex-1 overflow-hidden flex flex-col bg-gray-50/50">
+      <div className="flex-1 overflow-hidden flex flex-col bg-gray-50/50 relative">
+        {isLive && isSpeaking && (
+          <button
+            onClick={interruptNow}
+            className="absolute top-2 left-1/2 -translate-x-1/2 z-10 bg-black text-white text-[11px] px-3 py-1.5 rounded-full shadow-lg flex items-center gap-2 hover:bg-gray-800 transition-colors animate-pulse"
+          >
+            <span className="w-1.5 h-1.5 bg-red-400 rounded-full" />
+            tap to interrupt
+          </button>
+        )}
         <div ref={chatScrollRef} className="flex-1 overflow-y-auto p-6 space-y-4">
           {messages.map((m, i) => (
             <div
