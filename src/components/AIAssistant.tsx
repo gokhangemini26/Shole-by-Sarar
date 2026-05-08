@@ -116,7 +116,9 @@ export function AIAssistant({
     if (!gain) return;
     const ctx = inputCtxRef.current;
     if (!ctx) return;
-    const target = isSpeaking ? 0.3 : 1.0;
+    // -22 dB during AI playback — speaker echo at this level rarely clears
+    // Silero's positive threshold even with the noisiest laptops.
+    const target = isSpeaking ? 0.08 : 1.0;
     // Smooth 30 ms ramp avoids audible pops
     gain.gain.cancelScheduledValues(ctx.currentTime);
     gain.gain.setValueAtTime(gain.gain.value, ctx.currentTime);
@@ -197,16 +199,30 @@ export function AIAssistant({
       const ctx = getInputCtx();
       if (ctx.state === "suspended") await ctx.resume();
 
-      // Hand the raw mic stream directly to MicVAD. The custom GainNode
-      // ducking chain has been removed — it was preventing audio from
-      // reaching VAD on some setups. Echo control now relies on
-      // getUserMedia's echoCancellation flag plus Silero's threshold.
+      // Build a ducking chain so the AI's voice through speakers gets
+      // attenuated before it reaches the mic-side VAD. Without this the
+      // mic re-captures the bot and Silero treats it as user speech.
+      const sourceNode = ctx.createMediaStreamSource(rawStream);
+      const micGain = ctx.createGain();
+      micGain.gain.value = 1.0;
+      micGainRef.current = micGain;
+      const dest = ctx.createMediaStreamDestination();
+      sourceNode.connect(micGain);
+      micGain.connect(dest);
+      const gatedStream = dest.stream;
+
       try {
         const handle = await startVADMic({
-          stream: rawStream,
+          stream: gatedStream,
           audioContext: ctx,
           onLog: pushLog,
           onLevel: (lvl) => setAudioLevel(lvl),
+          // Belt-and-braces echo guard: the duck cuts amplitude (and the
+          // VAD probability with it); when AI is playing we additionally
+          // require >0.92 confidence before counting as user speech.
+          isAISpeaking: () =>
+            isPlayingRef.current || audioQueueRef.current.length > 0,
+          aiPlaybackThreshold: 0.92,
           onSpeechStart: () => {
             if (isPlayingRef.current || audioQueueRef.current.length > 0) {
               pushLog("local interrupt → clearing AI audio queue");

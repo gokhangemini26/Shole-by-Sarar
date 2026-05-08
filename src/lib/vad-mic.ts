@@ -31,6 +31,11 @@ export interface VADMicConfig {
   positiveSpeechThreshold?: number;
   negativeSpeechThreshold?: number;
   preSpeechPadFrames?: number;
+  /** Returns true while the AI is playing audio. When true, VAD ignores
+   *  any speech detection below `aiPlaybackThreshold` so we don't loop
+   *  the AI's own voice (echo) back to Gemini. */
+  isAISpeaking?: () => boolean;
+  aiPlaybackThreshold?: number;
 }
 
 export interface VADMicHandle {
@@ -55,12 +60,14 @@ export async function startVADMic(
   const log = cfg.onLog ?? (() => {});
   const positiveSpeechThreshold = cfg.positiveSpeechThreshold ?? 0.4;
   const negativeSpeechThreshold = cfg.negativeSpeechThreshold ?? 0.25;
+  const aiPlaybackThreshold = cfg.aiPlaybackThreshold ?? 0.92;
   const preSpeechPadFrames = cfg.preSpeechPadFrames ?? 6;
 
   log(`Silero VAD: loading model from /vad/ + jsdelivr…`);
 
   const recentFrames: Float32Array[] = [];
   let inSpeech = false;
+  let aboveAIPlaybackThreshold = false;
   let frameCounter = 0;
   let maxProbSeen = 0;
 
@@ -81,6 +88,17 @@ export async function startVADMic(
       preSpeechPadMs: 200,
       minSpeechMs: 200,
       onSpeechStart: () => {
+        // Echo guard: while the AI is talking, ignore "speech start" events
+        // unless we recently saw a frame above aiPlaybackThreshold (set by
+        // onFrameProcessed below). Silero will fire onSpeechStart on
+        // anything above positiveSpeechThreshold, but the AI's own
+        // (already-ducked) voice can clear that bar; the higher gate
+        // prevents the echo loop.
+        const aiTalking = cfg.isAISpeaking?.() ?? false;
+        if (aiTalking && !aboveAIPlaybackThreshold) {
+          log("VAD speech start IGNORED (echo guard)");
+          return;
+        }
         inSpeech = true;
         log(`VAD → speech start (flushing ${recentFrames.length} pre-frames)`);
         cfg.onSpeechStart?.();
@@ -90,17 +108,14 @@ export async function startVADMic(
       },
       onFrameProcessed: (probs, frame) => {
         cfg.onLevel?.(probs.isSpeech);
+        if (probs.isSpeech >= aiPlaybackThreshold) aboveAIPlaybackThreshold = true;
+        else if (probs.isSpeech < negativeSpeechThreshold) aboveAIPlaybackThreshold = false;
 
-        // Visibility into the model: every ~3 s log the highest probability
-        // we've seen in the window so the user can tell if audio is even
-        // reaching the VAD.
         frameCounter++;
         if (probs.isSpeech > maxProbSeen) maxProbSeen = probs.isSpeech;
         if (frameCounter % 100 === 0) {
           log(
-            `VAD heartbeat: 100 frames, peak isSpeech=${maxProbSeen.toFixed(
-              2
-            )} (threshold ${positiveSpeechThreshold})`
+            `VAD heartbeat: 100f, peak isSpeech=${maxProbSeen.toFixed(2)} (thr ${positiveSpeechThreshold}/${aiPlaybackThreshold})`
           );
           maxProbSeen = 0;
         }
