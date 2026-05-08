@@ -1,7 +1,11 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import type { Tool } from "@google/genai";
 import { NextResponse } from "next/server";
-import { PRODUCTS } from "@/lib/products";
+import { PRODUCTS, getAllSlugs } from "@/lib/products";
+
+const ALL_SLUGS = getAllSlugs();
+const CATEGORIES = ["women", "accessories", "shoes", "tailoring", "journal"];
+const SECTIONS = ["hero", "collection", "story", "ai-invite", "press", "footer"];
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -51,10 +55,7 @@ const TOOLS: Tool[] = [
         parameters: {
           type: Type.OBJECT,
           properties: {
-            section: {
-              type: Type.STRING,
-              description: "hero | collection | story | ai-invite | press | footer",
-            },
+            section: { type: Type.STRING, enum: SECTIONS },
           },
           required: ["section"],
         },
@@ -65,31 +66,27 @@ const TOOLS: Tool[] = [
         parameters: {
           type: Type.OBJECT,
           properties: {
-            category: {
-              type: Type.STRING,
-              description: "women | accessories | shoes | tailoring | journal",
-            },
+            category: { type: Type.STRING, enum: CATEGORIES },
           },
           required: ["category"],
         },
       },
       {
         name: "show_product",
-        description: "Open the product detail page. Call whenever a specific item is discussed.",
+        description:
+          "Open the product detail page. ONLY use product_ids from the catalog above — never invent a slug.",
         parameters: {
           type: Type.OBJECT,
           properties: {
-            product_id: {
-              type: Type.STRING,
-              description: "Product slug, e.g. atelier-coat",
-            },
+            product_id: { type: Type.STRING, enum: ALL_SLUGS },
           },
           required: ["product_id"],
         },
       },
       {
         name: "recommend_outfit",
-        description: "Suggest a complete outfit (comma-separated product names).",
+        description:
+          "Suggest a complete outfit (comma-separated product names from the catalog).",
         parameters: {
           type: Type.OBJECT,
           properties: {

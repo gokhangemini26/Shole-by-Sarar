@@ -4,6 +4,16 @@ import React, { useEffect, useState, useCallback } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { AIAssistant, FloatingLauncher } from "./AIAssistant";
 import type { FunctionCall } from "@/lib/gemini-live";
+import { getAllSlugs } from "@/lib/products";
+
+const VALID_SLUGS = new Set(getAllSlugs());
+const VALID_CATEGORIES = new Set([
+  "women",
+  "accessories",
+  "shoes",
+  "tailoring",
+  "journal",
+]);
 
 export function GlobalAssistant() {
   const [aiOpen, setAiOpen] = useState(false);
@@ -48,12 +58,22 @@ export function GlobalAssistant() {
 
         if (call.name === "navigate_category") {
           const category = asStr(call.args.category);
-          if (category) router.push(`/${category}`);
+          if (VALID_CATEGORIES.has(category)) {
+            router.push(`/${category}`);
+          } else {
+            console.warn(`[SHOLÉ] invalid category: "${category}"`);
+          }
         }
 
         if (call.name === "show_product") {
           const productId = asStr(call.args.product_id);
-          if (productId) router.push(`/product/${productId}`);
+          if (VALID_SLUGS.has(productId)) {
+            router.push(`/product/${productId}`);
+          } else {
+            console.warn(
+              `[SHOLÉ] hallucinated product slug ignored: "${productId}"`
+            );
+          }
         }
 
         if (call.name === "recommend_outfit") {
@@ -65,7 +85,13 @@ export function GlobalAssistant() {
               .toLowerCase()
               .replace(/\s+/g, "-")
               .replace(/[^a-z0-9-]/g, "");
-            if (first) router.push(`/product/${first}`);
+            if (first && VALID_SLUGS.has(first)) {
+              router.push(`/product/${first}`);
+            } else {
+              console.warn(
+                `[SHOLÉ] outfit hero piece "${first}" not in catalog`
+              );
+            }
           }
         }
       }

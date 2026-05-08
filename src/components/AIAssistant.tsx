@@ -2,8 +2,31 @@
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
-import { X, Mic, MicOff, Send, Terminal } from "lucide-react";
+import { X, Mic, MicOff, Send, Terminal, AlertTriangle } from "lucide-react";
 import { GeminiLiveClient, FunctionCall } from "@/lib/gemini-live";
+import { PRODUCTS } from "@/lib/products";
+
+function buildLiveSystemPrompt() {
+  const productList = PRODUCTS.map(
+    (p, i) =>
+      `${i + 1}. ${p.name} — ${p.subtitle}, ${p.price}. slug: '${p.slug}'`
+  ).join("\n");
+
+  return `You are SHOLÉ (sho-LAY), the AI fashion stylist for SHOLÉ by SARAR — a modern Turkish luxury house in Istanbul, founded 1947.
+
+PERSONALITY: Warm, witty, casually confident. Reply in the user's language, keep answers short (1-3 sentences).
+
+═══ TOOL-USE RULES (NON-NEGOTIABLE) ═══
+- When the customer mentions a SPECIFIC product, CALL show_product(product_id) using the EXACT slug from the catalog below. NEVER invent a slug — only use slugs listed.
+- When asked about a CATEGORY (women / accessories / shoes / tailoring / journal), CALL navigate_category.
+- When asked for an OUTFIT/COMBINATION, CALL recommend_outfit AND show_product for the hero piece.
+- NEVER mention tool/function names in your spoken reply.
+
+═══ CATALOG (Spring/Summer 2026) ═══
+${productList}
+
+Free shipping over €200; Made in Istanbul; Sizes XS–XL.`;
+}
 
 type Msg = { role: "user" | "model"; content: string };
 type LogLine = { ts: string; text: string };
@@ -36,6 +59,10 @@ export function AIAssistant({
 
   const chatScrollRef = useRef<HTMLDivElement>(null);
   const logScrollRef = useRef<HTMLDivElement>(null);
+
+  const hasVoiceKey =
+    typeof process !== "undefined" &&
+    !!process.env.NEXT_PUBLIC_GEMINI_API_KEY;
 
   // Live refs
   const clientRef = useRef<GeminiLiveClient | null>(null);
@@ -264,8 +291,7 @@ export function AIAssistant({
     pushLog(`api key present (len=${apiKey.length})`);
 
     clientRef.current = new GeminiLiveClient(apiKey, {
-      systemInstruction:
-        "You are SHOLÉ, the AI fashion stylist for SHOLÉ by SARAR (Istanbul, 1947). Warm, witty, lowercase casual. Always reply in the user's language. ALWAYS call show_product / navigate_category / recommend_outfit when the user mentions specific items, categories or outfits. Keep replies short.",
+      systemInstruction: buildLiveSystemPrompt(),
       onLog: pushLog,
       onOpen: () => {
         pushLog("Live onOpen → starting mic");
@@ -344,11 +370,16 @@ export function AIAssistant({
 
     setIsLoading(true);
     pushLog(`POST /api/chat → "${textToSend.slice(0, 40)}"`);
+    // Drop empty placeholder bubbles so we never send `{role:'model', content:''}` to Gemini —
+    // the API rejects empty assistant turns and produces low-quality follow-ups.
+    const cleanHistory = [...messages, userMessage].filter(
+      (m) => (m.content || "").trim().length > 0
+    );
     try {
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: [...messages, userMessage] }),
+        body: JSON.stringify({ messages: cleanHistory }),
       });
 
       pushLog(`HTTP ${response.status} ${response.statusText}`);
@@ -478,6 +509,17 @@ export function AIAssistant({
           </button>
         </div>
       </div>
+
+      {/* Voice key warning */}
+      {!hasVoiceKey && (
+        <div className="bg-amber-50 border-b border-amber-200 px-4 py-2 flex items-start gap-2">
+          <AlertTriangle size={14} className="text-amber-700 flex-shrink-0 mt-0.5" />
+          <div className="text-[11px] text-amber-900 leading-snug">
+            Voice mode disabled: <code>NEXT_PUBLIC_GEMINI_API_KEY</code> is not set on this deployment.
+            Text chat works. Add the env var in Vercel → Project Settings → Environment Variables and redeploy.
+          </div>
+        </div>
+      )}
 
       {/* Debug log panel */}
       {showLog && (

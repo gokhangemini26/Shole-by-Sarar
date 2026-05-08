@@ -2,6 +2,11 @@
 
 import { GoogleGenAI, Modality, Type } from "@google/genai";
 import type { LiveServerMessage, Session, Tool } from "@google/genai";
+import { getAllSlugs } from "@/lib/products";
+
+const ALL_SLUGS = getAllSlugs();
+const CATEGORIES = ["women", "accessories", "shoes", "tailoring", "journal"];
+const SECTIONS = ["hero", "collection", "story", "ai-invite", "press", "footer"];
 
 /* ═══════════════════════════════════════════════════════════════════════
    SHOLÉ Gemini Live Client — Real-time voice + function calling
@@ -38,7 +43,7 @@ const DEFAULT_TOOLS: Tool[] = [
         description: "Scrolls the homepage to a specific section.",
         parameters: {
           type: Type.OBJECT,
-          properties: { section: { type: Type.STRING } },
+          properties: { section: { type: Type.STRING, enum: SECTIONS } },
           required: ["section"],
         },
       },
@@ -47,16 +52,17 @@ const DEFAULT_TOOLS: Tool[] = [
         description: "Take the user to a category page.",
         parameters: {
           type: Type.OBJECT,
-          properties: { category: { type: Type.STRING } },
+          properties: { category: { type: Type.STRING, enum: CATEGORIES } },
           required: ["category"],
         },
       },
       {
         name: "show_product",
-        description: "Open the product detail page when a specific item is discussed.",
+        description:
+          "Open the product detail page. ONLY use product_ids from the catalog — never invent a slug.",
         parameters: {
           type: Type.OBJECT,
-          properties: { product_id: { type: Type.STRING } },
+          properties: { product_id: { type: Type.STRING, enum: ALL_SLUGS } },
           required: ["product_id"],
         },
       },
