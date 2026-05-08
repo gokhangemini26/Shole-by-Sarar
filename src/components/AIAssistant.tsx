@@ -53,6 +53,7 @@ export function AIAssistant({
   const [isLoading, setIsLoading] = useState(false);
   const [isLive, setIsLive] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
   const [audioLevel, setAudioLevel] = useState(0);
   const [logs, setLogs] = useState<LogLine[]>([]);
   const [showLog, setShowLog] = useState(false);
@@ -134,6 +135,7 @@ export function AIAssistant({
   const playNextAudio = useCallback(async () => {
     if (audioQueueRef.current.length === 0 || isPlayingRef.current) return;
     isPlayingRef.current = true;
+    setIsSpeaking(true);
     const b64 = audioQueueRef.current.shift()!;
     const ctx = getOutputCtx();
     if (ctx.state === "suspended") await ctx.resume().catch(() => {});
@@ -154,6 +156,9 @@ export function AIAssistant({
     src.onended = () => {
       activeSourceRef.current = null;
       isPlayingRef.current = false;
+      // Only mark "no longer speaking" if the queue is also empty —
+      // otherwise the next chunk in the queue will resume immediately.
+      if (audioQueueRef.current.length === 0) setIsSpeaking(false);
       playNextAudio();
     };
     src.start(startAt);
@@ -167,6 +172,7 @@ export function AIAssistant({
     isPlayingRef.current = false;
     audioQueueRef.current = [];
     nextStartTimeRef.current = 0;
+    setIsSpeaking(false);
   }, []);
 
   /* ── Mic capture ──────────────────────────────────────────────────── */
@@ -187,10 +193,22 @@ export function AIAssistant({
       const worklet = new AudioWorkletNode(ctx, "pcm-processor");
 
       let chunkCount = 0;
+      let mutedCount = 0;
       worklet.port.onmessage = (e) => {
         if (e.data.type === "level") {
-          setAudioLevel(e.data.level);
+          // Don't show mic-level animation while AI is talking either
+          setAudioLevel(isPlayingRef.current ? 0 : e.data.level);
         } else if (e.data.type === "audio") {
+          // Echo-cancellation: while the AI's audio is playing through speakers
+          // the mic picks it up and the model would treat it as user speech,
+          // creating a feedback loop. Drop those chunks.
+          if (isPlayingRef.current || audioQueueRef.current.length > 0) {
+            mutedCount++;
+            if (mutedCount === 1 || mutedCount % 100 === 0) {
+              pushLog(`mic muted while AI speaks (${mutedCount} chunks dropped)`);
+            }
+            return;
+          }
           const u8 = new Uint8Array(e.data.buffer);
           let bin = "";
           for (let i = 0; i < u8.byteLength; i++)
@@ -465,7 +483,9 @@ export function AIAssistant({
   const statusText = isConnecting
     ? "◌ connecting voice..."
     : isLive
-    ? "🔴 live voice"
+    ? isSpeaking
+      ? "🔊 SHOLÉ speaking · mic paused"
+      : "🔴 live voice · listening"
     : "◇ powered by gemini";
 
   return (
