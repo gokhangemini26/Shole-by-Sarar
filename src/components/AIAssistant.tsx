@@ -293,6 +293,10 @@ export function AIAssistant({
     }
 
     setIsConnecting(true);
+    // Auto-open the log panel during voice connection so the user can see
+    // VAD heartbeats, mic level, and any errors without hunting for the
+    // log button.
+    setShowLog(true);
 
     const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
     if (!apiKey) {
@@ -525,15 +529,18 @@ export function AIAssistant({
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-2">
           <button
             onClick={() => setShowLog((v) => !v)}
             title="Activity log"
-            className={`p-2 rounded-full transition-colors ${
-              showLog ? "bg-white/20" : "hover:bg-white/10"
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-colors border ${
+              showLog
+                ? "bg-emerald-400 text-black border-emerald-400"
+                : "bg-white/10 text-white border-white/20 hover:bg-white/20"
             }`}
           >
-            <Terminal size={16} />
+            <Terminal size={12} />
+            LOG
           </button>
           <button
             onClick={onClose}
