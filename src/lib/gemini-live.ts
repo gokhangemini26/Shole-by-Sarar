@@ -35,10 +35,13 @@ export interface GeminiLiveConfig {
 
 // Models the public Gemini Developer API key tier supports for bidiGenerateContent.
 // We try them in order; the first successful connect wins.
+// gemini-3.1-flash-live-preview uses cascaded TTS → noticeably more fluid for
+// chat. Native-audio models are higher quality but slower per-token, so they
+// fall back behind for conversational use.
 const LIVE_MODEL_CANDIDATES = [
+  "gemini-3.1-flash-live-preview",
   "gemini-2.5-flash-native-audio-latest",
   "gemini-2.5-flash-native-audio-preview-09-2025",
-  "gemini-3.1-flash-live-preview",
 ] as const;
 
 const DEFAULT_TOOLS: Tool[] = [

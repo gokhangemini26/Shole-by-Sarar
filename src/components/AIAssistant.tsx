@@ -388,11 +388,16 @@ export function AIAssistant({
 
     setIsLoading(true);
     pushLog(`POST /api/chat → "${textToSend.slice(0, 40)}"`);
-    // Drop empty placeholder bubbles so we never send `{role:'model', content:''}` to Gemini —
-    // the API rejects empty assistant turns and produces low-quality follow-ups.
-    const cleanHistory = [...messages, userMessage].filter(
+    // Build the API history:
+    // 1. Drop empty placeholder bubbles (would produce {role:'model', content:''})
+    // 2. Drop any leading model bubble — Gemini requires history to start with `user`,
+    //    otherwise follow-up turns get silently rejected.
+    let cleanHistory = [...messages, userMessage].filter(
       (m) => (m.content || "").trim().length > 0
     );
+    while (cleanHistory.length && cleanHistory[0].role !== "user") {
+      cleanHistory = cleanHistory.slice(1);
+    }
     try {
       const response = await fetch("/api/chat", {
         method: "POST",

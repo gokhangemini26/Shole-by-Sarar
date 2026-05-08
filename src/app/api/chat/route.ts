@@ -132,10 +132,22 @@ export async function POST(req: Request) {
 
     const ai = new GoogleGenAI({ apiKey });
 
-    const contents = messages.map((m) => ({
-      role: m.role === "user" ? ("user" as const) : ("model" as const),
-      parts: [{ text: (m.content || m.text || "").toString() }],
-    }));
+    let contents = messages
+      .map((m) => ({
+        role: m.role === "user" ? ("user" as const) : ("model" as const),
+        parts: [{ text: (m.content || m.text || "").toString() }],
+      }))
+      .filter((c) => c.parts[0].text.trim().length > 0);
+
+    // Gemini requires history to begin with a `user` turn — strip any leading
+    // model greeting (e.g. the "Welcome to SHOLÉ" placeholder).
+    while (contents.length && contents[0].role !== "user") {
+      contents.shift();
+    }
+    if (!contents.length) {
+      log("history reduced to empty after sanitisation");
+      return NextResponse.json({ error: "Empty history" }, { status: 400 });
+    }
 
     let lastErr: unknown = null;
     for (const model of MODELS) {
