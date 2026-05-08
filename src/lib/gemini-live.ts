@@ -1,183 +1,230 @@
+"use client";
+
+import { GoogleGenAI, Modality, Type } from "@google/genai";
+import type { LiveServerMessage, Session, Tool } from "@google/genai";
+
+/* ═══════════════════════════════════════════════════════════════════════
+   SHOLÉ Gemini Live Client — Real-time voice + function calling
+   Model: gemini-live-2.5-flash-preview
+   ═══════════════════════════════════════════════════════════════════════ */
+
 export interface FunctionCall {
-  id: string;
+  id?: string;
   name: string;
   args: Record<string, unknown>;
 }
+
+export type LogFn = (entry: string) => void;
 
 export interface GeminiLiveConfig {
   systemInstruction?: string;
   onAudioData?: (data: string) => void;
   onTranscription?: (text: string, isUser: boolean) => void;
-  onToolCall?: (functionCalls: FunctionCall[]) => void;
-  onError?: (error: unknown) => void;
+  onToolCall?: (calls: FunctionCall[]) => void;
+  onInterrupted?: () => void;
+  onOpen?: () => void;
+  onError?: (err: unknown) => void;
   onClose?: () => void;
+  onLog?: LogFn;
 }
 
+const LIVE_MODEL = "gemini-live-2.5-flash-preview";
+
+const DEFAULT_TOOLS: Tool[] = [
+  {
+    functionDeclarations: [
+      {
+        name: "navigate_to",
+        description: "Scrolls the homepage to a specific section.",
+        parameters: {
+          type: Type.OBJECT,
+          properties: { section: { type: Type.STRING } },
+          required: ["section"],
+        },
+      },
+      {
+        name: "navigate_category",
+        description: "Take the user to a category page.",
+        parameters: {
+          type: Type.OBJECT,
+          properties: { category: { type: Type.STRING } },
+          required: ["category"],
+        },
+      },
+      {
+        name: "show_product",
+        description: "Open the product detail page when a specific item is discussed.",
+        parameters: {
+          type: Type.OBJECT,
+          properties: { product_id: { type: Type.STRING } },
+          required: ["product_id"],
+        },
+      },
+      {
+        name: "recommend_outfit",
+        description: "Suggest a complete outfit (comma-separated product names).",
+        parameters: {
+          type: Type.OBJECT,
+          properties: {
+            items: { type: Type.STRING },
+            occasion: { type: Type.STRING },
+          },
+          required: ["items"],
+        },
+      },
+    ],
+  },
+];
+
 export class GeminiLiveClient {
-  private ws: WebSocket | null = null;
-  private apiKey: string;
+  private ai: GoogleGenAI;
+  private session: Session | null = null;
   private config: GeminiLiveConfig;
+  private log: LogFn;
 
   constructor(apiKey: string, config: GeminiLiveConfig) {
-    this.apiKey = apiKey;
+    this.ai = new GoogleGenAI({ apiKey });
     this.config = config;
+    this.log = (entry) => {
+      console.log(`[SHOLÉ Live] ${entry}`);
+      config.onLog?.(entry);
+    };
   }
 
   async connect() {
-    return new Promise<void>((resolve, reject) => {
-      try {
-        const url = `wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent?key=${this.apiKey}`;
-        this.ws = new WebSocket(url);
-
-        this.ws.onopen = () => {
-          console.log("[SHOLÉ] WebSocket Connected");
-          this.sendSetupMessage();
-          resolve();
-        };
-
-        this.ws.onmessage = (event) => {
-          this.handleMessage(event.data);
-        };
-
-        this.ws.onerror = (err) => {
-          console.error("[SHOLÉ] WebSocket Error:", err);
-          this.config.onError?.(err);
-          reject(err);
-        };
-
-        this.ws.onclose = () => {
-          console.log("[SHOLÉ] WebSocket Closed");
+    this.log(`connect → model=${LIVE_MODEL}`);
+    this.session = await this.ai.live.connect({
+      model: LIVE_MODEL,
+      config: {
+        responseModalities: [Modality.AUDIO],
+        speechConfig: {
+          voiceConfig: { prebuiltVoiceConfig: { voiceName: "Zephyr" } },
+        },
+        systemInstruction:
+          this.config.systemInstruction || "You are a helpful assistant.",
+        tools: DEFAULT_TOOLS,
+        outputAudioTranscription: {},
+        inputAudioTranscription: {},
+        realtimeInputConfig: { automaticActivityDetection: {} },
+      },
+      callbacks: {
+        onopen: () => {
+          this.log("WS opened");
+          this.config.onOpen?.();
+        },
+        onmessage: (message: LiveServerMessage) => {
+          this.handleMessage(message);
+        },
+        onclose: (ev?: { code?: number; reason?: string }) => {
+          this.log(`WS closed code=${ev?.code} reason=${ev?.reason || ""}`);
           this.config.onClose?.();
-        };
+        },
+        onerror: (err: unknown) => {
+          const msg = err instanceof Error ? err.message : String(err);
+          this.log(`WS error: ${msg}`);
+          this.config.onError?.(err);
+        },
+      },
+    });
+    this.log("connect resolved");
+  }
 
-      } catch (err) {
-        reject(err);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private handleMessage(message: any) {
+    if (message?.setupComplete) {
+      this.log("← setupComplete");
+    }
+
+    const parts = message?.serverContent?.modelTurn?.parts;
+    if (parts?.length) {
+      let audioBytes = 0;
+      for (const part of parts) {
+        if (part.inlineData?.data) {
+          audioBytes += part.inlineData.data.length;
+          this.config.onAudioData?.(part.inlineData.data);
+        }
+        if (part.text && part.text.trim()) {
+          this.config.onTranscription?.(part.text, false);
+        }
       }
+      if (audioBytes) this.log(`← audio chunk (${audioBytes}b base64)`);
+    }
+
+    if (message?.serverContent?.interrupted) {
+      this.log("← interrupted");
+      this.config.onInterrupted?.();
+    }
+
+    const outT =
+      message?.serverContent?.outputTranscription?.text ||
+      message?.serverContent?.outputAudioTranscription?.text;
+    if (outT) {
+      this.log(`← bot transcript: "${outT.slice(0, 60)}"`);
+      this.config.onTranscription?.(outT, false);
+    }
+
+    const inT =
+      message?.serverContent?.inputTranscription?.text ||
+      message?.serverContent?.inputAudioTranscription?.text;
+    if (inT) {
+      this.log(`← user transcript: "${inT.slice(0, 60)}"`);
+      this.config.onTranscription?.(inT, true);
+    }
+
+    if (message?.toolCall?.functionCalls?.length) {
+      this.log(`← tool_call: ${message.toolCall.functionCalls.map((c: FunctionCall) => c.name).join(",")}`);
+      this.config.onToolCall?.(message.toolCall.functionCalls);
+    }
+
+    if (message?.serverContent?.turnComplete) {
+      this.log("← turnComplete");
+    }
+  }
+
+  sendAudio(b64: string) {
+    if (!this.session) return;
+    this.session.sendRealtimeInput({
+      audio: { data: b64, mimeType: "audio/pcm;rate=16000" },
     });
   }
 
-  private sendSetupMessage() {
-    const setup = {
-      setup: {
-        model: "models/gemini-2.0-flash-exp",
-        generation_config: {
-          response_modalities: ["AUDIO"],
-          speech_config: {
-            voice_config: {
-              prebuilt_voice_config: {
-                voice_name: "Aoide"
-              }
-            }
-          }
-        },
-        system_instruction: {
-          role: "system",
-          parts: [{ text: this.config.systemInstruction || "" }]
-        },
-        tools: [
-          {
-            function_declarations: [
-              {
-                name: "sayfa_degistir",
-                description: "Kullanıcıyı belirli bir ürün kategorisine veya sayfaya yönlendirir.",
-                parameters: {
-                  type: "OBJECT",
-                  properties: { url_slug: { type: "STRING" } },
-                  required: ["url_slug"]
-                }
-              },
-              {
-                name: "urun_detayi_goster",
-                description: "Belirli bir ürünün detayını ekranda açar.",
-                parameters: {
-                  type: "OBJECT",
-                  properties: { urun_id: { type: "STRING" } },
-                  required: ["urun_id"]
-                }
-              },
-              {
-                name: "kombin_oner",
-                description: "Ekranda açık olan ürüne uygun kombin önerilerini listeler.",
-                parameters: {
-                  type: "OBJECT",
-                  properties: { urun_id: { type: "STRING" } },
-                  required: ["urun_id"]
-                }
-              }
-            ]
-          }
-        ]
-      }
-    };
-    this.ws?.send(JSON.stringify(setup));
+  sendVideo(b64: string) {
+    if (!this.session) return;
+    this.session.sendRealtimeInput({
+      video: { data: b64, mimeType: "image/jpeg" },
+    });
   }
 
-  private async handleMessage(data: any) {
-    let msg: any;
-    try {
-      if (data instanceof Blob) {
-        const text = await data.text();
-        msg = JSON.parse(text);
-      } else {
-        msg = JSON.parse(data);
-      }
-    } catch (e) {
-      console.error("[SHOLÉ] Parse error:", e);
-      return;
-    }
-
-    // Transcription (User/Model)
-    if (msg.serverContent?.modelTurn?.parts) {
-      for (const part of msg.serverContent.modelTurn.parts) {
-        if (part.inlineData?.data) {
-          this.config.onAudioData?.(part.inlineData.data);
-        }
-      }
-    }
-
-    // Specific transcription updates
-    if (msg.serverContent?.transcription) {
-      this.config.onTranscription?.(msg.serverContent.transcription, true);
-    }
-    
-    // Tool Calls (Function Calling)
-    if (msg.toolCall?.functionCalls) {
-      this.config.onToolCall?.(msg.toolCall.functionCalls);
-    }
+  sendText(text: string) {
+    if (!this.session) return;
+    this.log(`→ sendText: "${text.slice(0, 60)}"`);
+    this.session.sendClientContent({
+      turns: [{ role: "user", parts: [{ text }] }],
+      turnComplete: true,
+    });
   }
 
-  sendAudio(base64Data: string) {
-    if (this.ws?.readyState === WebSocket.OPEN) {
-      const payload = {
-        realtime_input: {
-          media_chunks: [
-            {
-              mime_type: "audio/pcm",
-              data: base64Data
-            }
-          ]
-        }
-      };
-      this.ws.send(JSON.stringify(payload));
-    }
+  triggerGreeting(prompt = "Briefly greet the customer and ask how you can help.") {
+    if (!this.session) return;
+    this.log("→ triggerGreeting");
+    this.session.sendClientContent({
+      turns: [{ role: "user", parts: [{ text: prompt }] }],
+      turnComplete: true,
+    });
   }
 
-  sendToolResponse(responses: any[]) {
-    if (this.ws?.readyState === WebSocket.OPEN) {
-      const payload = {
-        tool_response: {
-          function_responses: responses.map(r => ({
-            id: r.id,
-            name: r.name,
-            response: r.response
-          }))
-        }
-      };
-      this.ws.send(JSON.stringify(payload));
-    }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  sendToolResponse(functionResponses: any[]) {
+    if (!this.session) return;
+    this.log(`→ sendToolResponse (${functionResponses.length})`);
+    this.session.sendToolResponse({ functionResponses });
   }
 
   close() {
-    this.ws?.close();
+    if (this.session) {
+      this.log("close()");
+      this.session.close();
+      this.session = null;
+    }
   }
 }
