@@ -33,7 +33,13 @@ export interface GeminiLiveConfig {
   onLog?: LogFn;
 }
 
-const LIVE_MODEL = "gemini-live-2.5-flash-preview";
+// Models the public Gemini Developer API key tier supports for bidiGenerateContent.
+// We try them in order; the first successful connect wins.
+const LIVE_MODEL_CANDIDATES = [
+  "gemini-2.5-flash-native-audio-latest",
+  "gemini-2.5-flash-native-audio-preview-09-2025",
+  "gemini-3.1-flash-live-preview",
+] as const;
 
 const DEFAULT_TOOLS: Tool[] = [
   {
@@ -98,9 +104,35 @@ export class GeminiLiveClient {
   }
 
   async connect() {
-    this.log(`connect → model=${LIVE_MODEL}`);
-    this.session = await this.ai.live.connect({
-      model: LIVE_MODEL,
+    let lastErr: unknown = null;
+    for (const model of LIVE_MODEL_CANDIDATES) {
+      try {
+        this.log(`connect → model=${model}`);
+        this.session = await this.tryConnect(model);
+        this.log(`connect resolved (model=${model})`);
+        return;
+      } catch (err) {
+        lastErr = err;
+        const msg = err instanceof Error ? err.message : String(err);
+        this.log(`model ${model} failed: ${msg.slice(0, 160)}`);
+        // Only continue if it's a 404/access error; throw other errors immediately.
+        if (
+          !/404|NOT_FOUND|PERMISSION_DENIED|UNAVAILABLE|not found|not\s+available/i.test(
+            msg
+          )
+        ) {
+          throw err;
+        }
+      }
+    }
+    throw lastErr instanceof Error
+      ? lastErr
+      : new Error(String(lastErr ?? "no live model accessible"));
+  }
+
+  private async tryConnect(model: string): Promise<Session> {
+    return await this.ai.live.connect({
+      model,
       config: {
         responseModalities: [Modality.AUDIO],
         speechConfig: {
@@ -132,7 +164,6 @@ export class GeminiLiveClient {
         },
       },
     });
-    this.log("connect resolved");
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
