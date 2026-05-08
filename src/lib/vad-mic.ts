@@ -66,6 +66,12 @@ export async function startVADMic(
     model: "v5",
     audioContext: cfg.audioContext,
     getStream: async () => cfg.stream,
+    // VAD model + worklet are served from /public/vad on this origin.
+    // ONNX runtime WASM is pulled from jsdelivr (large files, well-cached
+    // by the CDN — committing them to the repo would balloon it by 90 MB).
+    baseAssetPath: "/vad/",
+    onnxWASMBasePath:
+      "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.25.1/dist/",
     positiveSpeechThreshold,
     negativeSpeechThreshold,
     redemptionMs: 800,
