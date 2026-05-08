@@ -197,29 +197,17 @@ export function AIAssistant({
       const ctx = getInputCtx();
       if (ctx.state === "suspended") await ctx.resume();
 
-      // Route the raw mic through a GainNode so we can duck it during AI
-      // playback (lowers acoustic echo below the VAD threshold without
-      // muting the user). The output of the gain feeds a
-      // MediaStreamDestinationNode which becomes the stream Silero VAD
-      // sees.
-      const sourceNode = ctx.createMediaStreamSource(rawStream);
-      const micGain = ctx.createGain();
-      micGain.gain.value = 1.0;
-      micGainRef.current = micGain;
-      const dest = ctx.createMediaStreamDestination();
-      sourceNode.connect(micGain);
-      micGain.connect(dest);
-      const gatedStream = dest.stream;
-
+      // Hand the raw mic stream directly to MicVAD. The custom GainNode
+      // ducking chain has been removed — it was preventing audio from
+      // reaching VAD on some setups. Echo control now relies on
+      // getUserMedia's echoCancellation flag plus Silero's threshold.
       try {
         const handle = await startVADMic({
-          stream: gatedStream,
+          stream: rawStream,
           audioContext: ctx,
           onLog: pushLog,
           onLevel: (lvl) => setAudioLevel(lvl),
           onSpeechStart: () => {
-            // Instant barge-in: kill the AI audio queue the moment Silero
-            // confirms the user is speaking. No round-trip latency.
             if (isPlayingRef.current || audioQueueRef.current.length > 0) {
               pushLog("local interrupt → clearing AI audio queue");
               audioQueueRef.current = [];
@@ -238,8 +226,7 @@ export function AIAssistant({
           ...m,
           {
             role: "model",
-            content:
-              "couldn't load the voice model ◇ — refresh the page and try again.",
+            content: `couldn't load the voice model ◇ ${msg.slice(0, 100)}`,
           },
         ]);
         throw err;

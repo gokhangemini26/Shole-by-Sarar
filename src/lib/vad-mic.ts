@@ -53,69 +53,93 @@ export async function startVADMic(
   cfg: VADMicConfig
 ): Promise<VADMicHandle> {
   const log = cfg.onLog ?? (() => {});
-  const positiveSpeechThreshold = cfg.positiveSpeechThreshold ?? 0.5;
-  const negativeSpeechThreshold = cfg.negativeSpeechThreshold ?? 0.35;
-  const preSpeechPadFrames = cfg.preSpeechPadFrames ?? 6; // ~192 ms of pre-speech context
+  const positiveSpeechThreshold = cfg.positiveSpeechThreshold ?? 0.4;
+  const negativeSpeechThreshold = cfg.negativeSpeechThreshold ?? 0.25;
+  const preSpeechPadFrames = cfg.preSpeechPadFrames ?? 6;
 
-  log(`Silero VAD: loading model…`);
+  log(`Silero VAD: loading model from /vad/ + jsdelivr…`);
 
   const recentFrames: Float32Array[] = [];
   let inSpeech = false;
+  let frameCounter = 0;
+  let maxProbSeen = 0;
 
-  const vad = await MicVAD.new({
-    model: "v5",
-    audioContext: cfg.audioContext,
-    getStream: async () => cfg.stream,
-    // VAD model + worklet are served from /public/vad on this origin.
-    // ONNX runtime WASM is pulled from jsdelivr (large files, well-cached
-    // by the CDN — committing them to the repo would balloon it by 90 MB).
-    baseAssetPath: "/vad/",
-    onnxWASMBasePath:
-      "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.25.1/dist/",
-    positiveSpeechThreshold,
-    negativeSpeechThreshold,
-    redemptionMs: 800,
-    preSpeechPadMs: 200,
-    minSpeechMs: 200,
-    onSpeechStart: () => {
-      inSpeech = true;
-      log(`VAD → speech start (flushing ${recentFrames.length} pre-frames)`);
-      cfg.onSpeechStart?.();
-      // Flush the ring buffer so Gemini doesn't lose the first syllable.
-      for (const f of recentFrames) {
-        cfg.onSpeechFrameB64(f32ToPCM16Base64(f));
-      }
-    },
-    onFrameProcessed: (probs, frame) => {
-      cfg.onLevel?.(probs.isSpeech);
+  let vad;
+  try {
+    vad = await MicVAD.new({
+      model: "v5",
+      // Let MicVAD own the audioContext + stream. Going through a custom
+      // GainNode chain has caused VAD to receive silent input on some
+      // platforms — give the library control end-to-end while we debug.
+      getStream: async () => cfg.stream,
+      baseAssetPath: "/vad/",
+      onnxWASMBasePath:
+        "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.25.1/dist/",
+      positiveSpeechThreshold,
+      negativeSpeechThreshold,
+      redemptionMs: 800,
+      preSpeechPadMs: 200,
+      minSpeechMs: 200,
+      onSpeechStart: () => {
+        inSpeech = true;
+        log(`VAD → speech start (flushing ${recentFrames.length} pre-frames)`);
+        cfg.onSpeechStart?.();
+        for (const f of recentFrames) {
+          cfg.onSpeechFrameB64(f32ToPCM16Base64(f));
+        }
+      },
+      onFrameProcessed: (probs, frame) => {
+        cfg.onLevel?.(probs.isSpeech);
 
-      if (inSpeech) {
-        cfg.onSpeechFrameB64(f32ToPCM16Base64(frame));
-      } else {
-        // Maintain a rolling buffer of the most recent frames so we have
-        // pre-speech context the moment VAD declares speech started.
-        recentFrames.push(frame);
-        while (recentFrames.length > preSpeechPadFrames) recentFrames.shift();
-      }
-    },
-    onVADMisfire: () => {
-      log("VAD misfire (noise blip ignored)");
-    },
-    onSpeechEnd: () => {
-      inSpeech = false;
-      log("VAD → speech end");
-      cfg.onSpeechEnd?.();
-    },
-    // Required by the type but we never let MicVAD pause the stream — we
-    // own its lifecycle.
-    pauseStream: async () => {},
-    resumeStream: async () => cfg.stream,
-    startOnLoad: false,
-    processorType: "auto",
-  });
+        // Visibility into the model: every ~3 s log the highest probability
+        // we've seen in the window so the user can tell if audio is even
+        // reaching the VAD.
+        frameCounter++;
+        if (probs.isSpeech > maxProbSeen) maxProbSeen = probs.isSpeech;
+        if (frameCounter % 100 === 0) {
+          log(
+            `VAD heartbeat: 100 frames, peak isSpeech=${maxProbSeen.toFixed(
+              2
+            )} (threshold ${positiveSpeechThreshold})`
+          );
+          maxProbSeen = 0;
+        }
 
-  await vad.start();
-  log("Silero VAD: running");
+        if (inSpeech) {
+          cfg.onSpeechFrameB64(f32ToPCM16Base64(frame));
+        } else {
+          recentFrames.push(frame);
+          while (recentFrames.length > preSpeechPadFrames) recentFrames.shift();
+        }
+      },
+      onVADMisfire: () => {
+        log("VAD misfire (noise blip ignored)");
+      },
+      onSpeechEnd: () => {
+        inSpeech = false;
+        log("VAD → speech end");
+        cfg.onSpeechEnd?.();
+      },
+      pauseStream: async () => {},
+      resumeStream: async () => cfg.stream,
+      startOnLoad: false,
+      processorType: "auto",
+    });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    log(`Silero VAD INIT FAILED: ${msg}`);
+    throw err;
+  }
+
+  log("Silero VAD: starting…");
+  try {
+    await vad.start();
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    log(`Silero VAD START FAILED: ${msg}`);
+    throw err;
+  }
+  log("Silero VAD: running ✓");
 
   return {
     destroy: async () => {
