@@ -258,7 +258,6 @@ const labels: Record<Locale, Labels> = {
 
 
 
-  },
 };
 
 export function getLabels(locale: Locale): Labels {
