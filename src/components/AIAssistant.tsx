@@ -129,6 +129,33 @@ export function AIAssistant({
     }
   }, [logs]);
 
+  /* ── Auto-start voice on open ──────────────────────────────────────── */
+  // The launcher is the user's intent gesture — opening the assistant
+  // means they want to talk. Spin the live session up automatically so
+  // they can just speak. Skipped if the voice key isn't configured.
+  const autoStartedRef = useRef(false);
+  useEffect(() => {
+    if (!open) {
+      autoStartedRef.current = false;
+      return;
+    }
+    if (autoStartedRef.current) return;
+    if (!hasVoiceKey) return;
+    if (isLive || isConnecting) return;
+    autoStartedRef.current = true;
+    // Defer to next tick so the dialog's intro animation isn't competing
+    // with the AudioContext + WebSocket setup.
+    const t = setTimeout(() => {
+      toggleVoiceRef.current?.();
+    }, 200);
+    return () => clearTimeout(t);
+  }, [open, hasVoiceKey, isLive, isConnecting]);
+
+  // toggleVoice is defined further down; we read it through a ref so the
+  // auto-start effect doesn't have to worry about hoisting.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const toggleVoiceRef = useRef<any>(null);
+
   /* ── Mic gain ducking — soften echo while AI talks ────────────────── */
   useEffect(() => {
     const gain = micGainRef.current;
@@ -396,11 +423,10 @@ export function AIAssistant({
           pushLog(`audio schedule error: ${(err as Error).message}`);
         });
       },
-      onTranscription: (text, isUser) => {
-        setMessages((p) => [
-          ...p.slice(-30),
-          { role: isUser ? "user" : "model", content: text },
-        ]);
+      onTranscription: (_text, _isUser) => {
+        // Voice mode is voice-only by design — no transcript bubbles in
+        // the chat UI. We still receive transcription server-side for
+        // tool-call grounding, but the user just hears the assistant.
       },
       onToolCall: handleToolCall,
       onInterrupted: () => {
@@ -451,6 +477,12 @@ export function AIAssistant({
       ]);
     }
   };
+
+  // Keep the ref in sync each render so the auto-start effect can fire
+  // toggleVoice without depending on render order.
+  useEffect(() => {
+    toggleVoiceRef.current = toggleVoice;
+  });
 
   /* ── Text send (streaming) ────────────────────────────────────────── */
   const sendMessage = async (textOverride?: string) => {
@@ -745,20 +777,117 @@ export function AIAssistant({
   );
 }
 
-export function FloatingLauncher({ 
-  onClick, 
-  label = "ASK SHOLÉ" 
-}: { 
+export function FloatingLauncher({
+  onClick,
+  label = "Ask Sholé",
+}: {
   onClick: () => void;
   label?: string;
 }) {
   return (
-    <button
+    <motion.button
       onClick={onClick}
-      className="fixed bottom-6 right-6 z-50 bg-black text-white px-6 py-4 rounded-full shadow-2xl flex items-center gap-3 font-bold hover:scale-105 transition-all"
+      initial={{ opacity: 0, y: 24, scale: 0.92 }}
+      animate={{
+        opacity: 1,
+        y: [0, -3, 0],
+        scale: 1,
+      }}
+      transition={{
+        opacity: { duration: 0.5, ease: "easeOut" },
+        scale: { duration: 0.5, ease: "easeOut" },
+        y: { duration: 4.5, repeat: Infinity, ease: "easeInOut" },
+      }}
+      whileHover={{ scale: 1.04 }}
+      whileTap={{ scale: 0.97 }}
+      className="group fixed bottom-6 right-6 z-50 flex items-center gap-3 pl-3 pr-5 py-3 rounded-full overflow-hidden"
+      style={{
+        background:
+          "linear-gradient(135deg, #1C1814 0%, #2A211A 50%, #3a2d22 100%)",
+        boxShadow:
+          "0 14px 40px -10px rgba(28,24,20,0.55), 0 4px 12px -2px rgba(217,138,61,0.25), inset 0 1px 0 rgba(255,255,255,0.08)",
+        border: "1px solid rgba(217,138,61,0.25)",
+      }}
     >
-      <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-      {label}
-    </button>
+      {/* shimmer sweep */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "linear-gradient(120deg, transparent 30%, rgba(217,138,61,0.18) 50%, transparent 70%)",
+          transform: "translateX(-100%)",
+          animation: "shole-shimmer 4.5s ease-in-out infinite",
+        }}
+      />
+      {/* monogram */}
+      <span
+        className="relative grid place-items-center w-9 h-9 rounded-full"
+        style={{
+          background:
+            "linear-gradient(135deg, #D98A3D 0%, #C77A2D 100%)",
+          boxShadow:
+            "inset 0 1px 0 rgba(255,255,255,0.4), 0 2px 6px rgba(0,0,0,0.3)",
+        }}
+      >
+        <span
+          style={{
+            fontFamily: '"Fraunces", "Playfair Display", Georgia, serif',
+            fontSize: 16,
+            fontWeight: 600,
+            color: "#1C1814",
+            letterSpacing: "0.02em",
+          }}
+        >
+          S
+        </span>
+        {/* live dot */}
+        <motion.span
+          className="absolute -right-0.5 -bottom-0.5 w-2.5 h-2.5 rounded-full"
+          style={{
+            background: "#3FBE5A",
+            boxShadow: "0 0 0 2px #1C1814",
+          }}
+          animate={{ scale: [1, 1.25, 1], opacity: [0.9, 1, 0.9] }}
+          transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+        />
+      </span>
+      <span className="relative flex flex-col items-start leading-tight">
+        <span
+          style={{
+            fontFamily: '"Fraunces", "Playfair Display", Georgia, serif',
+            fontSize: 15,
+            fontStyle: "italic",
+            color: "#FAF7F0",
+            letterSpacing: "0.01em",
+          }}
+        >
+          {label}
+        </span>
+        <span
+          style={{
+            fontFamily: '"JetBrains Mono", "Fira Code", monospace',
+            fontSize: 9,
+            color: "#D98A3D",
+            letterSpacing: "0.18em",
+            textTransform: "uppercase",
+            marginTop: 1,
+          }}
+        >
+          ai stylist · live
+        </span>
+      </span>
+      <style jsx>{`
+        @keyframes shole-shimmer {
+          0% {
+            transform: translateX(-100%);
+          }
+          60%,
+          100% {
+            transform: translateX(100%);
+          }
+        }
+      `}</style>
+    </motion.button>
   );
 }
