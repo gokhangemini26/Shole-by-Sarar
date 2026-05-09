@@ -189,16 +189,20 @@ export function AIAssistant({
       numberOfOutputs: 1,
       outputChannelCount: [1],
     });
+    let lastPriming = true;
     node.port.onmessage = (ev) => {
       const msg = ev.data;
       if (msg && msg.type === "level") {
-        // Drive React UI off the worklet's actual playback state — that
-        // way isSpeaking flips off the instant the buffer drains, even if
-        // the network kept feeding us tiny tail chunks.
         if (msg.isPlaying !== isPlayingRef.current) {
           isPlayingRef.current = msg.isPlaying;
           setIsSpeaking(msg.isPlaying);
         }
+        // Detect underruns (priming flipping back on while we've been
+        // streaming) — that's the signal that buffer ran dry mid-turn.
+        if (msg.priming && !lastPriming && !suppressUntilTurnRef.current) {
+          pushLog(`underrun! re-priming jitter buffer (had 0 ms)`);
+        }
+        lastPriming = msg.priming;
       }
     };
     node.connect(ctx.destination);
