@@ -744,14 +744,20 @@ export function AIAssistant({
   );
 }
 
-export function FloatingLauncher({ onClick }: { onClick: () => void }) {
+export function FloatingLauncher({ 
+  onClick, 
+  label = "ASK SHOLÉ" 
+}: { 
+  onClick: () => void;
+  label?: string;
+}) {
   return (
     <button
       onClick={onClick}
       className="fixed bottom-6 right-6 z-50 bg-black text-white px-6 py-4 rounded-full shadow-2xl flex items-center gap-3 font-bold hover:scale-105 transition-all"
     >
       <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-      {onClick && typeof window !== 'undefined' ? (window as any).__shole_label_ask || 'ASK SHOLÉ' : 'ASK SHOLÉ'}
+      {label}
     </button>
   );
 }

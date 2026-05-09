@@ -40,12 +40,6 @@ export function GlobalAssistant() {
     return () => window.removeEventListener("open-ai", handleOpen);
   }, []);
 
-  // Update global label for the FloatingLauncher which doesn't have access to context easily if exported simply
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      (window as any).__shole_label_ask = labels.askShole;
-    }
-  }, [labels.askShole]);
 
   const handleToolCall = useCallback(
     (calls: FunctionCall[]) => {
@@ -115,7 +109,12 @@ export function GlobalAssistant() {
 
   return (
     <div style={{ position: "relative", zIndex: 9999 }}>
-      {!aiOpen && <FloatingLauncher onClick={() => setAiOpen(true)} />}
+      {!aiOpen && (
+        <FloatingLauncher 
+          onClick={() => setAiOpen(true)} 
+          label={labels.askShole} 
+        />
+      )}
       <AIAssistant
         open={aiOpen}
         onClose={() => setAiOpen(false)}
