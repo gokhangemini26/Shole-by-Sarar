@@ -3,21 +3,25 @@
 import { MicVAD } from "@ricky0123/vad-web";
 
 /* ═══════════════════════════════════════════════════════════════════════
-   Silero VAD-gated microphone capture for Gemini Live.
+   Silero VAD-assisted microphone for Gemini Live.
 
-   Why: server-side VAD alone forwards EVERY mic chunk to the model,
-   including background noise, keyboard taps, and the AI's own speaker
-   echo. With a client-side Silero check we only send real human-speech
-   frames, which:
-     • cuts WebSocket bandwidth ~80 % during silence
-     • prevents false interruptions from ambient noise
-     • makes the AI's barge-in detection cleaner — no echo loop
-
-   How: MicVAD runs the Silero ONNX model on every 32 ms frame. We keep a
-   short ring buffer for pre-speech padding (so the first syllable isn't
-   clipped) and forward speech frames as Int16 PCM to the supplied
-   sender callback. Loud-mic-during-AI-playback is also used for instant
-   barge-in interrupt of the AI's audio queue.
+   Architecture (revised):
+     • Stream EVERY mic frame to Gemini once warm-up has passed. The
+       server-side automatic VAD that comes with the live session
+       (silenceDurationMs etc.) needs continuous audio — it uses the
+       silent stretches to decide when the user's turn is done. Earlier
+       we gated the stream client-side and only forwarded frames where
+       Silero saw speech; that turned out to corrupt the server's
+       silence detection so it never produced follow-up replies.
+     • Silero is now used for two narrow jobs:
+         1. Local barge-in: onSpeechStart fires the interrupt that
+            clears the local AI audio queue (zero round-trip).
+         2. Echo gate: while the AI is playing, suppress mic frames
+            whose isSpeech probability falls below `aiPlaybackThreshold`.
+            That blocks the speaker echo from looping back into Gemini
+            without blocking real user barge-in (which scores high).
+     • A 1.2 s warm-up at the start drops opening-mic transients so
+       they can't accidentally interrupt the very first model turn.
    ═══════════════════════════════════════════════════════════════════════ */
 
 export interface VADMicConfig {
@@ -30,11 +34,11 @@ export interface VADMicConfig {
   onLog?: (entry: string) => void;
   positiveSpeechThreshold?: number;
   negativeSpeechThreshold?: number;
-  preSpeechPadFrames?: number;
-  /** Returns true while the AI is playing audio. When true, VAD ignores
-   *  any speech detection below `aiPlaybackThreshold` so we don't loop
-   *  the AI's own voice (echo) back to Gemini. */
+  /** Returns true while the AI is playing audio. Forces a stricter VAD
+   *  threshold so echo doesn't get routed back to Gemini as user input. */
   isAISpeaking?: () => boolean;
+  /** When AI is speaking, only frames whose isSpeech ≥ this threshold are
+   *  forwarded. Default 0.92. */
   aiPlaybackThreshold?: number;
 }
 
@@ -61,23 +65,21 @@ export async function startVADMic(
   const positiveSpeechThreshold = cfg.positiveSpeechThreshold ?? 0.4;
   const negativeSpeechThreshold = cfg.negativeSpeechThreshold ?? 0.25;
   const aiPlaybackThreshold = cfg.aiPlaybackThreshold ?? 0.92;
-  const preSpeechPadFrames = cfg.preSpeechPadFrames ?? 6;
 
   log(`Silero VAD: loading model from /vad/ + jsdelivr…`);
 
-  const recentFrames: Float32Array[] = [];
-  let inSpeech = false;
-  let aboveAIPlaybackThreshold = false;
+  const startedAt = Date.now();
+  const WARMUP_MS = 1200;
+  let warmupAnnounced = false;
   let frameCounter = 0;
   let maxProbSeen = 0;
+  let droppedDuringPlayback = 0;
+  let sentFrames = 0;
 
   let vad;
   try {
     vad = await MicVAD.new({
       model: "v5",
-      // Let MicVAD own the audioContext + stream. Going through a custom
-      // GainNode chain has caused VAD to receive silent input on some
-      // platforms — give the library control end-to-end while we debug.
       getStream: async () => cfg.stream,
       baseAssetPath: "/vad/",
       onnxWASMBasePath:
@@ -88,50 +90,57 @@ export async function startVADMic(
       preSpeechPadMs: 200,
       minSpeechMs: 200,
       onSpeechStart: () => {
-        // Echo guard: while the AI is talking, ignore "speech start" events
-        // unless we recently saw a frame above aiPlaybackThreshold (set by
-        // onFrameProcessed below). Silero will fire onSpeechStart on
-        // anything above positiveSpeechThreshold, but the AI's own
-        // (already-ducked) voice can clear that bar; the higher gate
-        // prevents the echo loop.
-        const aiTalking = cfg.isAISpeaking?.() ?? false;
-        if (aiTalking && !aboveAIPlaybackThreshold) {
-          log("VAD speech start IGNORED (echo guard)");
+        // Warm-up: ignore startup mic transients.
+        if (Date.now() - startedAt < WARMUP_MS) {
+          log("VAD speech start IGNORED (warm-up)");
           return;
         }
-        inSpeech = true;
-        log(`VAD → speech start (flushing ${recentFrames.length} pre-frames)`);
+        // During AI playback we gate echo via the threshold check below,
+        // but we still want a clean barge-in event for local audio-queue
+        // interrupt — pass it through.
+        log("VAD → speech start (barge-in signal)");
         cfg.onSpeechStart?.();
-        for (const f of recentFrames) {
-          cfg.onSpeechFrameB64(f32ToPCM16Base64(f));
-        }
       },
       onFrameProcessed: (probs, frame) => {
         cfg.onLevel?.(probs.isSpeech);
-        if (probs.isSpeech >= aiPlaybackThreshold) aboveAIPlaybackThreshold = true;
-        else if (probs.isSpeech < negativeSpeechThreshold) aboveAIPlaybackThreshold = false;
 
         frameCounter++;
         if (probs.isSpeech > maxProbSeen) maxProbSeen = probs.isSpeech;
         if (frameCounter % 100 === 0) {
           log(
-            `VAD heartbeat: 100f, peak isSpeech=${maxProbSeen.toFixed(2)} (thr ${positiveSpeechThreshold}/${aiPlaybackThreshold})`
+            `VAD heartbeat: 100f, peak isSpeech=${maxProbSeen.toFixed(2)} ` +
+              `(thr ${positiveSpeechThreshold}/${aiPlaybackThreshold}) ` +
+              `sent=${sentFrames} droppedEcho=${droppedDuringPlayback}`
           );
           maxProbSeen = 0;
+          sentFrames = 0;
+          droppedDuringPlayback = 0;
         }
 
-        if (inSpeech) {
-          cfg.onSpeechFrameB64(f32ToPCM16Base64(frame));
-        } else {
-          recentFrames.push(frame);
-          while (recentFrames.length > preSpeechPadFrames) recentFrames.shift();
+        if (!warmupAnnounced && Date.now() - startedAt >= WARMUP_MS) {
+          warmupAnnounced = true;
+          log("VAD warm-up complete — streaming to Gemini");
         }
+
+        // Hold the stream silent during warm-up so Gemini doesn't get
+        // garbage from the mic auto-gain ramp.
+        if (Date.now() - startedAt < WARMUP_MS) return;
+
+        const aiTalking = cfg.isAISpeaking?.() ?? false;
+        if (aiTalking && probs.isSpeech < aiPlaybackThreshold) {
+          // Likely speaker echo bleeding into the mic — drop it. Real user
+          // barge-in scores well above the threshold and falls through.
+          droppedDuringPlayback++;
+          return;
+        }
+
+        cfg.onSpeechFrameB64(f32ToPCM16Base64(frame));
+        sentFrames++;
       },
       onVADMisfire: () => {
         log("VAD misfire (noise blip ignored)");
       },
       onSpeechEnd: () => {
-        inSpeech = false;
         log("VAD → speech end");
         cfg.onSpeechEnd?.();
       },
@@ -161,7 +170,7 @@ export async function startVADMic(
       try {
         await vad.destroy();
       } catch {
-        // ignore — destroy can throw on already-stopped contexts
+        // ignore
       }
     },
   };
