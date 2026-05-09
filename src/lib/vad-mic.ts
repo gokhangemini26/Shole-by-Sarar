@@ -64,7 +64,12 @@ export async function startVADMic(
   const log = cfg.onLog ?? (() => {});
   const positiveSpeechThreshold = cfg.positiveSpeechThreshold ?? 0.4;
   const negativeSpeechThreshold = cfg.negativeSpeechThreshold ?? 0.25;
-  const aiPlaybackThreshold = cfg.aiPlaybackThreshold ?? 0.92;
+  // Tighter than positive threshold — only confidently human voice should
+  // bypass the echo gate while AI is talking.
+  const aiPlaybackThreshold = cfg.aiPlaybackThreshold ?? 0.97;
+  // Require N consecutive high-confidence frames during AI playback before
+  // we trust it's a real barge-in. Single-frame spikes are usually echo.
+  const aiPlaybackConsecutiveFrames = 3;
 
   log(`Silero VAD: loading model from /vad/ + jsdelivr…`);
 
@@ -75,6 +80,8 @@ export async function startVADMic(
   let maxProbSeen = 0;
   let droppedDuringPlayback = 0;
   let sentFrames = 0;
+  let consecutiveHighProbFrames = 0;
+  let realBargeInActive = false;
 
   let vad;
   try {
@@ -95,9 +102,14 @@ export async function startVADMic(
           log("VAD speech start IGNORED (warm-up)");
           return;
         }
-        // During AI playback we gate echo via the threshold check below,
-        // but we still want a clean barge-in event for local audio-queue
-        // interrupt — pass it through.
+        // During AI playback, only honour onSpeechStart if we already have
+        // N consecutive frames above aiPlaybackThreshold. Single-frame
+        // spikes (echo) shouldn't kill the AI's reply mid-sentence.
+        const aiTalking = cfg.isAISpeaking?.() ?? false;
+        if (aiTalking && !realBargeInActive) {
+          log("VAD speech start IGNORED (echo guard, awaiting confirmation)");
+          return;
+        }
         log("VAD → speech start (barge-in signal)");
         cfg.onSpeechStart?.();
       },
@@ -127,9 +139,32 @@ export async function startVADMic(
         if (Date.now() - startedAt < WARMUP_MS) return;
 
         const aiTalking = cfg.isAISpeaking?.() ?? false;
-        if (aiTalking && probs.isSpeech < aiPlaybackThreshold) {
-          // Likely speaker echo bleeding into the mic — drop it. Real user
-          // barge-in scores well above the threshold and falls through.
+
+        // Track confirmed real barge-in: N consecutive frames above the
+        // echo threshold means the user is genuinely talking over the AI.
+        if (aiTalking) {
+          if (probs.isSpeech >= aiPlaybackThreshold) {
+            consecutiveHighProbFrames++;
+            if (
+              consecutiveHighProbFrames >= aiPlaybackConsecutiveFrames &&
+              !realBargeInActive
+            ) {
+              realBargeInActive = true;
+              log(
+                `VAD real barge-in confirmed (${consecutiveHighProbFrames} consecutive frames)`
+              );
+              cfg.onSpeechStart?.();
+            }
+          } else {
+            consecutiveHighProbFrames = 0;
+          }
+        } else {
+          consecutiveHighProbFrames = 0;
+          realBargeInActive = false;
+        }
+
+        if (aiTalking && !realBargeInActive) {
+          // Likely speaker echo bleeding into the mic — drop it.
           droppedDuringPlayback++;
           return;
         }
