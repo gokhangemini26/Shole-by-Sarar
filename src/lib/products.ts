@@ -5,16 +5,21 @@
 export interface Product {
   slug: string;
   name: string;
+  name_tr?: string;
   subtitle: string;
+  subtitle_tr?: string;
   price: string;
   tag?: string;
   category: "women" | "accessories" | "shoes" | "tailoring";
   image: string;
   detailImage: string;
   story: string;
+  story_tr?: string;
   fabric: { name: string; percentage: number }[];
   details: string[];
+  details_tr?: string[];
   care: string[];
+  care_tr?: string[];
   sizes: string[];
   pairsWith: { slug: string; name: string }[];
 }
@@ -23,7 +28,9 @@ export const PRODUCTS: Product[] = [
   {
     slug: "atelier-coat",
     name: "The Atelier Coat",
+    name_tr: "Atelier Palto",
     subtitle: "terra dye wool · structured shoulder · cropped sleeve",
+    subtitle_tr: "terra boyalı yün · yapılı omuz · kısa kol",
     price: "€ 890",
     category: "tailoring",
     tag: "new",
@@ -34,6 +41,11 @@ export const PRODUCTS: Product[] = [
 The structured shoulder nods to SARAR's tailoring heritage (they've been cutting coats since 1947), while the cropped sleeve is pure SHOLÉ — modern, a little unexpected, and surprisingly practical. It's the kind of piece that makes people ask where you got it.
 
 Every coat is cut from a single bolt to match the grain. Twelve per drop, and when they're gone, they're gone.`,
+    story_tr: `Her şeyin başladığı palto. SHOLÉ tasarım ekibi İstanbul'daki SARAR atölye ustasıyla bir araya geldiğinde brief basitti: her akşam yemeğine, her toplantıya, her havalimanına giyebileceğiniz bir palto yapın. Sonuç; 72 saat süren bir işlemle terra boyanan ve her parçaya kendine özgü sıcaklığını veren Atelier Palto oldu.
+
+Yapılı omuzlar, SARAR'ın terzilik mirasına (1944'ten beri palto kesiyorlar) bir saygı duruşu niteliğindeyken, kısa kollar saf SHOLÉ — modern, biraz beklenmedik ve şaşırtıcı derecede pratik. İnsanların nereden aldığınızı sormasına neden olacak türden bir parça.
+
+Her palto, kumaşın dokusuna uyması için tek bir toptan kesilir. Her seride on iki adet üretilir ve bittiklerinde bir daha gelmezler.`,
     fabric: [
       { name: "Virgin Wool", percentage: 85 },
       { name: "Cashmere", percentage: 10 },
@@ -47,11 +59,25 @@ Every coat is cut from a single bolt to match the grain. Twelve per drop, and wh
       "Interior pocket with SHOLÉ monogram",
       "Terra dye — 72-hour natural pigment process",
     ],
+    details_tr: [
+      "Kanvas iç astarlı yapılı omuzlar",
+      "Bilekte biten kısa kollar",
+      "İki düğmeli ön kapama, kemik düğmeler",
+      "İpek karışımlı tam astar",
+      "SHOLÉ monogramlı iç cep",
+      "Terra boya — 72 saatlik doğal pigment işlemi",
+    ],
     care: [
       "Dry clean only",
       "Store on a padded hanger",
       "Steam to refresh between wears",
       "Avoid prolonged direct sunlight",
+    ],
+    care_tr: [
+      "Sadece kuru temizleme",
+      "Dolgulu askıda saklayın",
+      "Kullanımlar arasında buharla tazeleyin",
+      "Uzun süre doğrudan güneş ışığından kaçının",
     ],
     sizes: ["XS", "S", "M", "L", "XL"],
     pairsWith: [
@@ -63,7 +89,9 @@ Every coat is cut from a single bolt to match the grain. Twelve per drop, and wh
   {
     slug: "soft-rules-shirt",
     name: "Soft Rules Shirt",
+    name_tr: "Soft Rules İpek Gömlek",
     subtitle: "cream silk · french seam · relaxed cut",
+    subtitle_tr: "krem ipek · fransız dikişi · rahat kesim",
     price: "€ 340",
     category: "women",
     image: "/images/products/soft-rules-shirt.png",
@@ -73,6 +101,11 @@ Every coat is cut from a single bolt to match the grain. Twelve per drop, and wh
 The french seams are hand-finished, which means no raw edges touching your skin. It works tucked into the Wide Trouser for meetings, or loose over the Atelier Mini for Friday. The slight sheen catches light without screaming silk.
 
 We called it "Soft Rules" because that's the dress code it belongs to. Somewhere between too formal and just right.`,
+    story_tr: `Soft Rules İpek Gömlek, yıkılmaya değer tüm ofis kurallarını yıkıyor. Dünyanın en eski ipek üretim merkezlerinden biri olan Bursa'daki bir aile değirmeninden temin edilen krem ipekten kesilen bu gömlek, daha önce giydiğiniz hiçbir şeye benzemeyen bir döküme sahip.
+
+Fransız dikişleri el işçiliğiyle tamamlanmıştır, bu da cildinize dokunan hiçbir pürüzlü kenar olmadığı anlamına gelir. Toplantılar için Wide Atelier Pantolon'un içine sokulmuş olarak veya Cuma akşamı Atelier Mini Etek üzerine dökümlü olarak kullanılabilir. Hafif parlaklığı, bağırmadan ışığı yakalar.
+
+Ona "Soft Rules" dedik çünkü ait olduğu giyim tarzı bu. Çok resmi ile tam yerinde arasında bir yerde.`,
     fabric: [
       { name: "Mulberry Silk", percentage: 92 },
       { name: "Elastane", percentage: 8 },
@@ -85,11 +118,25 @@ We called it "Soft Rules" because that's the dress code it belongs to. Somewhere
       "Single chest pocket with blind stitch",
       "Bursa silk — family mill, established 1890",
     ],
+    details_tr: [
+      "Düşük omuzlu rahat kesim",
+      "Tamamında Fransız dikiş yapısı",
+      "SHOLÉ logolu sedef düğmeler",
+      "Kavisli etek ucu — içeride veya dışarıda kullanılabilir",
+      "Gizli dikişli tek göğüs cebi",
+      "Bursa ipeği — aile işletmesi, kuruluş 1890",
+    ],
     care: [
       "Hand wash cold or dry clean",
       "Iron on low with pressing cloth",
       "Hang dry — never tumble",
       "Store folded in tissue",
+    ],
+    care_tr: [
+      "Soğuk elde yıkama veya kuru temizleme",
+      "Ütü bezini kullanarak düşük ısıda ütüleyin",
+      "Asarak kurutun — asla tamburlu kurutma yapmayın",
+      "Kağıt ambalaj içinde katlı saklayın",
     ],
     sizes: ["XS", "S", "M", "L", "XL"],
     pairsWith: [
@@ -101,7 +148,9 @@ We called it "Soft Rules" because that's the dress code it belongs to. Somewhere
   {
     slug: "wide-trouser",
     name: "Wide Atelier Trouser",
+    name_tr: "Wide Atelier Pantolon",
     subtitle: "sand linen · high waist · pleated",
+    subtitle_tr: "kum beji keten · yüksek bel · pileli",
     price: "€ 420",
     category: "tailoring",
     image: "/images/products/wide-trouser.png",
@@ -111,6 +160,11 @@ We called it "Soft Rules" because that's the dress code it belongs to. Somewhere
 The linen is sourced from Normandy — heavyweight, slubbed, the kind that develops a beautiful patina after a few washes. The high waist and double-forward pleats give structure where it matters, and the wide leg falls in a way that makes everything below the waist look effortless.
 
 This trouser was tested on Istanbul's cobblestones, on overnight flights, and at way too many lunches. It passed every time. Pair it with the Atelier Coat and the Mule, and you have the full atelier look — our favourite outfit this chapter.`,
+    story_tr: `Wide Atelier Pantolon'un ekibin prototipini yaptığı ilk parça olmasının bir nedeni var. Bir çarşıda yürüyormuşsunuz gibi hareket etmeli, ama bir galeriden yeni çıkmışsınız gibi görünmeliydi.
+
+Keten, Normandiya'dan temin edilmiştir — ağır gramajlı, dokulu ve birkaç yıkamadan sonra güzel bir patina kazanan türden. Yüksek bel ve çift pile yapısı gereken yerde yapı kazandırırken, geniş paça belden aşağısının zahmetsiz görünmesini sağlar.
+
+Bu pantolon İstanbul'un arnavut kaldırımlarında, gece uçuşlarında ve çok fazla öğle yemeğinde test edildi. Her seferinde geçer not aldı. Atelier Palto ve Mule ile eşleştirin; bu bölümün favori kombini olan tam atelier görünümüne sahip olun.`,
     fabric: [
       { name: "French Linen", percentage: 88 },
       { name: "Cotton", percentage: 10 },
@@ -124,11 +178,25 @@ This trouser was tested on Istanbul's cobblestones, on overnight flights, and at
       "Heavyweight Normandy linen — 280gsm",
       "Pre-washed for softness and minimal shrinkage",
     ],
+    details_tr: [
+      "Çift pileli yüksek bel",
+      "Geniş düz paça — 28cm paça genişliği",
+      "Yan cepler, bir adet arka fileto cep",
+      "Gizli kanca ve fermuar kapama",
+      "Ağır gramajlı Normandiya keteni — 280gsm",
+      "Yumuşaklık ve minimum çekme için önceden yıkanmıştır",
+    ],
     care: [
       "Machine wash cold, gentle cycle",
       "Hang dry recommended",
       "Iron while slightly damp for best results",
       "Linen softens beautifully with each wash",
+    ],
+    care_tr: [
+      "Soğuk makinede yıkama, hassas program",
+      "Asarak kurutma önerilir",
+      "En iyi sonuç için hafif nemliyken ütüleyin",
+      "Keten her yıkamada güzelce yumuşar",
     ],
     sizes: ["XS", "S", "M", "L", "XL"],
     pairsWith: [
@@ -140,7 +208,9 @@ This trouser was tested on Istanbul's cobblestones, on overnight flights, and at
   {
     slug: "mule-no4",
     name: "Mule No. 4",
+    name_tr: "Mule No. 4",
     subtitle: "espresso leather · squared toe · hand-stitched",
+    subtitle_tr: "espresso deri · küt burun · el dikişi",
     price: "€ 380",
     category: "shoes",
     tag: "late spring",
@@ -151,6 +221,11 @@ This trouser was tested on Istanbul's cobblestones, on overnight flights, and at
 The espresso leather comes from a tannery in Izmir that's been working hides for three generations. It's vegetable-tanned, which means it darkens and softens with wear — your pair will look different from everyone else's within a month.
 
 We added a foam-cushioned insole because we believe a shoe can look sharp and feel comfortable. No compromise, that's rule number one at the atelier.`,
+    story_tr: `Mule No. 4, ev ayakkabımızın dördüncü versiyonu — ve sonunda tam doğru yaptığımız parça. Küt burun yedi prototip sürdü. Topuk yüksekliği (35 mm) İstanbul'dan Milano'nun arnavut kaldırımlarına kadar test edildi. Deri taban yapıştırılmadı, dikildi.
+
+Espresso derisi, İzmir'de üç kuşaktır deri işleyen bir tabakhaneden geliyor. Bitkisel tabaklanmıştır, bu da giyildikçe koyulaşıp yumuşayacağı anlamına gelir — sizin çiftiniz bir ay içinde herkesten farklı görünecektir.
+
+Sert bir görünümün yanında rahat da hissettirmesi gerektiğine inandığımız için köpük destekli bir iç taban ekledik. Taviz yok, atölyenin bir numaralı kuralı budur.`,
     fabric: [
       { name: "Vegetable-Tanned Leather", percentage: 100 },
     ],
@@ -162,11 +237,25 @@ We added a foam-cushioned insole because we believe a shoe can look sharp and fe
       "Izmir tannery — vegetable-tanned, 3rd generation",
       "Darkens and softens with wear",
     ],
+    details_tr: [
+      "Küt burun — yedi prototipli geliştirme süreci",
+      "35 mm blok topuk — arnavut kaldırımında test edildi",
+      "Blake dikişli deri taban",
+      "Köpük destekli deri iç taban",
+      "İzmir tabakhanesi — bitkisel tabaklanmış, 3. kuşak",
+      "Giyildikçe koyulaşır ve yumuşar",
+    ],
     care: [
       "Condition with leather balm monthly",
       "Store with shoe trees",
       "Avoid water — leather is uncoated",
       "Let rest 24h between wears",
+    ],
+    care_tr: [
+      "Ayda bir deri bakım kremi uygulayın",
+      "Ayakkabı kalıbıyla saklayın",
+      "Sudan kaçının — deri kaplamasızdır",
+      "Kullanımlar arasında 24 saat dinlendirin",
     ],
     sizes: ["36", "37", "38", "39", "40", "41"],
     pairsWith: [
@@ -178,7 +267,9 @@ We added a foam-cushioned insole because we believe a shoe can look sharp and fe
   {
     slug: "sun-up-knit",
     name: "Sun-Up Knit",
+    name_tr: "Sun-Up Triko",
     subtitle: "saffron merino · ribbed · slight crop",
+    subtitle_tr: "safran merinos · fitilli · hafif kısa kesim",
     price: "€ 290",
     category: "women",
     tag: "✦ pick",
@@ -189,6 +280,11 @@ We added a foam-cushioned insole because we believe a shoe can look sharp and fe
 The merino comes from a cooperative in New Zealand that guarantees mulesing-free wool. It's spun to a fine 18.5-micron gauge, which means it sits against your skin without itch. The rib structure gives it stretch and shape without losing the crop silhouette.
 
 Wear it with the Wide Trouser and the Sun-Up Scarf for the full colour story, or layer it under the Atelier Coat when the weather turns.`,
+    story_tr: `Bu, koleksiyonun renkli parçası. Sun-Up Triko, İstanbul Eminönü'ndeki Mısır Çarşısı'na yapılan bir safran ziyareti sırasında doğdu. O özel altın sarısına sürekli geri döndük — gürültülü olmadan sıcak, her cilt tonuna yakışan bir renk.
+
+Merinos yünü, Yeni Zelanda'daki mulesing (zararlı bir uygulama) içermeyen bir kooperatiften geliyor. 18.5 mikronluk ince bir yapıda eğrilmiştir, bu da cildinizde kaşıntı yapmadan durduğu anlamına gelir. Fitilli yapısı, kısa silüetini kaybetmeden ona esneklik ve form verir.
+
+Tam bir renk hikayesi için Wide Atelier Pantolon ve Sun-Up Atkı ile giyin veya hava değiştiğinde Atelier Palto'nun altına katman olarak ekleyin.`,
     fabric: [
       { name: "Extra-Fine Merino Wool", percentage: 90 },
       { name: "Cashmere", percentage: 10 },
@@ -200,6 +296,14 @@ Wear it with the Wide Trouser and the Sun-Up Scarf for the full colour story, or
       "Saffron dye inspired by Eminönü spice market",
       "Rolled hem and cuffs — no raw edges",
       "Flat-locked seams for comfort",
+    ],
+    details_tr: [
+      "Fitilli yapı — 2x2 örgü deseni",
+      "Hafif kısa kesim — tam bel hizasında biter",
+      "18.5 mikron merinos, mulesing içermez",
+      "Eminönü baharat çarşısından ilham alan safran boya",
+      "Kıvrık etek ve manşetler — pürüzsüz kenarlar",
+      "Konfor için düz dikişler",
     ],
     care: [
       "Hand wash cold with wool detergent",
@@ -217,7 +321,9 @@ Wear it with the Wide Trouser and the Sun-Up Scarf for the full colour story, or
   {
     slug: "atelier-tote",
     name: "Atelier Tote",
+    name_tr: "Atelier Tote Çanta",
     subtitle: "camel leather · unlined · everyday carry",
+    subtitle_tr: "deve tüyü rengi deri · astarsız · günlük kullanım",
     price: "€ 540",
     category: "accessories",
     image: "/images/products/atelier-tote.png",
@@ -227,6 +333,11 @@ Wear it with the Wide Trouser and the Sun-Up Scarf for the full colour story, or
 It's unlined because we wanted you to feel the leather from the inside — and because it means the bag softens and moulds to your daily carry. After six months, your tote will have a slump and patina that's entirely yours.
 
 Fits a 14" laptop, a water bottle, and the kind of life where you need everything in one bag. The shoulder drop is 24cm — long enough for a coat underneath.`,
+    story_tr: `Atelier Tote, sadeliğin bir savunmasıdır. Metal aksesuar yok, logo yok, iç bölme yok. Sadece Mule No. 4'ümüzü de tedarik eden aynı İzmir tabakhanesi tarafından kesilen ve dikilen güzel bir deri.
+
+Astarsızdır çünkü deriyi içeriden de hissetmenizi istedik — ve bu sayede çantanın yumuşayıp günlük eşyalarınıza göre şekil almasını sağladık. Altı ay sonra, çantanız tamamen size ait bir forma ve patinaya sahip olacak.
+
+14 inçlik bir dizüstü bilgisayara, bir su şişesine ve her şeye tek bir çantada ihtiyaç duyduğunuz bir hayata uygundur. Askı boyu 24 cm'dir — altına palto giymek için yeterince uzundur.`,
     fabric: [
       { name: "Full-Grain Leather", percentage: 100 },
     ],
@@ -238,11 +349,25 @@ Fits a 14" laptop, a water bottle, and the kind of life where you need everythin
       "Interior leather pocket with magnetic snap",
       "Reinforced base with protective feet",
     ],
+    details_tr: [
+      "Tam kalite deve tüyü rengi deri, bitkisel tabaklanmış",
+      "Astarsız — günlük kullanımla yumuşar",
+      "14 inç dizüstü bilgisayar sığar",
+      "24 cm askı payı — paltoyla kullanıma uygun",
+      "Mıknatıslı iç deri cep",
+      "Koruyucu ayaklı takviyeli taban",
+    ],
     care: [
       "Condition with leather balm quarterly",
       "Stuff with tissue when storing",
       "Wipe spills immediately with dry cloth",
       "Leather patina develops naturally — embrace it",
+    ],
+    care_tr: [
+      "Üç ayda bir deri bakım kremi uygulayın",
+      "Saklarken içine kağıt doldurun",
+      "Dökülmeleri hemen kuru bir bezle silin",
+      "Deri patinası doğal olarak gelişir — tadını çıkarın",
     ],
     sizes: ["One Size"],
     pairsWith: [
@@ -254,7 +379,9 @@ Fits a 14" laptop, a water bottle, and the kind of life where you need everythin
   {
     slug: "sun-up-scarf",
     name: "Sun-Up Scarf",
+    name_tr: "Sun-Up İpek Eşarp",
     subtitle: "saffron silk · the bright accent",
+    subtitle_tr: "safran ipek · parlak dokunuş",
     price: "€ 140",
     category: "accessories",
     image: "/images/products/sun-up-scarf.png",
@@ -264,6 +391,11 @@ Fits a 14" laptop, a water bottle, and the kind of life where you need everythin
 The edges are hand-rolled, a technique that takes four times longer than machine-finishing but gives that beautiful soft curl that catches light. Each scarf is cut from a single silk panel to ensure pattern continuity.
 
 At €140, it's our most accessible piece — and often the first SHOLÉ item people buy. We're fine with that. It's a gateway piece.`,
+    story_tr: `Sun-Up Eşarp, safran renk hikayesine dahil olmanın en kolay yoludur. Triko ile aynı altın sarısı, ancak Bursa ipeği ile — daha hafif, daha parlak ve boyun eşarbı, saç bandı veya çanta aksesuarı olarak kullanılabilecek kadar çok yönlü.
+
+Kenarlar el işçiliğiyle rulo yapılmıştır; bu teknik makine dikişinden dört kat daha uzun sürer ancak ışığı yakalayan o güzel yumuşak kıvrımı verir. Desen sürekliliğini sağlamak için her eşarp tek bir ipek panelden kesilir.
+
+140 € fiyatıyla en erişilebilir parçamızdır ve genellikle insanların satın aldığı ilk SHOLÉ ürünüdür. Bununla gurur duyuyoruz. Bu bir tanışma parçasıdır.`,
     fabric: [
       { name: "Mulberry Silk", percentage: 100 },
     ],
@@ -275,11 +407,25 @@ At €140, it's our most accessible piece — and often the first SHOLÉ item pe
       "Lightweight — 12 momme silk weight",
       "SHOLÉ monogram woven into corner",
     ],
+    details_tr: [
+      "70cm × 70cm — klasik kare format",
+      "El rulosu kenarlar — 4 kat daha uzun işleme süresi",
+      "Sun-Up Triko ile uyumlu safran boya",
+      "Bursa ipeği — tek panel kesim",
+      "Hafif — 12 momme ipek ağırlığı",
+      "Köşeye dokunmuş SHOLÉ monogramı",
+    ],
     care: [
       "Hand wash cold with silk detergent",
       "Roll in towel to remove excess water",
       "Iron on low while slightly damp",
       "Store flat or rolled — never folded",
+    ],
+    care_tr: [
+      "İpek deterjanıyla soğuk elde yıkayın",
+      "Fazla suyu almak için havluya sarın",
+      "Hafif nemliyken düşük ısıda ütüleyin",
+      "Düz veya rulo yaparak saklayın — asla katlamayın",
     ],
     sizes: ["One Size"],
     pairsWith: [
@@ -291,7 +437,9 @@ At €140, it's our most accessible piece — and often the first SHOLÉ item pe
   {
     slug: "soft-bomber",
     name: "Soft Bomber",
+    name_tr: "Soft Bomber Ceket",
     subtitle: "cream silk · lightweight · rolled cuff",
+    subtitle_tr: "krem ipek · hafif · kıvrık manşet",
     price: "€ 540",
     category: "tailoring",
     tag: "evening",
@@ -302,6 +450,11 @@ At €140, it's our most accessible piece — and often the first SHOLÉ item pe
 The rolled cuff is hand-tacked — it won't unroll. The ribbed collar and hem use a silk-blend knit instead of the usual polyester. And the zip is a custom YKK in matte brass, because we spent too long looking at zippers for this project.
 
 We think of it as the evening uniform piece. Layer it over the Soft Rules Shirt with the Wide Trouser and you're dressed for anything that isn't a wedding.`,
+    story_tr: `Soft Bomber, erkek giyimindeki en rahat silüeti alıp kadınlar için ipekten yeniden yorumladığımızda ortaya çıkan parçadır. Krem rengi gündüz için yeterince nötrdür, ancak ipek ışığı yakalayarak onu akşam saatleri için yükseltir.
+
+Kıvrık manşet el işçiliğiyle sabitlenmiştir — açılmaz. Fitilli yaka ve etek ucu, alışılmış polyester yerine ipek karışımlı bir örgü kullanır. Fermuar ise mat pirinçten özel bir YKK fermuardır, çünkü bu proje için fermuarlara çok uzun süre baktık.
+
+Bunu akşam üniforması parçası olarak görüyoruz. Wide Atelier Pantolon ve Soft Rules Gömlek üzerine giydiğinizde, düğün dışında her şeye hazır bir şıklıkta olursunuz.`,
     fabric: [
       { name: "Mulberry Silk", percentage: 88 },
       { name: "Cotton", percentage: 10 },
@@ -315,11 +468,25 @@ We think of it as the evening uniform piece. Layer it over the Soft Rules Shirt 
       "Two side pockets with invisible zip",
       "Interior SHOLÉ silk label, hand-stitched",
     ],
+    details_tr: [
+      "Hafif parlaklığa sahip ipek dış yüzey",
+      "Kıvrık manşet — el dikişiyle sabitlenmiş, açılmaz",
+      "İpek karışımlı fitilli yaka ve etek ucu",
+      "Özel YKK mat pirinç fermuar",
+      "Görünmez fermuarlı iki yan cep",
+      "İç kısımda el dikişi SHOLÉ ipek etiketi",
+    ],
     care: [
       "Dry clean recommended",
       "Spot clean with damp cloth",
       "Hang on padded hanger",
       "Steam on low — avoid direct contact",
+    ],
+    care_tr: [
+      "Kuru temizleme önerilir",
+      "Nemli bezle bölgesel temizlik yapın",
+      "Dolgulu askıda asarak saklayın",
+      "Düşük ısıda buhar verin — doğrudan temastan kaçının",
     ],
     sizes: ["XS", "S", "M", "L", "XL"],
     pairsWith: [
@@ -331,7 +498,9 @@ We think of it as the evening uniform piece. Layer it over the Soft Rules Shirt 
   {
     slug: "atelier-mini",
     name: "Atelier Mini",
+    name_tr: "Atelier Mini Etek",
     subtitle: "espresso wool · above-knee · darted",
+    subtitle_tr: "espresso yün · diz üstü · pensli",
     price: "€ 410",
     category: "tailoring",
     image: "/images/products/atelier-mini.png",
@@ -341,6 +510,11 @@ We think of it as the evening uniform piece. Layer it over the Soft Rules Shirt 
 The darts give it structure without being fussy — it sits flat at the hip and skims the thigh. The above-knee length was calibrated for movement: you can sit, stand, and walk without thinking about it. It works year-round because the wool weight (240gsm) is in that sweet spot between too warm and too light.
 
 Pair it with the Soft Rules Shirt and the Mule for what we call "the effortless Friday." It's the outfit the whole team defaults to when they can't think of what to wear.`,
+    story_tr: `Atelier Mini, tasarım ekibinin sessiz favorisidir. Espresso rengi yün, Mule No. 4 ile uyum sağlar ve belden yukarısının öne çıkmasını sağlayan tonlu bir bacak hattı oluşturur.
+
+Pensler, abartılı olmadan yapı kazandırır — kalçaya düz bir şekilde oturur ve uyluğu hafifçe sarar. Diz üstü boyu hareket için ayarlanmıştır: düşünmenize gerek kalmadan oturabilir, ayakta durabilir ve yürüyebilirsiniz. Yün ağırlığı (240gsm) çok sıcak ile çok hafif arasındaki o mükemmel noktada olduğu için yıl boyunca kullanılabilir.
+
+"Zahmetsiz Cuma" dediğimiz görünüm için Soft Rules Gömlek ve Mule ile eşleştirin. Bu, ne giyeceğini bilemediğinde tüm ekibin varsayılan olarak seçtiği kombindir.`,
     fabric: [
       { name: "Merino Wool", percentage: 93 },
       { name: "Elastane", percentage: 7 },
@@ -353,11 +527,25 @@ Pair it with the Soft Rules Shirt and the Mule for what we call "the effortless 
       "240gsm wool — year-round weight",
       "Espresso dye matching Mule No. 4",
     ],
+    details_tr: [
+      "Diz üstü boy — hareket için ayarlanmış",
+      "Düz ve yapılı bir uyum için dört ön pens",
+      "Kanca ve gözlü gizli arka fermuar",
+      "Pürüzsüz döküm için tamamen viskon astarlı",
+      "240gsm yün — yıl boyu kullanılabilir ağırlık",
+      "Mule No. 4 ile uyumlu espresso boya",
+    ],
     care: [
       "Dry clean or hand wash cold",
       "Iron on medium with pressing cloth",
       "Hang or fold flat — no creasing",
       "Brush with garment brush between wears",
+    ],
+    care_tr: [
+      "Kuru temizleme veya soğuk elde yıkama",
+      "Ütü bezi ile orta ısıda ütüleyin",
+      "Asarak veya katlayarak saklayın — kırıştırmayın",
+      "Kullanımlar arasında giysi fırçasıyla fırçalayın",
     ],
     sizes: ["XS", "S", "M", "L", "XL"],
     pairsWith: [

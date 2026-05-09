@@ -6,14 +6,19 @@ import { X, Mic, MicOff, Send, Terminal, AlertTriangle } from "lucide-react";
 import { GeminiLiveClient, FunctionCall } from "@/lib/gemini-live";
 import { startVADMic, type VADMicHandle } from "@/lib/vad-mic";
 import { PRODUCTS } from "@/lib/products";
+import { getLabels } from "@/lib/i18n";
 
-function buildLiveSystemPrompt() {
+function buildLiveSystemPrompt(locale: string) {
   const productList = PRODUCTS.map(
-    (p, i) =>
-      `${i + 1}. ${p.name} — ${p.subtitle}, ${p.price}. slug: '${p.slug}'`
+    (p, i) => {
+      const name = locale === "tr" && p.name_tr ? p.name_tr : p.name;
+      const subtitle = locale === "tr" && p.subtitle_tr ? p.subtitle_tr : p.subtitle;
+      return `${i + 1}. ${name} — ${subtitle}, ${p.price}. slug: '${p.slug}'`;
+    }
   ).join("\n");
 
-  return `You are SHOLÉ, the in-store AI stylist for SHOLÉ by SARAR (Istanbul, 1947).
+  return `You are SHOLÉ, the in-store AI stylist for SHOLÉ by SARAR (Istanbul, 1944).
+Current interface language: ${locale}.
 
 VOICE STYLE — strict, this is a phone-call conversation:
 - ONE sentence per turn. Two max. Never lecture.
@@ -47,13 +52,16 @@ export function AIAssistant({
   open,
   onClose,
   onToolCall,
+  locale = "en",
 }: {
   open: boolean;
   onClose: () => void;
   onToolCall?: ToolCallHandler;
+  locale?: string;
 }) {
+  const labels = getLabels(locale as any);
   const [messages, setMessages] = useState<Msg[]>([
-    { role: "model", content: "Welcome to SHOLÉ. How can I help you today?" },
+    { role: "model", content: labels.greeting },
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -365,7 +373,7 @@ export function AIAssistant({
     pushLog(`api key present (len=${apiKey.length})`);
 
     clientRef.current = new GeminiLiveClient(apiKey, {
-      systemInstruction: buildLiveSystemPrompt(),
+      systemInstruction: buildLiveSystemPrompt(locale),
       onLog: pushLog,
       onOpen: () => {
         pushLog("Live onOpen → starting mic");
@@ -558,12 +566,12 @@ export function AIAssistant({
   if (!open) return null;
 
   const statusText = isConnecting
-    ? "◌ connecting voice..."
+    ? (locale === "tr" ? "◌ sese bağlanıyor..." : "◌ connecting voice...")
     : isLive
     ? isSpeaking
-      ? "🔊 SHOLÉ speaking · just talk to interrupt"
-      : "🔴 live voice · listening"
-    : "◇ powered by gemini";
+      ? (locale === "tr" ? "🔊 SHOLÉ konuşuyor · bölmek için konuşun" : "🔊 SHOLÉ speaking · just talk to interrupt")
+      : (locale === "tr" ? "🔴 canlı ses · dinliyor" : "🔴 live voice · listening")
+    : (locale === "tr" ? "◇ gemini tarafından destekleniyor" : "◇ powered by gemini");
 
   const interruptNow = () => {
     pushLog("user pressed interrupt → clearing audio queue");
@@ -716,7 +724,9 @@ export function AIAssistant({
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-              placeholder={isLive ? "voice live · or type" : "Ask me anything..."}
+              placeholder={isLive 
+                ? (locale === "tr" ? "ses aktif · veya yazın" : "voice live · or type") 
+                : labels.askShole + "..."}
               className="flex-1 bg-transparent border-none focus:ring-0 text-sm py-1 outline-none"
               disabled={isLoading}
             />
@@ -741,7 +751,7 @@ export function FloatingLauncher({ onClick }: { onClick: () => void }) {
       className="fixed bottom-6 right-6 z-50 bg-black text-white px-6 py-4 rounded-full shadow-2xl flex items-center gap-3 font-bold hover:scale-105 transition-all"
     >
       <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-      ASK SHOLÉ
+      {onClick && typeof window !== 'undefined' ? (window as any).__shole_label_ask || 'ASK SHOLÉ' : 'ASK SHOLÉ'}
     </button>
   );
 }

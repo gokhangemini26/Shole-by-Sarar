@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { GlobalAssistant } from "@/components/GlobalAssistant";
+import { LocaleProvider } from "@/lib/LocaleContext";
 
 export const metadata: Metadata = {
   title: "SHOLÉ by SARAR — Modern Atelier",
@@ -45,9 +46,12 @@ export default function RootLayout({
         />
       </head>
       <body>
-        {children}
-        <GlobalAssistant />
+        <LocaleProvider>
+          {children}
+          <GlobalAssistant />
+        </LocaleProvider>
       </body>
     </html>
   );
 }
+

@@ -1,13 +1,15 @@
-"use client";
-
 import React from "react";
 import { useRouter } from "next/navigation";
 import { TYPE, PALETTES } from "@/lib/design";
 import { PRODUCTS, Product } from "@/lib/products";
 import { Nav, Footer } from "@/components/SiteShell";
+import { useLocale } from "@/lib/LocaleContext";
+import { getLabels } from "@/lib/i18n";
 
 export function CategoryPageTemplate({ category, title, description }: { category: Product["category"]; title: string; description: string; }) {
   const router = useRouter();
+  const { locale } = useLocale();
+  const labels = getLabels(locale);
   const palette = PALETTES.warmCream;
   const accent = palette.accent;
   
@@ -47,7 +49,7 @@ export function CategoryPageTemplate({ category, title, description }: { categor
                   />
                 ) : (
                   <div style={{ width: "100%", aspectRatio: "3 / 4", display: "grid", placeItems: "center", background: "#dcd1bc" }}>
-                    <span style={{ fontFamily: TYPE.mono, fontSize: 12, color: palette.muted }}>Image coming soon</span>
+                    <span style={{ fontFamily: TYPE.mono, fontSize: 12, color: palette.muted }}>{labels.imageComing}</span>
                   </div>
                 )}
                 {product.tag && (

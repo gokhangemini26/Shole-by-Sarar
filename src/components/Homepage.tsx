@@ -3,6 +3,8 @@
 import React from "react";
 import Link from "next/link";
 import { TYPE, Palette } from "@/lib/design";
+import { getLabels } from "@/lib/i18n";
+import { useLocale } from "@/lib/LocaleContext";
 
 /* ── Product Images Map ──────────────────────────────────────────────── */
 const PRODUCT_IMAGES: Record<string, string> = {
@@ -48,6 +50,9 @@ export function Hero({
   accent: string;
   onOpenAI: () => void;
 }) {
+  const { locale } = useLocale();
+  const labels = getLabels(locale);
+
   return (
     <section
       id="hero"
@@ -77,7 +82,7 @@ export function Hero({
           }}
         >
           <span style={{ width: 24, height: 1, background: palette.muted }} />
-          Spring / Summer 2026 — Chapter 01
+          {labels.heroSubtitle}
         </div>
         <h1
           style={{
@@ -90,11 +95,13 @@ export function Hero({
             color: palette.ink,
           }}
         >
-          Wear it
+          {locale === "tr" ? "Kendin gibi" : "Wear it"}
           <br />
-          <em style={{ color: accent, fontStyle: "italic" }}>like it&apos;s</em>
+          <em style={{ color: accent, fontStyle: "italic" }}>
+            {locale === "tr" ? "taşı" : "like it's"}
+          </em>
           <br />
-          yours{" "}
+          {locale === "tr" ? "onu" : "yours"}{" "}
           <span
             style={{
               display: "inline-block",
@@ -107,7 +114,7 @@ export function Hero({
               marginLeft: 12,
             }}
           >
-            — since 1947
+            {labels.herosince}
           </span>
         </h1>
         <p
@@ -121,9 +128,7 @@ export function Hero({
             marginTop: 36,
           }}
         >
-          A new chapter from the SARAR atelier. Tailoring that learns your
-          shape, textures that get better with time, and a stylist that actually
-          listens.
+          {labels.heroTagline}
         </p>
         <div
           style={{
@@ -149,7 +154,7 @@ export function Hero({
               letterSpacing: "0.04em",
             }}
           >
-            Shop the chapter →
+            {labels.shopChapter}
           </button>
           <button
             id="hero-stylist"
@@ -178,7 +183,7 @@ export function Hero({
                 boxShadow: `0 0 0 4px ${accent}22`,
               }}
             />
-            Try the stylist
+            {labels.tryStylist}
           </button>
         </div>
       </div>
@@ -186,7 +191,7 @@ export function Hero({
       <div style={{ position: "relative" }}>
         <ProductImage
           src={PRODUCT_IMAGES["hero-coat"]}
-          alt="SHOLÉ — The Atelier Coat in terra dye wool"
+          alt={`SHOLÉ — ${labels.navTailoring}`}
           ratio="3 / 4"
         />
         <div
@@ -205,7 +210,7 @@ export function Hero({
             boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
           }}
         >
-          ✦ new — 12 looks
+          {labels.newLooksCount}
         </div>
         <div
           style={{
@@ -232,27 +237,18 @@ export function Hero({
               marginBottom: 4,
             }}
           >
-            look 04 / sholé says
+            {labels.lookSholeSays}
           </div>
-          &ldquo;the sleeve crops at the wrist on you — pair with the slim trouser.&rdquo;
+          &ldquo;{locale === "tr" ? "kol boyu bileğinde bitiyor — dar pantolonla kombinle." : "the sleeve crops at the wrist on you — pair with the slim trouser."}&rdquo;
         </div>
       </div>
     </section>
   );
 }
 
+
 /* ── Collection Grid ─────────────────────────────────────────────────── */
-const collectionItems = [
-  { id: "atelier-coat", label: "wool coat — terra", tag: "new", name: "The Atelier Coat", price: "€ 890" },
-  { id: "soft-rules-shirt", label: "silk shirt — cream", name: "Soft Rules Shirt", price: "€ 340" },
-  { id: "wide-trouser", label: "tailored trouser", name: "Wide Atelier Trouser", price: "€ 420" },
-  { id: "mule-no4", label: "leather mule", tag: "late spring", name: "Mule No. 4", price: "€ 380" },
-  { id: "sun-up-knit", label: "knit dress — saffron", tag: "✦ pick", name: "Sun-Up Knit", price: "€ 290" },
-  { id: "atelier-tote", label: "leather tote", name: "Atelier Tote", price: "€ 540" },
-  { id: "sun-up-scarf", label: "silk scarf — saffron", name: "Sun-Up Scarf", price: "€ 140" },
-  { id: "soft-bomber", label: "silk bomber — cream", tag: "evening", name: "Soft Bomber", price: "€ 540" },
-  { id: "atelier-mini", label: "wool mini — espresso", name: "Atelier Mini", price: "€ 410" },
-];
+import { PRODUCTS as ALL_PRODUCTS } from "@/lib/products";
 
 export function CollectionGrid({
   palette,
@@ -263,6 +259,36 @@ export function CollectionGrid({
   accent: string;
   highlightedProduct?: string | null;
 }) {
+  const { locale } = useLocale();
+  const labels = getLabels(locale);
+  const categories = locale === "tr" 
+    ? ["Hepsi", "Terzilik", "Triko", "Ayakkabı", "Çanta"] 
+    : ["All", "Tailoring", "Knit", "Shoes", "Bags"];
+
+  const featuredIds = [
+    "atelier-coat",
+    "soft-rules-shirt",
+    "wide-trouser",
+    "mule-no4",
+    "sun-up-knit",
+    "atelier-tote",
+    "sun-up-scarf",
+    "soft-bomber",
+    "atelier-mini"
+  ];
+
+  const collectionItems = featuredIds.map(id => {
+    const p = ALL_PRODUCTS.find(x => x.slug === id);
+    if (!p) return null;
+    return {
+      id: p.slug,
+      name: locale === "tr" && p.name_tr ? p.name_tr : p.name,
+      price: p.price,
+      tag: p.tag,
+      label: p.subtitle_tr || p.subtitle // using subtitle as label fallback
+    };
+  }).filter(Boolean);
+
   return (
     <section id="collection" style={{ maxWidth: 1480, margin: "0 auto", padding: "60px 32px" }}>
       <div
@@ -286,7 +312,7 @@ export function CollectionGrid({
               marginBottom: 12,
             }}
           >
-            ◇ Chapter 01 — twelve pieces
+            ◇ {labels.chapter01} — {locale === "tr" ? "on iki parça" : "twelve pieces"}
           </div>
           <h2
             style={{
@@ -299,11 +325,11 @@ export function CollectionGrid({
               color: palette.ink,
             }}
           >
-            The <em style={{ color: accent }}>soft</em> arrivals.
+            {labels.collectionTitle.split(".")[0]} <em style={{ color: accent }}>{locale === "tr" ? "parçalar" : "soft"}</em>.
           </h2>
         </div>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-          {["All", "Tailoring", "Knit", "Shoes", "Bags"].map((c, i) => (
+          {categories.map((c, i) => (
             <button
               key={c}
               style={{
@@ -360,6 +386,9 @@ function ProductCard({
   highlighted?: boolean;
 }) {
   const [hover, setHover] = React.useState(false);
+  const { locale } = useLocale();
+  const labels = getLabels(locale);
+
   return (
     <Link href={id ? `/product/${id}` : "#"} style={{ textDecoration: "none", color: "inherit" }}>
     <article
@@ -449,7 +478,7 @@ function ProductCard({
             letterSpacing: "0.04em",
           }}
         >
-          + try on with sholé
+          {labels.tryOnWithShole}
         </div>
       </div>
       <div
@@ -480,7 +509,7 @@ function ProductCard({
               letterSpacing: "0.04em",
             }}
           >
-            4 colours · xs–xl
+            {labels.sizeRange}
           </div>
         </div>
         <div style={{ fontFamily: TYPE.display, fontSize: 18, color: palette.ink }}>
@@ -500,6 +529,9 @@ export function StorySplit({
   palette: Palette;
   accent: string;
 }) {
+  const { locale } = useLocale();
+  const labels = getLabels(locale);
+
   return (
     <section
       id="story"
@@ -515,7 +547,7 @@ export function StorySplit({
     >
       <ProductImage
         src={PRODUCT_IMAGES["story-atelier"]}
-        alt="SHOLÉ atelier workshop — Istanbul"
+        alt={`SHOLÉ — ${labels.theHouse}`}
         ratio="4 / 5"
       />
       <div>
@@ -529,7 +561,7 @@ export function StorySplit({
             marginBottom: 18,
           }}
         >
-          ◇ The house
+          {labels.theHouse}
         </div>
         <h2
           style={{
@@ -542,9 +574,9 @@ export function StorySplit({
             color: palette.ink,
           }}
         >
-          Three generations of tailors,
+          {labels.storyTitle.split(",")[0]},
           <br />
-          <em style={{ color: accent }}>one</em> very curious AI.
+          <em style={{ color: accent }}>{locale === "tr" ? "bir" : "one"}</em> {labels.storyTitle.split(",")[1].trim()}
         </h2>
         <p
           style={{
@@ -557,9 +589,9 @@ export function StorySplit({
             maxWidth: 540,
           }}
         >
-          SHOLÉ is the new face of SARAR — a house that&apos;s been cutting coats
-          in Istanbul since 1947. Same atelier, softer attitude, and a stylist
-          that&apos;s genuinely good company.
+          {locale === "tr" 
+            ? "SHOLÉ, 1944'ten beri İstanbul'da palto kesen bir moda evi olan SARAR'ın yeni yüzüdür. Aynı atölye, daha yumuşak bir tutum ve gerçekten iyi bir arkadaş olan bir stilist."
+            : "SHOLÉ is the new face of SARAR — a house that's been cutting coats in Istanbul since 1944. Same atelier, softer attitude, and a stylist that's genuinely good company."}
         </p>
         <div
           style={{
@@ -573,9 +605,9 @@ export function StorySplit({
         >
           {(
             [
-              ["1947", "atelier opened"],
-              ["78", "years of tailoring"],
-              ["12", "pieces per chapter"],
+              ["1944", labels.statAtelier],
+              ["82", labels.statTailoring],
+              ["12", labels.statPieces],
             ] as const
           ).map(([n, l]) => (
             <div key={l}>
@@ -619,6 +651,9 @@ export function AIInvite({
   accent: string;
   onOpenAI: () => void;
 }) {
+  const { locale } = useLocale();
+  const labels = getLabels(locale);
+
   return (
     <section
       id="ai-invite"
@@ -677,7 +712,7 @@ export function AIInvite({
                 boxShadow: `0 0 16px ${accent}`,
               }}
             />
-            Meet your stylist
+            {labels.meetYourStylist}
           </div>
           <h2
             style={{
@@ -689,8 +724,8 @@ export function AIInvite({
               margin: 0,
             }}
           >
-            Hi, I&apos;m <em style={{ color: accent }}>SHOLÉ</em>.
-            <br />I help you not panic at 8pm.
+            {labels.aiInviteTitle.split(".")[0]}.
+            <br />{labels.aiInviteTitle.split(".")[1].trim()}
           </h2>
           <p
             style={{
@@ -702,9 +737,7 @@ export function AIInvite({
               maxWidth: 520,
             }}
           >
-            Tell me what you&apos;re going to. Show me the dress you almost
-            bought. Send me a photo — I&apos;ll show you how the coat actually
-            fits. Mostly I just want you to feel a bit better in your closet.
+            {labels.aiInviteDesc}
           </p>
           <div
             style={{
@@ -730,7 +763,7 @@ export function AIInvite({
                 letterSpacing: "0.02em",
               }}
             >
-              Start the conversation →
+              {labels.startConversation}
             </button>
             <button
               onClick={onOpenAI}
@@ -746,7 +779,7 @@ export function AIInvite({
                 fontWeight: 500,
               }}
             >
-              Take the style quiz
+              {labels.styleQuiz}
             </button>
           </div>
         </div>
@@ -792,6 +825,8 @@ const Bubble = ({
 };
 
 function ChatPreview({ palette, accent }: { palette: Palette; accent: string }) {
+  const { locale } = useLocale();
+  const labels = getLabels(locale);
 
   return (
     <div
@@ -843,7 +878,7 @@ function ChatPreview({ palette, accent }: { palette: Palette; accent: string }) 
                 opacity: 0.6,
               }}
             >
-              ◇ online · ai stylist
+              ◇ {labels.onlineAiStylist}
             </div>
           </div>
         </div>
@@ -855,16 +890,15 @@ function ChatPreview({ palette, accent }: { palette: Palette; accent: string }) 
             opacity: 0.5,
           }}
         >
-          preview ✦
+          {locale === "tr" ? "önizleme" : "preview"} ✦
         </div>
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-        <Bubble side="them" palette={palette} accent={accent}>hi! it&apos;s sholé ✦ what are you styling today?</Bubble>
-        <Bubble side="me" palette={palette} accent={accent}>A dinner Friday. not too dressed up. need a dress.</Bubble>
+        <Bubble side="them" palette={palette} accent={accent}>{labels.greeting}</Bubble>
+        <Bubble side="me" palette={palette} accent={accent}>{labels.chatPreviewBubble1}</Bubble>
         <Bubble side="them" palette={palette} accent={accent}>
-          got it. weather says 17°C — i&apos;ll lean knit. three picks, low-effort,
-          slightly off-duty:
+          {labels.chatPreviewBubble2}
         </Bubble>
         <div style={{ display: "flex", gap: 10, paddingLeft: 8 }}>
           {(["sun-up-knit", "wide-trouser", "atelier-mini"] as const).map((pid) => (
@@ -878,12 +912,13 @@ function ChatPreview({ palette, accent }: { palette: Palette; accent: string }) 
           ))}
         </div>
         <Bubble side="them" palette={palette} accent={accent}>
-          want to try one on? send a full-body photo and i&apos;ll mock it up.
+          {labels.chatPreviewBubble3}
         </Bubble>
       </div>
     </div>
   );
 }
+
 
 /* ── Press Strip ─────────────────────────────────────────────────────── */
 export function PressStrip({
@@ -892,10 +927,12 @@ export function PressStrip({
   palette: Palette;
   accent?: string;
 }) {
+  const { locale } = useLocale();
+  const labels = getLabels(locale);
   const quotes = [
-    ['"Tailoring with a sense of humour."', "Vogue Europe"],
-    ['"The AI you actually want around."', "It\'s Nice That"],
-    ['"SARAR\'s most playful chapter yet."', "Monocle"],
+    [labels.pressQuote1, "Vogue Europe"],
+    [labels.pressQuote2, "It's Nice That"],
+    [labels.pressQuote3, "Monocle"],
   ];
   return (
     <section

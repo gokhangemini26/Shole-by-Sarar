@@ -5,6 +5,8 @@ import { useParams, useRouter } from "next/navigation";
 import { TYPE, PALETTES } from "@/lib/design";
 import { getProduct, PRODUCTS } from "@/lib/products";
 import { Nav, Footer } from "@/components/SiteShell";
+import { useLocale } from "@/lib/LocaleContext";
+import { getLabels } from "@/lib/i18n";
 
 /* ═══════════════════════════════════════════════════════════════════════
    Product Detail Page — SHOLÉ by SARAR
@@ -14,6 +16,8 @@ import { Nav, Footer } from "@/components/SiteShell";
 export default function ProductPage() {
   const params = useParams();
   const router = useRouter();
+  const { locale } = useLocale();
+  const labels = getLabels(locale);
   const palette = PALETTES.warmCream;
   const accent = palette.accent;
   const slug = params?.slug as string;
@@ -24,14 +28,20 @@ export default function ProductPage() {
       <div style={{ background: palette.bg, color: palette.ink, minHeight: "100vh", display: "grid", placeItems: "center" }}>
         <div style={{ textAlign: "center" }}>
           <h1 style={{ fontFamily: TYPE.display, fontSize: 48 }}>404</h1>
-          <p style={{ fontFamily: TYPE.sans, color: palette.muted }}>Product not found</p>
+          <p style={{ fontFamily: TYPE.sans, color: palette.muted }}>{labels.productNotFound}</p>
           <button onClick={() => router.push("/")} style={{ marginTop: 24, background: palette.ink, color: palette.bg, border: 0, padding: "12px 24px", borderRadius: 999, cursor: "pointer", fontFamily: TYPE.sans, fontSize: 13, fontWeight: 500 }}>
-            ← Back to SHOLÉ
+            {labels.backToShole}
           </button>
         </div>
       </div>
     );
   }
+
+  const pName = locale === "tr" && product.name_tr ? product.name_tr : product.name;
+  const pSubtitle = locale === "tr" && product.subtitle_tr ? product.subtitle_tr : product.subtitle;
+  const pStory = locale === "tr" && product.story_tr ? product.story_tr : product.story;
+  const pDetails = locale === "tr" && product.details_tr ? product.details_tr : product.details;
+  const pCare = locale === "tr" && product.care_tr ? product.care_tr : product.care;
 
   return (
     <div style={{ background: palette.bg, color: palette.ink, minHeight: "100vh" }}>
@@ -42,9 +52,9 @@ export default function ProductPage() {
         <div style={{ fontFamily: TYPE.mono, fontSize: 11, letterSpacing: "0.06em", color: palette.muted, display: "flex", alignItems: "center", gap: 8 }}>
           <span style={{ cursor: "pointer" }} onClick={() => router.push("/")}>SHOLÉ</span>
           <span>→</span>
-          <span style={{ cursor: "pointer" }} onClick={() => { router.push("/"); setTimeout(() => document.getElementById("collection")?.scrollIntoView({ behavior: "smooth" }), 300); }}>Chapter 01</span>
+          <span style={{ cursor: "pointer" }} onClick={() => { router.push("/"); setTimeout(() => document.getElementById("collection")?.scrollIntoView({ behavior: "smooth" }), 300); }}>{labels.chapter01}</span>
           <span>→</span>
-          <span style={{ color: palette.ink }}>{product.name}</span>
+          <span style={{ color: palette.ink }}>{pName}</span>
         </div>
       </div>
 
@@ -58,7 +68,7 @@ export default function ProductPage() {
           <div style={{ position: "relative", borderRadius: 16, overflow: "hidden", background: "#E8DFCF" }}>
             <img
               src={product.image}
-              alt={`SHOLÉ — ${product.name}`}
+              alt={`SHOLÉ — ${pName}`}
               style={{ width: "100%", aspectRatio: "3 / 4", objectFit: "cover", display: "block" }}
             />
             {product.tag && (
@@ -76,7 +86,7 @@ export default function ProductPage() {
           <div style={{ borderRadius: 16, overflow: "hidden", background: "#E8DFCF" }}>
             <img
               src={product.detailImage}
-              alt={`${product.name} — fabric detail`}
+              alt={`${pName} — fabric detail`}
               style={{ width: "100%", aspectRatio: "16 / 9", objectFit: "cover", display: "block" }}
             />
           </div>
@@ -90,7 +100,7 @@ export default function ProductPage() {
             display: "inline-flex", alignItems: "center", gap: 8,
           }}>
             <span style={{ width: 20, height: 1, background: accent }} />
-            Chapter 01 · Spring/Summer 2026
+            {labels.chapter01} · {locale === "tr" ? "İlkbahar/Yaz 2026" : "Spring/Summer 2026"}
           </div>
 
           <h1 style={{
@@ -98,14 +108,14 @@ export default function ProductPage() {
             fontSize: "clamp(36px, 4.5vw, 64px)", lineHeight: 1,
             letterSpacing: "-0.02em", margin: 0, color: palette.ink,
           }}>
-            {product.name}
+            {pName}
           </h1>
 
           <p style={{
             fontFamily: TYPE.sans, fontSize: 16, color: palette.muted,
             marginTop: 12, letterSpacing: "0.02em",
           }}>
-            {product.subtitle}
+            {pSubtitle}
           </p>
 
           <div style={{
@@ -118,7 +128,7 @@ export default function ProductPage() {
           {/* Sizes */}
           <div style={{ marginTop: 32 }}>
             <div style={{ fontFamily: TYPE.mono, fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: palette.muted, marginBottom: 12 }}>
-              {product.sizes.length > 1 ? "Select size" : "Size"}
+              {product.sizes.length > 1 ? labels.selectSize : labels.sizeLabel}
             </div>
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
               {product.sizes.map((s, i) => (
@@ -145,7 +155,7 @@ export default function ProductPage() {
               fontFamily: TYPE.sans, fontSize: 15, fontWeight: 600,
               letterSpacing: "0.02em",
             }}>
-              Add to bag — {product.price}
+              {labels.addToBag} — {product.price}
             </button>
             <button style={{
               width: 52, height: 52, borderRadius: "50%", border: `1px solid ${palette.line}`,
@@ -157,15 +167,15 @@ export default function ProductPage() {
           </div>
 
           <div style={{ fontFamily: TYPE.mono, fontSize: 10, letterSpacing: "0.06em", color: palette.muted, marginTop: 12, textAlign: "center" }}>
-            ✦ Free shipping over €200 · Free returns within 14 days
+            {labels.freeShippingDetail}
           </div>
 
           {/* ── Story ── */}
           <div style={{ marginTop: 56, paddingTop: 40, borderTop: `1px solid ${palette.line}` }}>
             <div style={{ fontFamily: TYPE.mono, fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: palette.muted, marginBottom: 20 }}>
-              ◇ The story
+              {labels.theStory}
             </div>
-            {product.story.split("\n\n").map((para, i) => (
+            {pStory.split("\n\n").map((para, i) => (
               <p key={i} style={{
                 fontFamily: TYPE.sans, fontSize: 15.5, lineHeight: 1.7,
                 color: palette.ink, opacity: 0.85, marginTop: i === 0 ? 0 : 20,
@@ -179,7 +189,7 @@ export default function ProductPage() {
           {/* ── Fabric Composition ── */}
           <div style={{ marginTop: 48, paddingTop: 40, borderTop: `1px solid ${palette.line}` }}>
             <div style={{ fontFamily: TYPE.mono, fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: palette.muted, marginBottom: 24 }}>
-              ◇ Fabric composition
+              {labels.fabricComposition}
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               {product.fabric.map((f) => (
@@ -204,10 +214,10 @@ export default function ProductPage() {
           {/* ── Details ── */}
           <div style={{ marginTop: 48, paddingTop: 40, borderTop: `1px solid ${palette.line}` }}>
             <div style={{ fontFamily: TYPE.mono, fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: palette.muted, marginBottom: 20 }}>
-              ◇ Details
+              {labels.detailsLabel}
             </div>
             <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 12 }}>
-              {product.details.map((d) => (
+              {pDetails.map((d) => (
                 <li key={d} style={{ fontFamily: TYPE.sans, fontSize: 14, color: palette.ink, opacity: 0.8, display: "flex", alignItems: "flex-start", gap: 10 }}>
                   <span style={{ color: accent, fontSize: 10, marginTop: 4, flexShrink: 0 }}>✦</span>
                   {d}
@@ -219,10 +229,10 @@ export default function ProductPage() {
           {/* ── Care ── */}
           <div style={{ marginTop: 48, paddingTop: 40, borderTop: `1px solid ${palette.line}` }}>
             <div style={{ fontFamily: TYPE.mono, fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: palette.muted, marginBottom: 20 }}>
-              ◇ Care instructions
+              {labels.careInstructions}
             </div>
             <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 10 }}>
-              {product.care.map((c) => (
+              {pCare.map((c) => (
                 <li key={c} style={{ fontFamily: TYPE.sans, fontSize: 13.5, color: palette.muted, display: "flex", alignItems: "center", gap: 10 }}>
                   <span style={{ fontSize: 10 }}>◇</span>
                   {c}
@@ -241,7 +251,7 @@ export default function ProductPage() {
           borderTop: `1px solid ${palette.line}`, paddingTop: 56,
         }}>
           <div style={{ fontFamily: TYPE.mono, fontSize: 11, letterSpacing: "0.14em", textTransform: "uppercase", color: palette.muted, marginBottom: 12 }}>
-            ◇ Complete the look
+            {labels.completeTheLook}
           </div>
           <h2 style={{
             fontFamily: TYPE.display, fontWeight: 400,
@@ -249,7 +259,7 @@ export default function ProductPage() {
             letterSpacing: "-0.02em", margin: 0, color: palette.ink,
             marginBottom: 36,
           }}>
-            Pairs <em style={{ color: accent }}>beautifully</em> with
+            {labels.pairsBeautifully.split(" beautifully ")[0]} <em style={{ color: accent }}>{locale === "tr" ? "mükemmel" : "beautifully"}</em> {labels.pairsBeautifully.split(" beautifully ")[1]}
           </h2>
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 28 }}>
@@ -260,8 +270,8 @@ export default function ProductPage() {
                 <PairCard
                   key={pair.slug}
                   slug={pair.slug}
-                  name={pairProduct.name}
-                  subtitle={pairProduct.subtitle}
+                  name={locale === "tr" && pairProduct.name_tr ? pairProduct.name_tr : pairProduct.name}
+                  subtitle={locale === "tr" && pairProduct.subtitle_tr ? pairProduct.subtitle_tr : pairProduct.subtitle}
                   price={pairProduct.price}
                   image={pairProduct.image}
                   palette={palette}
@@ -316,7 +326,7 @@ function PairCard({ slug, name, subtitle, price, image, palette, accent }: {
         letterSpacing: "0.06em", marginTop: 8,
         opacity: hover ? 1 : 0, transition: "opacity 0.3s ease",
       }}>
-        View product →
+        {getLabels(useLocale().locale).viewProduct}
       </div>
     </article>
   );

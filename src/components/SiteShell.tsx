@@ -3,6 +3,8 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import { TYPE, Palette } from "@/lib/design";
+import { getLabels } from "@/lib/i18n";
+import { useLocale } from "@/lib/LocaleContext";
 
 /* ═══════════════════════════════════════════════════════════════════════
    Site Shell: Nav, Footer, MarqueeRow, TopAnnounce, Placeholder
@@ -160,6 +162,8 @@ export function TopAnnounce({
   accent: string;
   dark?: boolean;
 }) {
+  const { locale } = useLocale();
+  const labels = getLabels(locale);
   return (
     <div
       style={{
@@ -173,8 +177,7 @@ export function TopAnnounce({
         padding: "8px 16px",
       }}
     >
-      ✦ Free shipping over €200 · Meet SHOLÉ — your AI stylist · New drop: late
-      spring 26
+      {labels.announce}
     </div>
   );
 }
@@ -189,7 +192,10 @@ export function Nav({
   onOpenAI: () => void;
 }) {
   const router = useRouter();
+  const { locale, setLocale } = useLocale();
+  const labels = getLabels(locale);
   const [scrolled, setScrolled] = React.useState(false);
+  
   React.useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
     window.addEventListener("scroll", onScroll);
@@ -234,15 +240,28 @@ export function Nav({
           gap: 24,
         }}
       >
-        <nav className="hide-mobile" style={{ display: "flex", gap: 28 }}>
-          <a style={linkStyle} onClick={() => router.push("/women")}>Women</a>
-          <a style={linkStyle} onClick={() => router.push("/accessories")}>Accessories</a>
-          <a style={linkStyle} onClick={() => router.push("/shoes")}>Shoes</a>
-          <a style={linkStyle} onClick={() => router.push("/tailoring")}>Tailoring</a>
-          <a style={linkStyle} onClick={() => router.push("/journal")}>Journal</a>
+        <nav className="hide-mobile" style={{ display: "flex", gap: 28, alignItems: "center" }}>
+          <a style={linkStyle} onClick={() => router.push("/women")}>{labels.navWomen}</a>
+          <a style={linkStyle} onClick={() => router.push("/accessories")}>{labels.navAccessories}</a>
+          <a style={linkStyle} onClick={() => router.push("/shoes")}>{labels.navShoes}</a>
+          <a style={linkStyle} onClick={() => router.push("/tailoring")}>{labels.navTailoring}</a>
+          <a style={linkStyle} onClick={() => router.push("/journal")}>{labels.navJournal}</a>
+          
+          <div style={{ display: "flex", gap: 8, marginLeft: 12, borderLeft: `1px solid ${palette.line}`, paddingLeft: 16 }}>
+            <button 
+              onClick={() => setLocale("en")}
+              style={{ ...linkStyle, border: 0, background: "transparent", opacity: locale === "en" ? 1 : 0.4, fontWeight: locale === "en" ? 700 : 400 }}
+            >EN</button>
+            <span style={{ opacity: 0.2 }}>|</span>
+            <button 
+              onClick={() => setLocale("tr")}
+              style={{ ...linkStyle, border: 0, background: "transparent", opacity: locale === "tr" ? 1 : 0.4, fontWeight: locale === "tr" ? 700 : 400 }}
+            >TR</button>
+          </div>
         </nav>
 
         <a
+          onClick={() => router.push("/")}
           style={{
             fontFamily: TYPE.display,
             fontSize: 28,
@@ -251,6 +270,7 @@ export function Nav({
             color: palette.ink,
             textDecoration: "none",
             textAlign: "center",
+            cursor: "pointer",
           }}
         >
           SHOLÉ
@@ -275,8 +295,8 @@ export function Nav({
             alignItems: "center",
           }}
         >
-          <a className="hide-mobile" style={linkStyle}>Search</a>
-          <a className="hide-mobile" style={linkStyle}>Account</a>
+          <a className="hide-mobile" style={linkStyle}>{labels.search}</a>
+          <a className="hide-mobile" style={linkStyle}>{labels.account}</a>
           <button
             id="nav-ask-shole"
             onClick={onOpenAI}
@@ -305,10 +325,10 @@ export function Nav({
                 boxShadow: `0 0 8px ${palette.accent}`,
               }}
             />
-            Ask SHOLÉ
+            {labels.askShole}
           </button>
           <a className="hide-mobile" style={{ ...linkStyle, position: "relative" }}>
-            Bag{" "}
+            {labels.bag}{" "}
             <sup style={{ fontFamily: TYPE.mono, fontSize: 10 }}>2</sup>
           </a>
         </div>
@@ -325,6 +345,9 @@ export function Footer({
   palette: Palette;
   accent: string;
 }) {
+  const { locale } = useLocale();
+  const labels = getLabels(locale);
+
   const col = (h: string, items: string[]) => (
     <div>
       <div
@@ -399,9 +422,10 @@ export function Footer({
               maxWidth: 720,
             }}
           >
-            Letters from <em style={{ color: accent }}>SHOLÉ</em>—
+            {labels.footerNewsletter.split(" — ")[0]}{" "}
+            <em style={{ color: accent }}>SHOLÉ</em>—
             <br />
-            drops, dispatches, and the occasional outfit emergency.
+            {labels.footerNewsletter.split(" — ")[1]}
           </div>
           <div
             style={{
@@ -440,7 +464,7 @@ export function Footer({
                 whiteSpace: "nowrap",
               }}
             >
-              Subscribe →
+              {labels.subscribe}
             </button>
           </div>
         </div>
@@ -453,15 +477,10 @@ export function Footer({
             opacity: 0.92,
           }}
         >
-          {col("Shop", ["Women", "Accessories", "Shoes", "Tailoring", "Sale"])}
-          {col("Stylist", [
-            "Ask SHOLÉ",
-            "Try-on Studio",
-            "Style quiz",
-            "Wishlist",
-          ])}
-          {col("Service", ["Shipping", "Returns", "Size guide", "Care"])}
-          {col("Sarar", ["Heritage", "Journal", "Stores", "Sustainability"])}
+          {col(labels.shopCol, labels.footerShopItems)}
+          {col(labels.stylistCol, labels.footerStylistItems)}
+          {col(labels.serviceCol, labels.footerServiceItems)}
+          {col(labels.sararCol, labels.footerSararItems)}
           <div
             style={{
               fontFamily: TYPE.mono,
@@ -473,8 +492,8 @@ export function Footer({
               alignSelf: "flex-start",
             }}
           >
-            ◇ Est. 1947 — Istanbul
-            <br />◇ A SARAR house
+            {labels.footerEst.split(" / ")[0]}
+            <br />{labels.footerEst.split(" / ")[1]}
             <br />◇ © 2026
           </div>
         </div>

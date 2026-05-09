@@ -15,9 +15,14 @@ const VALID_CATEGORIES = new Set([
   "journal",
 ]);
 
+import { useLocale } from "@/lib/LocaleContext";
+import { getLabels } from "@/lib/i18n";
+
 export function GlobalAssistant() {
   const [aiOpen, setAiOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const { locale } = useLocale();
+  const labels = getLabels(locale);
 
   const router = useRouter();
   const pathname = usePathname();
@@ -34,6 +39,13 @@ export function GlobalAssistant() {
     window.addEventListener("open-ai", handleOpen);
     return () => window.removeEventListener("open-ai", handleOpen);
   }, []);
+
+  // Update global label for the FloatingLauncher which doesn't have access to context easily if exported simply
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      (window as any).__shole_label_ask = labels.askShole;
+    }
+  }, [labels.askShole]);
 
   const handleToolCall = useCallback(
     (calls: FunctionCall[]) => {
@@ -108,6 +120,7 @@ export function GlobalAssistant() {
         open={aiOpen}
         onClose={() => setAiOpen(false)}
         onToolCall={handleToolCall}
+        locale={locale}
       />
     </div>
   );
