@@ -80,8 +80,12 @@ export function AIAssistant({
   const streamRef = useRef<MediaStream | null>(null);
   const audioQueueRef = useRef<string[]>([]);
   const isPlayingRef = useRef(false);
-  const activeSourceRef = useRef<AudioBufferSourceNode | null>(null);
+  const scheduledSourcesRef = useRef<AudioBufferSourceNode[]>([]);
   const nextStartTimeRef = useRef(0);
+  // Time we want playback to start ahead of currentTime to absorb network
+  // jitter — small enough that the user doesn't notice the latency, large
+  // enough that arriving chunks rarely 'catch up' to the play head.
+  const PLAYBACK_LEAD_S = 0.15;
 
   /* ── Logging ───────────────────────────────────────────────────────── */
   const pushLog = useCallback((text: string) => {
@@ -154,43 +158,62 @@ export function AIAssistant({
     return outputCtxRef.current;
   }, []);
 
-  const playNextAudio = useCallback(async () => {
-    if (audioQueueRef.current.length === 0 || isPlayingRef.current) return;
-    isPlayingRef.current = true;
-    setIsSpeaking(true);
-    const b64 = audioQueueRef.current.shift()!;
-    const ctx = getOutputCtx();
-    if (ctx.state === "suspended") await ctx.resume().catch(() => {});
-    const bin = atob(b64);
-    const bytes = new Int16Array(bin.length / 2);
-    for (let i = 0; i < bin.length; i += 2)
-      bytes[i / 2] = (bin.charCodeAt(i + 1) << 8) | bin.charCodeAt(i);
-    const f32 = new Float32Array(bytes.length);
-    for (let i = 0; i < bytes.length; i++) f32[i] = bytes[i] / 32768.0;
-    const buf = ctx.createBuffer(1, f32.length, 24000);
-    buf.getChannelData(0).set(f32);
-    const src = ctx.createBufferSource();
-    src.buffer = buf;
-    src.connect(ctx.destination);
-    activeSourceRef.current = src;
-    const startAt = Math.max(ctx.currentTime, nextStartTimeRef.current);
-    nextStartTimeRef.current = startAt + buf.duration;
-    src.onended = () => {
-      activeSourceRef.current = null;
-      isPlayingRef.current = false;
-      // Only mark "no longer speaking" if the queue is also empty —
-      // otherwise the next chunk in the queue will resume immediately.
-      if (audioQueueRef.current.length === 0) setIsSpeaking(false);
-      playNextAudio();
-    };
-    src.start(startAt);
-  }, [getOutputCtx]);
+  // Schedule a chunk on the AudioContext clock the moment it arrives — no
+  // serial 'isPlaying' gate. Web Audio plays sources back-to-back at
+  // sample-accurate boundaries as long as we keep advancing
+  // nextStartTimeRef, so chunks splice seamlessly even if their JS-level
+  // arrival is jittery.
+  const scheduleAudioChunk = useCallback(
+    async (b64: string) => {
+      const ctx = getOutputCtx();
+      if (ctx.state === "suspended") await ctx.resume().catch(() => {});
+
+      const bin = atob(b64);
+      const bytes = new Int16Array(bin.length / 2);
+      for (let i = 0; i < bin.length; i += 2)
+        bytes[i / 2] = (bin.charCodeAt(i + 1) << 8) | bin.charCodeAt(i);
+      const f32 = new Float32Array(bytes.length);
+      for (let i = 0; i < bytes.length; i++) f32[i] = bytes[i] / 32768.0;
+      const buf = ctx.createBuffer(1, f32.length, 24000);
+      buf.getChannelData(0).set(f32);
+
+      const src = ctx.createBufferSource();
+      src.buffer = buf;
+      src.connect(ctx.destination);
+
+      // First chunk of this turn? Add the lead buffer so the play head
+      // starts a comfortable distance ahead of currentTime.
+      const earliest = ctx.currentTime + PLAYBACK_LEAD_S;
+      const startAt = Math.max(earliest, nextStartTimeRef.current);
+      nextStartTimeRef.current = startAt + buf.duration;
+
+      scheduledSourcesRef.current.push(src);
+      isPlayingRef.current = true;
+      setIsSpeaking(true);
+
+      src.onended = () => {
+        scheduledSourcesRef.current = scheduledSourcesRef.current.filter(
+          (s) => s !== src
+        );
+        if (scheduledSourcesRef.current.length === 0) {
+          isPlayingRef.current = false;
+          setIsSpeaking(false);
+          nextStartTimeRef.current = 0;
+        }
+      };
+
+      src.start(startAt);
+    },
+    [getOutputCtx]
+  );
 
   const stopAudio = useCallback(() => {
-    try {
-      activeSourceRef.current?.stop();
-    } catch {}
-    activeSourceRef.current = null;
+    for (const s of scheduledSourcesRef.current) {
+      try {
+        s.stop();
+      } catch {}
+    }
+    scheduledSourcesRef.current = [];
     isPlayingRef.current = false;
     audioQueueRef.current = [];
     nextStartTimeRef.current = 0;
@@ -347,8 +370,14 @@ export function AIAssistant({
         });
       },
       onAudioData: (data) => {
-        audioQueueRef.current.push(data);
-        playNextAudio();
+        // Schedule each chunk directly on the AudioContext clock — no
+        // serial JS queue. This is what makes playback smooth: the
+        // next chunk's start time is set the moment it's decoded, so
+        // even if the next message arrives with 50 ms of network
+        // jitter the audio still splices seamlessly.
+        scheduleAudioChunk(data).catch((err) => {
+          pushLog(`audio schedule error: ${(err as Error).message}`);
+        });
       },
       onTranscription: (text, isUser) => {
         setMessages((p) => [
