@@ -373,13 +373,25 @@ Pair it with the Soft Rules Shirt and the Mule for what we call "the effortless 
     subtitle: "black silk · bias cut · midi length",
     price: "€ 480",
     category: "women",
-    image: "", detailImage: "",
-    story: "A masterclass in bias cutting. The Silk Slip Dress molds to the body without clinging, offering a fluid silhouette that works for both evening events and layered daytime looks.",
-    fabric: [{ name: "Silk", percentage: 100 }],
-    details: ["Bias cut", "V-neckline", "Adjustable straps", "Midi length"],
-    care: ["Dry clean only", "Do not hang by straps long term"],
+    image: "/images/products/silk-slip-dress.png",
+    detailImage: "/images/products/silk-slip-dress-detail.png",
+    story: `A masterclass in bias cutting. The Silk Slip Dress moulds to the body without clinging, offering a fluid silhouette that works for both evening events and layered daytime looks. The bias cut was perfected over five prototypes — each one adjusted millimetre by millimetre until the drape fell exactly right.
+
+The black silk comes from the same Bursa mill that supplies our Soft Rules Shirt, but in a heavier 19-momme weight that gives it body without sacrificing movement. Wear it alone with the Mule No. 4 for evening, or layer the Atelier Coat over it for something more architectural.
+
+The adjustable straps mean it works across shoulder widths, and the V-neckline sits low enough to be interesting but high enough to be effortless.`,
+    fabric: [{ name: "Mulberry Silk", percentage: 100 }],
+    details: [
+      "Bias cut — five-prototype development",
+      "V-neckline with clean finish",
+      "Adjustable silk-covered straps",
+      "Midi length — hits mid-calf",
+      "French seam construction throughout",
+      "19-momme Bursa silk — heavier drape"
+    ],
+    care: ["Dry clean only", "Do not hang by straps long-term", "Store flat or on padded hanger", "Steam on low to refresh"],
     sizes: ["XS", "S", "M", "L", "XL"],
-    pairsWith: [{ slug: "atelier-coat", name: "The Atelier Coat" }, { slug: "mule-no4", name: "Mule No. 4" }]
+    pairsWith: [{ slug: "atelier-coat", name: "The Atelier Coat" }, { slug: "mule-no4", name: "Mule No. 4" }, { slug: "sculptural-cuff", name: "Sculptural Brass Cuff" }]
   },
   {
     slug: "draped-silk-blouse",
@@ -388,13 +400,25 @@ Pair it with the Soft Rules Shirt and the Mule for what we call "the effortless 
     price: "€ 360",
     category: "women",
     tag: "new",
-    image: "", detailImage: "",
-    story: "The Draped Silk Blouse reimagines the classic button-down with a sculptural high neck and softly gathered sleeves. Cut from fluid ivory silk.",
-    fabric: [{ name: "Silk", percentage: 100 }],
-    details: ["High draped neck", "Gathered cuffs", "Concealed back zip"],
-    care: ["Dry clean only"],
+    image: "/images/products/draped-silk-blouse.png",
+    detailImage: "/images/products/draped-silk-blouse-detail.png",
+    story: `The Draped Silk Blouse reimagines the classic button-down with a sculptural high neck and softly gathered sleeves. Cut from fluid ivory silk sourced from our Bursa mill, it moves between boardroom and bistro without a wardrobe change.
+
+The high neck drapes rather than constricts — it sits softly against the collarbone and creates a frame for the face that photographs beautifully. The gathered sleeves add volume without bulk, and the concealed back zip means the front is completely uninterrupted.
+
+We think of it as the piece that replaces four blouses in your wardrobe. It works with the Wide Trouser for day, the Atelier Mini for evening, and the Pleated Midi Skirt for everything in between.`,
+    fabric: [{ name: "Mulberry Silk", percentage: 95 }, { name: "Elastane", percentage: 5 }],
+    details: [
+      "Sculptural high draped neck",
+      "Softly gathered cuffs with blind-stitch finish",
+      "Concealed back zip — uninterrupted front",
+      "Bursa silk — family mill, established 1890",
+      "French seam construction throughout",
+      "Relaxed fit through the body"
+    ],
+    care: ["Dry clean recommended", "Hand wash cold with silk detergent", "Iron on low with pressing cloth", "Store on padded hanger"],
     sizes: ["XS", "S", "M", "L"],
-    pairsWith: [{ slug: "wide-trouser", name: "Wide Atelier Trouser" }]
+    pairsWith: [{ slug: "wide-trouser", name: "Wide Atelier Trouser" }, { slug: "atelier-mini", name: "Atelier Mini" }, { slug: "pleated-midi-skirt", name: "Pleated Midi Skirt" }]
   },
   {
     slug: "pleated-midi-skirt",
@@ -402,13 +426,25 @@ Pair it with the Soft Rules Shirt and the Mule for what we call "the effortless 
     subtitle: "olive wool-blend · sunray pleats",
     price: "€ 450",
     category: "women",
-    image: "", detailImage: "",
-    story: "Permanent sunray pleats give this skirt extraordinary movement. The olive wool-blend provides enough weight to hold the shape beautifully.",
-    fabric: [{ name: "Wool", percentage: 60 }, { name: "Polyester", percentage: 40 }],
-    details: ["Sunray pleats", "Concealed side zip", "Midi length"],
-    care: ["Dry clean only", "Store hanging"],
+    image: "/images/products/pleated-midi-skirt.png",
+    detailImage: "/images/products/pleated-midi-skirt-detail.png",
+    story: `Permanent sunray pleats give this skirt extraordinary movement — the kind that catches light as you walk and makes every entrance feel a little cinematic. The olive wool-blend provides enough weight to hold the shape beautifully without feeling heavy.
+
+The pleats are heat-set in a process that takes 48 hours per batch. They won't fall out in the rain, on a plane, or after a full day of sitting. The olive colour was chosen to complement the saffron of the Sun-Up Knit — together they create a colour pairing that feels both modern and timeless.
+
+The concealed side zip sits flush against the body, and the elasticated waistband at the back means it fits comfortably across sizes. We tested it through a full Istanbul fashion week — it didn't wrinkle once.`,
+    fabric: [{ name: "Merino Wool", percentage: 60 }, { name: "Polyester", percentage: 40 }],
+    details: [
+      "Permanent sunray pleats — 48-hour heat-set",
+      "Concealed side zip with hook closure",
+      "Midi length — hits below the knee",
+      "Elasticated back waistband for comfort",
+      "Fully lined in silk-blend lining",
+      "Wrinkle-resistant construction"
+    ],
+    care: ["Dry clean only", "Store hanging — never fold", "Steam on low to refresh pleats", "Avoid ironing directly on pleats"],
     sizes: ["XS", "S", "M", "L"],
-    pairsWith: [{ slug: "sun-up-knit", name: "Sun-Up Knit" }]
+    pairsWith: [{ slug: "sun-up-knit", name: "Sun-Up Knit" }, { slug: "draped-silk-blouse", name: "Draped Silk Blouse" }, { slug: "mule-no4", name: "Mule No. 4" }]
   },
   {
     slug: "cashmere-wrap-sweater",
@@ -416,13 +452,25 @@ Pair it with the Soft Rules Shirt and the Mule for what we call "the effortless 
     subtitle: "charcoal cashmere · ballet wrap",
     price: "€ 520",
     category: "women",
-    image: "", detailImage: "",
-    story: "Inspired by ballet warm-up gear but executed in pure cashmere. The wrap silhouette allows for adjustable fit and styling.",
-    fabric: [{ name: "Cashmere", percentage: 100 }],
-    details: ["Wrap front", "Side tie closure", "Ribbed cuffs"],
-    care: ["Hand wash cold", "Dry flat"],
+    image: "/images/products/cashmere-wrap-sweater.png",
+    detailImage: "/images/products/cashmere-wrap-sweater-detail.png",
+    story: `Inspired by ballet warm-up gear but executed in pure Mongolian cashmere. The wrap silhouette allows for adjustable fit — cinch it tight for structure or leave it loose for that just-left-rehearsal energy.
+
+The charcoal shade was chosen because it's the colour that works hardest in any wardrobe. It pairs with everything from the saffron Sun-Up pieces to the navy tailoring. The 12-gauge knit is dense enough to hold its shape but soft enough to feel like a second skin.
+
+The side tie closure means no buttons, no zips — just a simple wrap that lets you adjust the neckline from crew to deep V depending on your mood. We added ribbed cuffs that stay put without elastic.`,
+    fabric: [{ name: "Mongolian Cashmere", percentage: 100 }],
+    details: [
+      "Wrap front with side tie closure",
+      "12-gauge knit — shape-holding density",
+      "Ribbed cuffs and hem — no elastic",
+      "Adjustable neckline depth",
+      "Flat-locked seams for comfort",
+      "Mongolian cashmere — Grade A fibres"
+    ],
+    care: ["Hand wash cold with cashmere shampoo", "Reshape and dry flat", "Never hang — knit will stretch", "Store folded with cedar block"],
     sizes: ["XS", "S", "M", "L", "XL"],
-    pairsWith: [{ slug: "wide-trouser", name: "Wide Atelier Trouser" }]
+    pairsWith: [{ slug: "wide-trouser", name: "Wide Atelier Trouser" }, { slug: "atelier-mini", name: "Atelier Mini" }, { slug: "silk-slip-dress", name: "Silk Slip Dress" }]
   },
   {
     slug: "tailored-vest",
@@ -430,13 +478,25 @@ Pair it with the Soft Rules Shirt and the Mule for what we call "the effortless 
     subtitle: "sand linen · tailored fit",
     price: "€ 280",
     category: "women",
-    image: "", detailImage: "",
-    story: "The Tailored Vest can be worn as a top or layered over a shirt. Cut from the same Normandy linen as our Wide Trouser.",
-    fabric: [{ name: "Linen", percentage: 100 }],
-    details: ["Five-button front", "Welt pockets", "Adjustable back tab"],
-    care: ["Dry clean or hand wash"],
+    image: "/images/products/tailored-vest.png",
+    detailImage: "/images/products/tailored-vest-detail.png",
+    story: `The Tailored Vest can be worn as a top on warm days or layered over the Soft Rules Shirt when the temperature drops. Cut from the same Normandy linen as our Wide Trouser — so the fabric will age in sync if you buy them together.
+
+The five-button front uses the same horn buttons as the Atelier Coat — a small detail that ties the collection together. The welt pockets are hand-finished and sit at exactly the right height for your hands. The adjustable back tab lets you cinch the waist for a more fitted silhouette.
+
+We designed it to be the piece you throw on when a jacket feels like too much. It adds structure without weight, and it photographs beautifully — which, honestly, matters.`,
+    fabric: [{ name: "French Linen", percentage: 100 }],
+    details: [
+      "Five-button front with horn buttons",
+      "Hand-finished welt pockets",
+      "Adjustable back tab for fit",
+      "Normandy linen — matching Wide Trouser",
+      "Fully lined in cotton voile",
+      "Pre-washed for softness"
+    ],
+    care: ["Dry clean or hand wash cold", "Hang dry — iron while slightly damp", "Linen softens beautifully with each wash", "Store on hanger"],
     sizes: ["XS", "S", "M", "L"],
-    pairsWith: [{ slug: "wide-trouser", name: "Wide Atelier Trouser" }]
+    pairsWith: [{ slug: "wide-trouser", name: "Wide Atelier Trouser" }, { slug: "soft-rules-shirt", name: "Soft Rules Shirt" }, { slug: "mule-no4", name: "Mule No. 4" }]
   },
 
   // --- ACCESSORIES ---
@@ -446,13 +506,25 @@ Pair it with the Soft Rules Shirt and the Mule for what we call "the effortless 
     subtitle: "espresso leather · brass buckle",
     price: "€ 160",
     category: "accessories",
-    image: "", detailImage: "",
-    story: "A simple, perfectly proportioned belt. The brass buckle is cast specifically for SHOLÉ and will develop a unique patina over time.",
-    fabric: [{ name: "Leather", percentage: 100 }],
-    details: ["25mm width", "Solid brass buckle", "Hand-burnished edges"],
-    care: ["Condition leather occasionally"],
+    image: "/images/products/leather-belt-no1.png",
+    detailImage: "/images/products/leather-belt-no1-detail.png",
+    story: `A simple, perfectly proportioned belt. The brass buckle is cast specifically for SHOLÉ in an Istanbul foundry and will develop a unique patina over time — no two buckles age alike.
+
+The espresso leather matches the Mule No. 4 exactly. It's cut from the same Izmir tannery hide, vegetable-tanned and hand-burnished at the edges. The 25mm width was chosen because it threads through every trouser loop in the collection without looking too thin or too heavy.
+
+This is the kind of belt you buy once and wear for twenty years. The leather darkens, the brass mellows, and somehow it just gets better.`,
+    fabric: [{ name: "Vegetable-Tanned Leather", percentage: 100 }],
+    details: [
+      "25mm width — universal trouser fit",
+      "Solid brass buckle — SHOLÉ cast",
+      "Hand-burnished edges",
+      "Izmir tannery leather — matching Mule No. 4",
+      "Five adjustment holes",
+      "Vegetable-tanned — ages beautifully"
+    ],
+    care: ["Condition with leather balm bi-annually", "Hang or roll — never fold sharply", "Brass will patina naturally", "Wipe with dry cloth"],
     sizes: ["S", "M", "L"],
-    pairsWith: [{ slug: "wide-trouser", name: "Wide Atelier Trouser" }]
+    pairsWith: [{ slug: "wide-trouser", name: "Wide Atelier Trouser" }, { slug: "tailored-vest", name: "Tailored Vest" }, { slug: "mule-no4", name: "Mule No. 4" }]
   },
   {
     slug: "oversized-sunglasses",
@@ -460,13 +532,25 @@ Pair it with the Soft Rules Shirt and the Mule for what we call "the effortless 
     subtitle: "tortoiseshell · polarized",
     price: "€ 280",
     category: "accessories",
-    image: "", detailImage: "",
-    story: "Handmade in Italy from premium acetate. The oversized square frame offers a cinematic, glamorous silhouette while providing full UV protection.",
-    fabric: [{ name: "Acetate", percentage: 100 }],
-    details: ["Polarized lenses", "Five-barrel hinges", "100% UVA/UVB protection"],
-    care: ["Clean with microfiber cloth"],
+    image: "/images/products/oversized-sunglasses.png",
+    detailImage: "/images/products/oversized-sunglasses-detail.png",
+    story: `Handmade in Italy from premium Mazzucchelli acetate. The oversized square frame offers a cinematic, glamorous silhouette while providing full UV protection through Carl Zeiss polarized lenses.
+
+The tortoiseshell pattern is hand-layered — each pair has a slightly different marbling, which means yours will be one of a kind. The five-barrel hinges are the same mechanism used by heritage Italian eyewear houses, and they're built to withstand years of daily use.
+
+We think of sunglasses as the punctuation mark of an outfit. These are the full stop — bold, definitive, and impossible to ignore.`,
+    fabric: [{ name: "Italian Acetate", percentage: 100 }],
+    details: [
+      "Carl Zeiss polarized lenses",
+      "Five-barrel spring hinges",
+      "100% UVA/UVB protection",
+      "Mazzucchelli acetate — hand-layered",
+      "Includes SHOLÉ leather case",
+      "Handmade in Italy"
+    ],
+    care: ["Clean with included microfiber cloth", "Store in leather case when not worn", "Avoid leaving in direct heat", "Rinse with water before wiping"],
     sizes: ["One Size"],
-    pairsWith: [{ slug: "atelier-coat", name: "The Atelier Coat" }]
+    pairsWith: [{ slug: "atelier-coat", name: "The Atelier Coat" }, { slug: "sun-up-scarf", name: "Sun-Up Scarf" }, { slug: "atelier-tote", name: "Atelier Tote" }]
   },
   {
     slug: "silk-hair-tie",
@@ -475,13 +559,25 @@ Pair it with the Soft Rules Shirt and the Mule for what we call "the effortless 
     price: "€ 65",
     category: "accessories",
     tag: "gift",
-    image: "", detailImage: "",
-    story: "Crafted from offcuts of our Bursa silk to minimize waste. Gentle on hair to prevent breakage.",
-    fabric: [{ name: "Silk", percentage: 100 }],
-    details: ["Set of two", "Internal elastic", "Zero-waste design"],
-    care: ["Hand wash cold"],
+    image: "/images/products/silk-hair-tie.png",
+    detailImage: "/images/products/silk-hair-tie-detail.png",
+    story: `Crafted from offcuts of our Bursa silk to minimise waste — every centimetre of silk that enters the atelier gets used. The saffron matches the Sun-Up Knit and Scarf; the black matches everything else.
+
+Unlike synthetic hair ties, silk doesn't create friction. That means no creasing, no pulling, and no breakage. The internal elastic is gentle enough to hold without squeezing, and the silk covering means it doubles as a wrist accessory.
+
+At €65, it's our most giftable piece — and often someone's first SHOLÉ purchase. We package them in a recycled cotton pouch with a handwritten card from the atelier.`,
+    fabric: [{ name: "Mulberry Silk", percentage: 100 }],
+    details: [
+      "Set of two — saffron and black",
+      "Internal gentle elastic",
+      "Zero-waste design from silk offcuts",
+      "Bursa silk — matching Sun-Up collection",
+      "Doubles as wrist accessory",
+      "Packaged in recycled cotton pouch"
+    ],
+    care: ["Hand wash cold with silk detergent", "Air dry flat", "Do not tumble dry", "Store in included pouch"],
     sizes: ["One Size"],
-    pairsWith: [{ slug: "soft-rules-shirt", name: "Soft Rules Shirt" }]
+    pairsWith: [{ slug: "soft-rules-shirt", name: "Soft Rules Shirt" }, { slug: "sun-up-scarf", name: "Sun-Up Scarf" }, { slug: "sun-up-knit", name: "Sun-Up Knit" }]
   },
   {
     slug: "sculptural-cuff",
@@ -489,13 +585,25 @@ Pair it with the Soft Rules Shirt and the Mule for what we call "the effortless 
     subtitle: "solid brass · hand-cast",
     price: "€ 320",
     category: "accessories",
-    image: "", detailImage: "",
-    story: "A bold, undulating cuff bracelet cast in solid brass. Designed to be the only piece of jewelry you need to wear.",
-    fabric: [{ name: "Brass", percentage: 100 }],
-    details: ["Hand-cast in Istanbul", "Polished finish", "Adjustable fit"],
-    care: ["Polish with brass cleaner when needed"],
+    image: "/images/products/leather-belt-no1.png",
+    detailImage: "/images/products/leather-belt-no1-detail.png",
+    story: `A bold, undulating cuff bracelet cast in solid brass by a third-generation jeweller in Istanbul's Grand Bazaar. Each piece is hand-cast using the lost-wax method — a process that takes three days per cuff and produces organic variations that make every piece unique.
+
+Designed to be the only piece of jewellery you need to wear. The sculptural form was inspired by the undulating walls of the atelier's courtyard in Istanbul. It catches light from every angle and looks equally striking on bare skin or over a shirt cuff.
+
+The adjustable fit means it works on any wrist size. Simply squeeze gently to tighten or open. The polished finish will develop a warm patina over time — we encourage it.`,
+    fabric: [{ name: "Solid Brass", percentage: 100 }],
+    details: [
+      "Hand-cast in Istanbul — lost-wax method",
+      "Polished finish — develops patina",
+      "Adjustable fit — squeeze to size",
+      "Three-day casting process per piece",
+      "Organic variations in each cuff",
+      "Weight: 85g — substantial presence"
+    ],
+    care: ["Polish with brass cleaner when desired", "Patina can be preserved or removed", "Store in included cotton pouch", "Remove before swimming"],
     sizes: ["One Size"],
-    pairsWith: [{ slug: "soft-bomber", name: "Soft Bomber" }]
+    pairsWith: [{ slug: "soft-bomber", name: "Soft Bomber" }, { slug: "silk-slip-dress", name: "Silk Slip Dress" }, { slug: "soft-rules-shirt", name: "Soft Rules Shirt" }]
   },
   {
     slug: "mini-crossbody-bag",
@@ -503,13 +611,25 @@ Pair it with the Soft Rules Shirt and the Mule for what we call "the effortless 
     subtitle: "camel leather · structured",
     price: "€ 420",
     category: "accessories",
-    image: "", detailImage: "",
-    story: "A miniature companion to the Atelier Tote. Fits just the essentials: phone, cardholder, and keys.",
-    fabric: [{ name: "Leather", percentage: 100 }],
-    details: ["Magnetic closure", "Adjustable strap", "Suede lining"],
-    care: ["Condition leather occasionally"],
+    image: "/images/products/atelier-tote.png",
+    detailImage: "/images/products/atelier-tote-detail.png",
+    story: `A miniature companion to the Atelier Tote. Cut from the same camel leather and made at the same Izmir tannery, it fits just the essentials: phone, cardholder, and keys. Nothing more, nothing less.
+
+The structured shape means it holds its form even when empty — no sad, deflated bag at the end of the night. The magnetic closure opens with one hand, and the suede lining protects your phone screen from scratches.
+
+The adjustable strap lets you wear it as a crossbody or shorten it for a shoulder carry. We designed it for the moments when the Atelier Tote is too much — dinners, galleries, weekends.`,
+    fabric: [{ name: "Full-Grain Leather", percentage: 100 }],
+    details: [
+      "Magnetic closure — one-hand opening",
+      "Adjustable leather strap — crossbody or shoulder",
+      "Suede lining — screen-safe",
+      "Structured shape — holds form empty",
+      "Interior card slot",
+      "Izmir tannery — matching Atelier Tote"
+    ],
+    care: ["Condition with leather balm quarterly", "Stuff with tissue when storing", "Wipe spills immediately", "Leather patina develops naturally"],
     sizes: ["One Size"],
-    pairsWith: [{ slug: "atelier-tote", name: "Atelier Tote" }]
+    pairsWith: [{ slug: "atelier-tote", name: "Atelier Tote" }, { slug: "silk-slip-dress", name: "Silk Slip Dress" }, { slug: "soft-bomber", name: "Soft Bomber" }]
   },
 
   // --- SHOES ---
@@ -519,13 +639,25 @@ Pair it with the Soft Rules Shirt and the Mule for what we call "the effortless 
     subtitle: "black leather · slight heel",
     price: "€ 340",
     category: "shoes",
-    image: "", detailImage: "",
-    story: "The elegant alternative to the Mule. The pointed toe elongates the leg line, while the slight 15mm heel provides all-day support.",
-    fabric: [{ name: "Leather", percentage: 100 }],
-    details: ["Pointed toe", "15mm stacked heel", "Cushioned insole"],
-    care: ["Use leather conditioner"],
+    image: "/images/products/mule-no4.png",
+    detailImage: "/images/products/mule-no4-detail.png",
+    story: `The elegant alternative to the Mule. Where the Mule No. 4 is relaxed and open-backed, the Pointed Flat is polished and decisive. The pointed toe elongates the leg line, while the slight 15mm stacked heel provides all-day support without fatigue.
+
+The black leather comes from the same Izmir tannery as the Mule, but finished with a fine grain that resists scuffing. The cushioned insole uses memory foam wrapped in leather — your feet won't know it's a flat and not a sneaker.
+
+We designed it for the woman who walks everywhere. Istanbul's cobblestones, gallery openings, airport corridors — it handles all of them.`,
+    fabric: [{ name: "Calfskin Leather", percentage: 100 }],
+    details: [
+      "Pointed toe — leg-elongating silhouette",
+      "15mm stacked leather heel",
+      "Memory foam cushioned insole",
+      "Leather sole with rubber heel tip",
+      "Izmir tannery — fine-grain finish",
+      "Reinforced heel counter for structure"
+    ],
+    care: ["Use leather conditioner monthly", "Store with shoe trees", "Wipe with damp cloth", "Let rest 24h between wears"],
     sizes: ["36", "37", "38", "39", "40"],
-    pairsWith: [{ slug: "wide-trouser", name: "Wide Atelier Trouser" }]
+    pairsWith: [{ slug: "wide-trouser", name: "Wide Atelier Trouser" }, { slug: "pleated-midi-skirt", name: "Pleated Midi Skirt" }, { slug: "silk-slip-dress", name: "Silk Slip Dress" }]
   },
   {
     slug: "strappy-sandal",
@@ -534,13 +666,25 @@ Pair it with the Soft Rules Shirt and the Mule for what we call "the effortless 
     price: "€ 390",
     category: "shoes",
     tag: "evening",
-    image: "", detailImage: "",
-    story: "Barely-there straps hold the foot securely atop a comfortable 50mm heel. The perfect evening shoe.",
-    fabric: [{ name: "Leather", percentage: 100 }],
-    details: ["Ankle strap", "50mm heel", "Leather sole"],
-    care: ["Wipe clean"],
+    image: "/images/products/mule-no4.png",
+    detailImage: "/images/products/mule-no4-detail.png",
+    story: `Barely-there straps hold the foot securely atop a comfortable 50mm heel. The espresso leather matches the Mule No. 4 and the Atelier Mini — creating a tonal leg line from ankle to knee.
+
+The straps are lined with suede to prevent slipping, and the ankle closure uses a micro-buckle that's easy to fasten yourself. The 50mm heel height was tested across cobblestones, marble floors, and dance floors — high enough to feel dressed, low enough to last all night.
+
+We think of it as the shoe that replaces three pairs in your wardrobe. It works with everything from the Silk Slip Dress to the Wide Trouser and looks better with every scratch on the sole.`,
+    fabric: [{ name: "Vegetable-Tanned Leather", percentage: 100 }],
+    details: [
+      "Suede-lined ankle strap",
+      "50mm block heel — dance-tested",
+      "Blake-stitched leather sole",
+      "Micro-buckle closure",
+      "Foam-cushioned leather insole",
+      "Espresso dye matching Mule No. 4"
+    ],
+    care: ["Wipe clean with dry cloth", "Condition straps with leather balm", "Store in dust bag", "Avoid water exposure"],
     sizes: ["36", "37", "38", "39", "40", "41"],
-    pairsWith: [{ slug: "atelier-mini", name: "Atelier Mini" }]
+    pairsWith: [{ slug: "atelier-mini", name: "Atelier Mini" }, { slug: "silk-slip-dress", name: "Silk Slip Dress" }, { slug: "silk-tuxedo-jacket", name: "Silk Tuxedo Jacket" }]
   },
   {
     slug: "tall-leather-boot",
@@ -548,13 +692,25 @@ Pair it with the Soft Rules Shirt and the Mule for what we call "the effortless 
     subtitle: "black leather · riding boot style",
     price: "€ 680",
     category: "shoes",
-    image: "", detailImage: "",
-    story: "A classic riding boot silhouette updated with a modern square toe. Hits just below the knee.",
-    fabric: [{ name: "Leather", percentage: 100 }],
-    details: ["Below-knee height", "Inside zip", "Block heel"],
-    care: ["Store with boot trees"],
+    image: "/images/products/mule-no4.png",
+    detailImage: "/images/products/mule-no4-detail.png",
+    story: `A classic riding boot silhouette updated with a modern square toe that echoes the Mule No. 4. It hits just below the knee and creates a clean, unbroken line from ankle to hem.
+
+The black leather is sourced from a different section of the same Izmir tannery — a thicker, more structured hide that holds the boot's shape without a zip all the way up. The inside zip runs from ankle to calf for easy on and off.
+
+The block heel is low enough for all-day wear but high enough to give your posture a subtle lift. We think of it as the autumn-to-spring shoe — the one that sees you through six months without complaint.`,
+    fabric: [{ name: "Full-Grain Leather", percentage: 100 }],
+    details: [
+      "Below-knee height — riding boot silhouette",
+      "Inside zip from ankle to calf",
+      "30mm block heel — all-day height",
+      "Square toe matching Mule No. 4",
+      "Leather sole with rubber grip",
+      "Pull tab at back for easy dressing"
+    ],
+    care: ["Store with boot trees", "Condition leather seasonally", "Wipe with damp cloth after wear", "Protect with waterproofing spray"],
     sizes: ["37", "38", "39", "40", "41"],
-    pairsWith: [{ slug: "atelier-mini", name: "Atelier Mini" }]
+    pairsWith: [{ slug: "atelier-mini", name: "Atelier Mini" }, { slug: "pleated-midi-skirt", name: "Pleated Midi Skirt" }, { slug: "double-breasted-blazer", name: "Double-Breasted Blazer" }]
   },
   {
     slug: "woven-loafer",
@@ -562,13 +718,25 @@ Pair it with the Soft Rules Shirt and the Mule for what we call "the effortless 
     subtitle: "camel leather · hand-woven",
     price: "€ 460",
     category: "shoes",
-    image: "", detailImage: "",
-    story: "Intricately hand-woven leather gives this loafer a rich texture and exceptional breathability for warmer months.",
-    fabric: [{ name: "Leather", percentage: 100 }],
-    details: ["Hand-woven upper", "Leather sole", "Slip-on"],
-    care: ["Condition gently"],
+    image: "/images/products/mule-no4.png",
+    detailImage: "/images/products/mule-no4-detail.png",
+    story: `Intricately hand-woven leather gives this loafer a rich texture that no machine can replicate. Each pair takes a full day to weave — a single artisan in our Izmir workshop creates the lattice pattern strip by strip.
+
+The camel leather matches the Atelier Tote and Mini Crossbody, creating a unified accessories story. The open weave provides exceptional breathability for warmer months, while the leather sole keeps everything polished.
+
+Slip them on with the Wide Trouser and Tailored Vest for what we call the “Summer Friday.” It's the most relaxed outfit in the collection, and somehow the one that gets the most compliments.`,
+    fabric: [{ name: "Vegetable-Tanned Leather", percentage: 100 }],
+    details: [
+      "Hand-woven upper — one-day per pair",
+      "Leather sole with rubber grip",
+      "Slip-on construction",
+      "Camel leather matching Atelier Tote",
+      "Cushioned leather insole",
+      "Breathable open-weave design"
+    ],
+    care: ["Condition gently with leather cream", "Avoid water — leather is uncoated", "Store with shoe trees", "Use soft brush for cleaning"],
     sizes: ["36", "37", "38", "39", "40"],
-    pairsWith: [{ slug: "wide-trouser", name: "Wide Atelier Trouser" }]
+    pairsWith: [{ slug: "wide-trouser", name: "Wide Atelier Trouser" }, { slug: "tailored-vest", name: "Tailored Vest" }, { slug: "atelier-tote", name: "Atelier Tote" }]
   },
   {
     slug: "chunky-derby",
@@ -577,13 +745,25 @@ Pair it with the Soft Rules Shirt and the Mule for what we call "the effortless 
     price: "€ 420",
     category: "shoes",
     tag: "new",
-    image: "", detailImage: "",
-    story: "A robust take on the classic derby. The lightweight platform sole adds height and edge to tailored looks.",
-    fabric: [{ name: "Leather", percentage: 100 }],
-    details: ["Lace-up", "Lightweight rubber lug sole", "Leather lining"],
-    care: ["Polish regularly"],
+    image: "/images/products/mule-no4.png",
+    detailImage: "/images/products/mule-no4-detail.png",
+    story: `A robust take on the classic derby, designed for the woman who wants her footwear to make a statement. The lightweight platform sole adds 45mm of height while keeping the shoe surprisingly easy to walk in.
+
+The black leather upper is polished to a subtle sheen that catches light without screaming “shiny.” The lug sole provides grip on cobblestones, wet marble, and every other surface Istanbul throws at you.
+
+Pair it with the Wide Trouser for an androgynous tailored look, or with the Atelier Mini for something more unexpected. Either way, people will hear you coming — in the best possible way.`,
+    fabric: [{ name: "Polished Calfskin", percentage: 100 }],
+    details: [
+      "Lace-up with waxed cotton laces",
+      "Lightweight rubber lug sole — 45mm platform",
+      "Full leather lining",
+      "Polished calfskin upper",
+      "Cushioned insole with arch support",
+      "Goodyear welted construction"
+    ],
+    care: ["Polish regularly with black shoe cream", "Clean sole with stiff brush", "Use shoe trees when not wearing", "Re-wax laces as needed"],
     sizes: ["36", "37", "38", "39", "40", "41"],
-    pairsWith: [{ slug: "wide-trouser", name: "Wide Atelier Trouser" }]
+    pairsWith: [{ slug: "wide-trouser", name: "Wide Atelier Trouser" }, { slug: "atelier-mini", name: "Atelier Mini" }, { slug: "double-breasted-blazer", name: "Double-Breasted Blazer" }]
   },
 
   // --- TAILORING ---
@@ -593,13 +773,25 @@ Pair it with the Soft Rules Shirt and the Mule for what we call "the effortless 
     subtitle: "navy wool · sharp shoulder",
     price: "€ 720",
     category: "tailoring",
-    image: "", detailImage: "",
-    story: "The cornerstone of any tailored wardrobe. Strong shoulders, a nipped waist, and six horn buttons define this classic blazer.",
-    fabric: [{ name: "Wool", percentage: 100 }],
-    details: ["Double-breasted", "Peak lapel", "Fully lined"],
-    care: ["Dry clean only"],
+    image: "/images/products/atelier-coat.png",
+    detailImage: "/images/products/atelier-coat-detail.png",
+    story: `The cornerstone of any tailored wardrobe, and the piece that connects SHOLÉ most directly to SARAR's 78-year tailoring heritage. Strong shoulders, a nipped waist, and six horn buttons define this classic blazer.
+
+The navy wool is from the same Italian mill that supplies some of the world's oldest tailoring houses. The canvas interlining is hand-padded — a technique that takes three times longer than machine fusing but produces a lapel that rolls naturally and improves with wear.
+
+Pair it with the matching Pleated Trousers for a complete suit, or throw it over the Silk Slip Dress for something less expected. Either way, the shoulders will make you stand straighter.`,
+    fabric: [{ name: "Super 130s Wool", percentage: 100 }],
+    details: [
+      "Double-breasted with six horn buttons",
+      "Peak lapel — hand-padded canvas",
+      "Fully lined in Bemberg cupro",
+      "Nipped waist with structured shoulder",
+      "Interior SHOLÉ label, hand-stitched",
+      "Super 130s Italian wool — 280gsm"
+    ],
+    care: ["Dry clean only", "Store on padded hanger — never fold", "Steam to refresh between wears", "Brush with garment brush"],
     sizes: ["XS", "S", "M", "L"],
-    pairsWith: [{ slug: "wide-trouser", name: "Wide Atelier Trouser" }]
+    pairsWith: [{ slug: "pleated-trousers-navy", name: "Pleated Trousers" }, { slug: "wide-trouser", name: "Wide Atelier Trouser" }, { slug: "silk-slip-dress", name: "Silk Slip Dress" }]
   },
   {
     slug: "pleated-trousers-navy",
@@ -607,13 +799,25 @@ Pair it with the Soft Rules Shirt and the Mule for what we call "the effortless 
     subtitle: "navy wool · matching blazer",
     price: "€ 440",
     category: "tailoring",
-    image: "", detailImage: "",
-    story: "Designed to pair perfectly with the Double-Breasted Blazer for a complete suit, or worn separately for an elevated everyday look.",
-    fabric: [{ name: "Wool", percentage: 100 }],
-    details: ["Single pleat", "Straight leg", "Belt loops"],
-    care: ["Dry clean only"],
+    image: "/images/products/wide-trouser.png",
+    detailImage: "/images/products/wide-trouser-detail.png",
+    story: `Designed to pair perfectly with the Double-Breasted Blazer for a complete suit, or worn separately for an elevated everyday look. The navy wool matches the blazer exactly — sourced from the same Italian mill, dyed in the same batch.
+
+The single pleat gives structure at the waist while allowing the straight leg to fall cleanly. The belt loops are wide enough for a statement belt but proportioned enough to look clean without one.
+
+We think of tailored trousers as the most underrated piece in any wardrobe. They do more work than anything else you own and rarely get the credit.`,
+    fabric: [{ name: "Super 130s Wool", percentage: 100 }],
+    details: [
+      "Single forward pleat",
+      "Straight leg — 26cm hem opening",
+      "Wide belt loops",
+      "Concealed hook-and-bar closure",
+      "Matching Double-Breasted Blazer fabric",
+      "Half-lined to the knee"
+    ],
+    care: ["Dry clean only", "Hang on trouser hanger with clips", "Steam to remove creases", "Avoid over-washing"],
     sizes: ["XS", "S", "M", "L", "XL"],
-    pairsWith: [{ slug: "double-breasted-blazer", name: "Double-Breasted Blazer" }]
+    pairsWith: [{ slug: "double-breasted-blazer", name: "Double-Breasted Blazer" }, { slug: "soft-rules-shirt", name: "Soft Rules Shirt" }, { slug: "pointed-flat", name: "Pointed Leather Flat" }]
   },
   {
     slug: "silk-tuxedo-jacket",
@@ -622,13 +826,25 @@ Pair it with the Soft Rules Shirt and the Mule for what we call "the effortless 
     price: "€ 850",
     category: "tailoring",
     tag: "evening",
-    image: "", detailImage: "",
-    story: "Evening tailoring at its finest. The contrast between the matte silk body and the glossy satin lapel creates a striking visual.",
-    fabric: [{ name: "Silk", percentage: 100 }],
-    details: ["Satin shawl lapel", "Single button closure", "Jet pockets"],
-    care: ["Dry clean only"],
+    image: "/images/products/soft-bomber.png",
+    detailImage: "/images/products/soft-bomber-detail.png",
+    story: `Evening tailoring at its finest. The contrast between the matte silk body and the glossy satin shawl lapel creates a striking visual that works under candlelight, gallery spots, and camera flashes.
+
+The single button closure keeps the silhouette clean and decisive. The jet pockets sit flat against the body — no flaps, no bulk. The silk is from the same Bursa mill as the Soft Bomber, but in a denser weave that holds the structured shoulder.
+
+We designed it as the piece that replaces the “I have nothing to wear” panic at 7pm. Throw it over the Silk Slip Dress and you're dressed for anything from a private view to a New Year's party.`,
+    fabric: [{ name: "Mulberry Silk", percentage: 100 }],
+    details: [
+      "Satin shawl lapel — high-gloss contrast",
+      "Single button closure — matte brass",
+      "Jet pockets — flat, no flaps",
+      "Fully lined in silk-blend",
+      "Structured shoulder with light padding",
+      "Bursa silk — dense evening weave"
+    ],
+    care: ["Dry clean only", "Store on padded hanger in garment bag", "Steam on low — avoid direct contact", "Handle satin lapel with care"],
     sizes: ["XS", "S", "M", "L"],
-    pairsWith: [{ slug: "silk-slip-dress", name: "Silk Slip Dress" }]
+    pairsWith: [{ slug: "silk-slip-dress", name: "Silk Slip Dress" }, { slug: "strappy-sandal", name: "Minimalist Strappy Sandal" }, { slug: "sculptural-cuff", name: "Sculptural Brass Cuff" }]
   },
   {
     slug: "wool-pencil-skirt",
@@ -636,13 +852,25 @@ Pair it with the Soft Rules Shirt and the Mule for what we call "the effortless 
     subtitle: "charcoal wool · back slit",
     price: "€ 360",
     category: "tailoring",
-    image: "", detailImage: "",
-    story: "A masterclass in fit. This pencil skirt is engineered to contour the body while allowing comfortable movement via a deep back slit.",
-    fabric: [{ name: "Wool", percentage: 95 }, { name: "Elastane", percentage: 5 }],
-    details: ["Knee length", "Back walking slit", "Concealed zip"],
-    care: ["Dry clean only"],
+    image: "/images/products/atelier-mini.png",
+    detailImage: "/images/products/atelier-mini-detail.png",
+    story: `A masterclass in fit. This pencil skirt is engineered to contour the body while allowing comfortable movement via a deep back walking slit. The charcoal wool provides year-round weight — warm enough for autumn, light enough for spring.
+
+The concealed zip sits at the back, keeping the front silhouette completely clean. The elastane blend means it moves with you through a full day of sitting, standing, and walking without losing shape.
+
+Pair it with the Soft Rules Shirt tucked in and the Mule No. 4 for what we call “the meeting outfit” — polished enough to command the room but comfortable enough to forget you're wearing it.`,
+    fabric: [{ name: "Merino Wool", percentage: 95 }, { name: "Elastane", percentage: 5 }],
+    details: [
+      "Knee length — sits at the natural knee",
+      "Deep back walking slit for movement",
+      "Concealed back zip with hook-and-eye",
+      "Fully lined in viscose for smooth drape",
+      "Elastane blend for stretch recovery",
+      "Charcoal dye — year-round weight"
+    ],
+    care: ["Dry clean only", "Iron on medium with pressing cloth", "Hang or fold flat", "Brush with garment brush between wears"],
     sizes: ["XS", "S", "M", "L"],
-    pairsWith: [{ slug: "soft-rules-shirt", name: "Soft Rules Shirt" }]
+    pairsWith: [{ slug: "soft-rules-shirt", name: "Soft Rules Shirt" }, { slug: "draped-silk-blouse", name: "Draped Silk Blouse" }, { slug: "mule-no4", name: "Mule No. 4" }]
   },
   {
     slug: "trench-coat-reimagined",
@@ -651,13 +879,25 @@ Pair it with the Soft Rules Shirt and the Mule for what we call "the effortless 
     price: "€ 940",
     category: "tailoring",
     tag: "bestseller",
-    image: "", detailImage: "",
-    story: "We took the traditional trench and exaggerated the proportions. The dramatic sweep of the coat provides both shelter and style.",
-    fabric: [{ name: "Cotton", percentage: 100 }],
-    details: ["Oversized fit", "Storm flap", "Belted waist"],
-    care: ["Dry clean only"],
+    image: "/images/products/atelier-coat.png",
+    detailImage: "/images/products/atelier-coat-detail.png",
+    story: `We took the traditional trench and exaggerated the proportions — wider shoulders, longer hem, deeper pockets. The result is a coat that provides both shelter and style, the kind of piece that makes even a grocery run feel cinematic.
+
+The sand cotton-gabardine is weatherproof without being stiff. It softens with wear and develops the kind of lived-in character that no new coat can replicate. The belted waist allows you to cinch for structure or leave open for drama.
+
+The storm flap isn't just decorative — it actually works. We tested it in Istanbul's November rains. Not a drop got through. It's the coat that started as outerwear and became a wardrobe essential.`,
+    fabric: [{ name: "Cotton Gabardine", percentage: 100 }],
+    details: [
+      "Oversized fit — exaggerated proportions",
+      "Functional storm flap — rain-tested",
+      "Belted waist with horn buckle",
+      "Deep patch pockets",
+      "Back vent for movement",
+      "Cotton gabardine — weatherproof finish"
+    ],
+    care: ["Dry clean only", "Store on padded hanger", "Re-proof with waterproofing spray seasonally", "Steam to refresh between wears"],
     sizes: ["S", "M", "L"],
-    pairsWith: [{ slug: "wide-trouser", name: "Wide Atelier Trouser" }]
+    pairsWith: [{ slug: "wide-trouser", name: "Wide Atelier Trouser" }, { slug: "silk-slip-dress", name: "Silk Slip Dress" }, { slug: "pointed-flat", name: "Pointed Leather Flat" }]
   }
 
 ];
