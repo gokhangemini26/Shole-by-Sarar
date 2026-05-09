@@ -34,6 +34,7 @@ export interface GeminiLiveConfig {
   onTranscription?: (text: string, isUser: boolean) => void;
   onToolCall?: (calls: FunctionCall[]) => void;
   onInterrupted?: () => void;
+  onTurnComplete?: () => void;
   onOpen?: () => void;
   onError?: (err: unknown) => void;
   onClose?: () => void;
@@ -229,6 +230,7 @@ export class GeminiLiveClient {
 
     if (message?.serverContent?.turnComplete) {
       this.log("← turnComplete");
+      this.config.onTurnComplete?.();
     }
   }
 

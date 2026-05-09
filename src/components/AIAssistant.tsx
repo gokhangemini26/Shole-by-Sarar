@@ -82,6 +82,10 @@ export function AIAssistant({
   const isPlayingRef = useRef(false);
   const scheduledSourcesRef = useRef<AudioBufferSourceNode[]>([]);
   const nextStartTimeRef = useRef(0);
+  // After a barge-in we keep dropping incoming chunks until Gemini sends
+  // turnComplete — otherwise the ~1 s of in-flight audio still arrives,
+  // gets scheduled, and produces the choppy start/stop pattern.
+  const suppressUntilTurnRef = useRef(false);
   // Time we want playback to start ahead of currentTime to absorb network
   // jitter — small enough that the user doesn't notice the latency, large
   // enough that arriving chunks rarely 'catch up' to the play head.
@@ -250,10 +254,11 @@ export function AIAssistant({
           // require >0.92 confidence before counting as user speech.
           isAISpeaking: () =>
             isPlayingRef.current || audioQueueRef.current.length > 0,
-          aiPlaybackThreshold: 0.92,
+          aiPlaybackThreshold: 0.97,
           onSpeechStart: () => {
             if (isPlayingRef.current || audioQueueRef.current.length > 0) {
               pushLog("local interrupt → clearing AI audio queue");
+              suppressUntilTurnRef.current = true;
               audioQueueRef.current = [];
               stopAudio();
             }
@@ -370,11 +375,13 @@ export function AIAssistant({
         });
       },
       onAudioData: (data) => {
+        // Drop late chunks that arrive after we locally interrupted —
+        // server hasn't acknowledged yet but we're already done with
+        // this turn. Without this gate the in-flight ~1 s of audio
+        // gets played in fragments and sounds choppy.
+        if (suppressUntilTurnRef.current) return;
         // Schedule each chunk directly on the AudioContext clock — no
-        // serial JS queue. This is what makes playback smooth: the
-        // next chunk's start time is set the moment it's decoded, so
-        // even if the next message arrives with 50 ms of network
-        // jitter the audio still splices seamlessly.
+        // serial JS queue. This is what makes playback smooth.
         scheduleAudioChunk(data).catch((err) => {
           pushLog(`audio schedule error: ${(err as Error).message}`);
         });
@@ -387,8 +394,16 @@ export function AIAssistant({
       },
       onToolCall: handleToolCall,
       onInterrupted: () => {
+        suppressUntilTurnRef.current = true;
         audioQueueRef.current = [];
         stopAudio();
+      },
+      onTurnComplete: () => {
+        // Server has fully wound down — safe to accept new audio again.
+        if (suppressUntilTurnRef.current) {
+          pushLog("turn complete — re-enabling audio playback");
+          suppressUntilTurnRef.current = false;
+        }
       },
       onClose: () => {
         setIsLive(false);
