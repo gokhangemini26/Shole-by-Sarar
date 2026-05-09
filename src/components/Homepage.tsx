@@ -282,12 +282,12 @@ export function CollectionGrid({
     if (!p) return null;
     return {
       id: p.slug,
-      name: locale === "tr" && p.name_tr ? p.name_tr : p.name,
+      name: (locale === "tr" && p.name_tr ? p.name_tr : p.name) || p.name,
       price: p.price,
       tag: p.tag,
-      label: p.subtitle_tr || p.subtitle // using subtitle as label fallback
+      label: (locale === "tr" && p.subtitle_tr ? p.subtitle_tr : p.subtitle) || p.subtitle
     };
-  }).filter(Boolean);
+  }).filter((item): item is NonNullable<typeof item> => item !== null);
 
   return (
     <section id="collection" style={{ maxWidth: 1480, margin: "0 auto", padding: "60px 32px" }}>
