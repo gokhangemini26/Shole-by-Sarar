@@ -86,18 +86,16 @@ export function AIAssistant({
   const micGainRef = useRef<GainNode | null>(null);
   const vadHandleRef = useRef<VADMicHandle | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
-  const audioQueueRef = useRef<string[]>([]);
+  // Output is now a single AudioWorkletNode that owns a 3-second ring
+  // buffer of PCM samples. The worklet runs in the audio rendering thread
+  // so we never lose continuity to main-thread jank — and we get a real
+  // jitter buffer + fade-out on barge-in for free.
+  const playerNodeRef = useRef<AudioWorkletNode | null>(null);
   const isPlayingRef = useRef(false);
-  const scheduledSourcesRef = useRef<AudioBufferSourceNode[]>([]);
-  const nextStartTimeRef = useRef(0);
   // After a barge-in we keep dropping incoming chunks until Gemini sends
   // turnComplete — otherwise the ~1 s of in-flight audio still arrives,
-  // gets scheduled, and produces the choppy start/stop pattern.
+  // gets played, and produces the choppy start/stop pattern.
   const suppressUntilTurnRef = useRef(false);
-  // Time we want playback to start ahead of currentTime to absorb network
-  // jitter — small enough that the user doesn't notice the latency, large
-  // enough that arriving chunks rarely 'catch up' to the play head.
-  const PLAYBACK_LEAD_S = 0.15;
 
   /* ── Logging ───────────────────────────────────────────────────────── */
   const pushLog = useCallback((text: string) => {
@@ -152,6 +150,9 @@ export function AIAssistant({
       clientRef.current?.close();
       streamRef.current?.getTracks().forEach((t) => t.stop());
       vadHandleRef.current?.destroy().catch(() => {});
+      try {
+        playerNodeRef.current?.disconnect();
+      } catch {}
       inputCtxRef.current?.close().catch(() => {});
       outputCtxRef.current?.close().catch(() => {});
     };
@@ -170,66 +171,65 @@ export function AIAssistant({
     return outputCtxRef.current;
   }, []);
 
-  // Schedule a chunk on the AudioContext clock the moment it arrives — no
-  // serial 'isPlaying' gate. Web Audio plays sources back-to-back at
-  // sample-accurate boundaries as long as we keep advancing
-  // nextStartTimeRef, so chunks splice seamlessly even if their JS-level
-  // arrival is jittery.
+  // Lazy-load the PCM player AudioWorklet. The worklet runs in the audio
+  // rendering thread with a built-in ring buffer, so playback is immune
+  // to React renders / log updates / network bursts — and it can fade
+  // out instantly on barge-in without crackle.
+  const ensurePlayerNode = useCallback(async () => {
+    if (playerNodeRef.current) return playerNodeRef.current;
+    const ctx = getOutputCtx();
+    if (ctx.state === "suspended") await ctx.resume().catch(() => {});
+    try {
+      await ctx.audioWorklet.addModule("/pcm-player-processor.js");
+    } catch {
+      // module already registered
+    }
+    const node = new AudioWorkletNode(ctx, "pcm-player", {
+      numberOfInputs: 0,
+      numberOfOutputs: 1,
+      outputChannelCount: [1],
+    });
+    node.port.onmessage = (ev) => {
+      const msg = ev.data;
+      if (msg && msg.type === "level") {
+        // Drive React UI off the worklet's actual playback state — that
+        // way isSpeaking flips off the instant the buffer drains, even if
+        // the network kept feeding us tiny tail chunks.
+        if (msg.isPlaying !== isPlayingRef.current) {
+          isPlayingRef.current = msg.isPlaying;
+          setIsSpeaking(msg.isPlaying);
+        }
+      }
+    };
+    node.connect(ctx.destination);
+    playerNodeRef.current = node;
+    pushLog(`pcm-player worklet active (ctx ${ctx.sampleRate} Hz)`);
+    return node;
+  }, [getOutputCtx, pushLog]);
+
+  // Push a base64 PCM chunk into the worklet's ring buffer. Decoding and
+  // sample-rate handling happen here; actual playback is on the audio
+  // thread. Cheap and lock-free relative to BufferSourceNode scheduling.
   const scheduleAudioChunk = useCallback(
     async (b64: string) => {
-      const ctx = getOutputCtx();
-      if (ctx.state === "suspended") await ctx.resume().catch(() => {});
-
+      const node = await ensurePlayerNode();
       const bin = atob(b64);
+      // Skip Gemini's empty header chunks (4 base64 chars → ~3 bytes).
+      if (bin.length < 8) return;
       const bytes = new Int16Array(bin.length / 2);
       for (let i = 0; i < bin.length; i += 2)
         bytes[i / 2] = (bin.charCodeAt(i + 1) << 8) | bin.charCodeAt(i);
-      const f32 = new Float32Array(bytes.length);
-      for (let i = 0; i < bytes.length; i++) f32[i] = bytes[i] / 32768.0;
-      const buf = ctx.createBuffer(1, f32.length, 24000);
-      buf.getChannelData(0).set(f32);
-
-      const src = ctx.createBufferSource();
-      src.buffer = buf;
-      src.connect(ctx.destination);
-
-      // First chunk of this turn? Add the lead buffer so the play head
-      // starts a comfortable distance ahead of currentTime.
-      const earliest = ctx.currentTime + PLAYBACK_LEAD_S;
-      const startAt = Math.max(earliest, nextStartTimeRef.current);
-      nextStartTimeRef.current = startAt + buf.duration;
-
-      scheduledSourcesRef.current.push(src);
+      const buf = bytes.buffer.slice(0); // transfer-safe copy
+      node.port.postMessage({ type: "pcm", data: buf }, [buf]);
       isPlayingRef.current = true;
       setIsSpeaking(true);
-
-      src.onended = () => {
-        scheduledSourcesRef.current = scheduledSourcesRef.current.filter(
-          (s) => s !== src
-        );
-        if (scheduledSourcesRef.current.length === 0) {
-          isPlayingRef.current = false;
-          setIsSpeaking(false);
-          nextStartTimeRef.current = 0;
-        }
-      };
-
-      src.start(startAt);
     },
-    [getOutputCtx]
+    [ensurePlayerNode]
   );
 
   const stopAudio = useCallback(() => {
-    for (const s of scheduledSourcesRef.current) {
-      try {
-        s.stop();
-      } catch {}
-    }
-    scheduledSourcesRef.current = [];
-    isPlayingRef.current = false;
-    audioQueueRef.current = [];
-    nextStartTimeRef.current = 0;
-    setIsSpeaking(false);
+    // 20 ms fade-out in the worklet — no pop, then the buffer is cleared.
+    playerNodeRef.current?.port.postMessage({ type: "stop" });
   }, []);
 
   /* ── VAD-gated mic capture ────────────────────────────────────────── */
@@ -260,14 +260,12 @@ export function AIAssistant({
           // Belt-and-braces echo guard: the duck cuts amplitude (and the
           // VAD probability with it); when AI is playing we additionally
           // require >0.92 confidence before counting as user speech.
-          isAISpeaking: () =>
-            isPlayingRef.current || audioQueueRef.current.length > 0,
+          isAISpeaking: () => isPlayingRef.current,
           aiPlaybackThreshold: 0.97,
           onSpeechStart: () => {
-            if (isPlayingRef.current || audioQueueRef.current.length > 0) {
-              pushLog("local interrupt → clearing AI audio queue");
+            if (isPlayingRef.current) {
+              pushLog("local interrupt → fading out AI audio");
               suppressUntilTurnRef.current = true;
-              audioQueueRef.current = [];
               stopAudio();
             }
           },
@@ -403,7 +401,6 @@ export function AIAssistant({
       onToolCall: handleToolCall,
       onInterrupted: () => {
         suppressUntilTurnRef.current = true;
-        audioQueueRef.current = [];
         stopAudio();
       },
       onTurnComplete: () => {
@@ -574,8 +571,8 @@ export function AIAssistant({
     : (locale === "tr" ? "◇ gemini tarafından destekleniyor" : "◇ powered by gemini");
 
   const interruptNow = () => {
-    pushLog("user pressed interrupt → clearing audio queue");
-    audioQueueRef.current = [];
+    pushLog("user pressed interrupt → fading out audio");
+    suppressUntilTurnRef.current = true;
     stopAudio();
   };
 
