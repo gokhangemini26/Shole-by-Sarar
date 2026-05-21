@@ -1012,27 +1012,27 @@ Ayarlanabilir askısı, çapraz çanta olarak takmanıza veya kısaltarak omuzda
   // --- SHOES ---
   {
     slug: "pointed-flat",
-    name: "Pointed Leather Flat",
-    name_tr: "Sivri Burunlu Deri Babet",
-    subtitle: "black leather · slight heel",
-    subtitle_tr: "siyah deri · hafif topuklu",
+    name: "Square-Toe Leather Flat",
+    name_tr: "Küt Burunlu Deri Babet",
+    subtitle: "black leather · square toe · slight heel",
+    subtitle_tr: "siyah deri · küt burun · hafif topuklu",
     price: "€ 340",
     category: "shoes",
     image: "/images/products/pointed-flat.png",
     detailImage: "/images/products/pointed-flat-detail.png",
-    story: `The elegant alternative to the Mule. Where the Mule No. 4 is relaxed and open-backed, the Pointed Flat is polished and decisive. The pointed toe elongates the leg line, while the slight 15mm stacked heel provides all-day support without fatigue.
+    story: `The elegant alternative to the Mule. Where the Mule No. 4 is relaxed and open-backed, the Square-Toe Flat is polished and decisive. The modern square-toe box offers a contemporary and sculptural silhouette, while the slight 15mm stacked heel provides all-day support without fatigue.
 
 The black leather comes from the same Izmir tannery as the Mule, but finished with a fine grain that resists scuffing. The cushioned insole uses memory foam wrapped in leather — your feet won't know it's a flat and not a sneaker.
 
 We designed it for the woman who walks everywhere. Istanbul's cobblestones, gallery openings, airport corridors — it handles all of them.`,
-    story_tr: `Mule terliklerin zarif bir alternatifi. Mule No. 4 rahat ve arkası açıkken, Sivri Burunlu Babet daha resmi ve net bir duruş sergiler. Sivri burun bacak hattını uzatırken, hafif 15 mm katmanlı topuk yorulmadan gün boyu destek sunar.
+    story_tr: `Mule terliklerin zarif bir alternatifi. Mule No. 4 rahat ve arkası açıkken, Küt Burunlu Babet daha resmi ve net bir duruş sergiler. Modern küt burun tasarımı, çağdaş ve heykelsi bir siluet sunarken, hafif 15 mm katmanlı topuk yorulmadan gün boyu destek sunar.
 
 Siyah deri, Mule ile aynı İzmir tabakhanesinden geliyor; ancak çizilmelere karşı dayanıklı, ince taneli bir doku ile işlenmiştir. Destekli iç tabanı deri kaplı hafızalı köpük kullanır — ayaklarınız spor ayakkabı konforunu aramayacak.
 
 Her yere yürüyen kadınlar için tasarladık. İstanbul'un arnavut kaldırımları, galeri açılışları, havaalanı koridorları — hepsinin üstesinden rahatlıkla gelir.`,
     fabric: [{ name: "Calfskin Leather", percentage: 100 }],
     details: [
-      "Pointed toe — leg-elongating silhouette",
+      "Square toe — contemporary, sculptural silhouette",
       "15mm stacked leather heel",
       "Memory foam cushioned insole",
       "Leather sole with rubber heel tip",
@@ -1040,7 +1040,7 @@ Her yere yürüyen kadınlar için tasarladık. İstanbul'un arnavut kaldırıml
       "Reinforced heel counter for structure"
     ],
     details_tr: [
-      "Sivri burun — bacak boyunu uzatan siluet",
+      "Küt burun — çağdaş, heykelsi siluet",
       "15mm katmanlı deri topuk",
       "Hafızalı köpük destekli iç taban",
       "Kauçuk topuk uçlu deri taban",
@@ -1341,7 +1341,7 @@ We think of tailored trousers as the most underrated piece in any wardrobe. They
       "Aşırı yıkamadan kaçının"
     ],
     sizes: ["XS", "S", "M", "L", "XL"],
-    pairsWith: [{ slug: "double-breasted-blazer", name: "Double-Breasted Blazer" }, { slug: "soft-rules-shirt", name: "Soft Rules Shirt" }, { slug: "pointed-flat", name: "Pointed Leather Flat" }]
+    pairsWith: [{ slug: "double-breasted-blazer", name: "Double-Breasted Blazer" }, { slug: "soft-rules-shirt", name: "Soft Rules Shirt" }, { slug: "pointed-flat", name: "Square-Toe Leather Flat" }]
   },
   {
     slug: "silk-tuxedo-jacket",
@@ -1484,7 +1484,7 @@ Rüzgar kanadı sadece dekoratif değildir — gerçekten çalışır. İstanbul
       "Giyilme aralarında buhar ile tazeleyin"
     ],
     sizes: ["S", "M", "L"],
-    pairsWith: [{ slug: "wide-trouser", name: "Wide Atelier Trouser" }, { slug: "silk-slip-dress", name: "Silk Slip Dress" }, { slug: "pointed-flat", name: "Pointed Leather Flat" }]
+    pairsWith: [{ slug: "wide-trouser", name: "Wide Atelier Trouser" }, { slug: "silk-slip-dress", name: "Silk Slip Dress" }, { slug: "pointed-flat", name: "Square-Toe Leather Flat" }]
   }
 
 ];
