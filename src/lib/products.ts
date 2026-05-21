@@ -209,19 +209,19 @@ Bu pantolon İstanbul'un arnavut kaldırımlarında, gece uçuşlarında ve çok
     slug: "mule-no4",
     name: "Mule No. 4",
     name_tr: "Mule No. 4",
-    subtitle: "espresso leather · squared toe · hand-stitched",
-    subtitle_tr: "espresso deri · küt burun · el dikişi",
+    subtitle: "espresso leather · pointed toe · elegant silhouette",
+    subtitle_tr: "espresso deri · sivri burun · zarif siluet",
     price: "€ 380",
     category: "shoes",
     tag: "late spring",
     image: "/images/products/mule-no4.png",
     detailImage: "/images/products/mule-no4-detail.png",
-    story: `Mule No. 4 is the fourth iteration of our house mule — and the one we finally got right. The squared toe took seven prototypes. The heel height (35mm) was tested from Istanbul to Milan cobblestones. The leather sole is stitched, not glued.
+    story: `Mule No. 4 is our house classic — and the one we finally got right. The elegant pointed silhouette took seven prototypes to perfect the drape and curve of the leather. The slight stacked heel was tested from Istanbul to Milan cobblestones. The leather sole is stitched, not glued.
 
 The espresso leather comes from a tannery in Izmir that's been working hides for three generations. It's vegetable-tanned, which means it darkens and softens with wear — your pair will look different from everyone else's within a month.
 
 We added a foam-cushioned insole because we believe a shoe can look sharp and feel comfortable. No compromise, that's rule number one at the atelier.`,
-    story_tr: `Mule No. 4, ev ayakkabımızın dördüncü versiyonu — ve sonunda tam doğru yaptığımız parça. Küt burun yedi prototip sürdü. Topuk yüksekliği (35 mm) İstanbul'dan Milano'nun arnavut kaldırımlarına kadar test edildi. Deri taban yapıştırılmadı, dikildi.
+    story_tr: `Mule No. 4, evimizin klasiği — ve sonunda tam doğru yaptığımız parça. Zarif sivri burunlu siluet, derinin dökümünü ve kavisini mükemmelleştirmek için yedi prototip sürdü. Hafif katmanlı topuk yüksekliği İstanbul'dan Milano'nun arnavut kaldırımlarına kadar test edildi. Deri taban yapıştırılmadı, dikildi.
 
 Espresso derisi, İzmir'de üç kuşaktır deri işleyen bir tabakhaneden geliyor. Bitkisel tabaklanmıştır, bu da giyildikçe koyulaşıp yumuşayacağı anlamına gelir — sizin çiftiniz bir ay içinde herkesten farklı görünecektir.
 
@@ -230,16 +230,16 @@ Sert bir görünümün yanında rahat da hissettirmesi gerektiğine inandığım
       { name: "Vegetable-Tanned Leather", percentage: 100 },
     ],
     details: [
-      "Squared toe — seven-prototype development",
-      "35mm block heel — cobblestone-tested",
+      "Pointed toe — elegant, leg-elongating silhouette",
+      "Slight stacked heel for all-day support",
       "Blake-stitched leather sole",
       "Foam-cushioned leather insole",
       "Izmir tannery — vegetable-tanned, 3rd generation",
       "Darkens and softens with wear",
     ],
     details_tr: [
-      "Küt burun — yedi prototipli geliştirme süreci",
-      "35 mm blok topuk — arnavut kaldırımında test edildi",
+      "Sivri burun — bacak boyunu uzatan zarif siluet",
+      "Gün boyu destek sunan hafif katmanlı topuk",
       "Blake dikişli deri taban",
       "Köpük destekli deri iç taban",
       "İzmir tabakhanesi — bitkisel tabaklanmış, 3. kuşak",
