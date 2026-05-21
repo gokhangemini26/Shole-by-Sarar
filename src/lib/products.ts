@@ -558,7 +558,9 @@ Pensler, abartılı olmadan yapı kazandırır — kalçaya düz bir şekilde ot
   {
     slug: "silk-slip-dress",
     name: "Silk Slip Dress",
+    name_tr: "İpek Slip Elbise",
     subtitle: "black silk · bias cut · midi length",
+    subtitle_tr: "siyah ipek · verev kesim · midi boy",
     price: "€ 480",
     category: "women",
     image: "/images/products/silk-slip-dress.png",
@@ -568,6 +570,11 @@ Pensler, abartılı olmadan yapı kazandırır — kalçaya düz bir şekilde ot
 The black silk comes from the same Bursa mill that supplies our Soft Rules Shirt, but in a heavier 19-momme weight that gives it body without sacrificing movement. Wear it alone with the Mule No. 4 for evening, or layer the Atelier Coat over it for something more architectural.
 
 The adjustable straps mean it works across shoulder widths, and the V-neckline sits low enough to be interesting but high enough to be effortless.`,
+    story_tr: `Verev kesimde bir ustalık sınıfı. İpek Slip Elbise, vücuda yapışmadan kıvrımları sarar; hem akşam davetleri hem de katmanlı gündüz görünümleri için akıcı bir siluet sunar. Verev kesim, beş prototip boyunca mükemmelleştirildi — her biri, döküm tam olarak doğru düşene kadar milimetre milimetre ayarlandı.
+
+Siyah ipek, Soft Rules Gömlek'imizi de besleyen aynı Bursa değirmeninden geliyor; ancak hareket kabiliyetinden ödün vermeden ona hacim kazandıran daha ağır bir 19-momme ağırlığında. Akşam için tek başına Mule No. 4 ile giyin veya daha mimari bir görünüm için üzerine Atelier Palto'yu katmanlayın.
+
+Ayarlanabilir askıları, farklı omuz genişliklerine uyum sağladığı anlamına gelir ve V yaka dekoltesi ilgi çekici olacak kadar düşük, ancak zahmetsiz hissettirecek kadar yüksek tasarlanmıştır.`,
     fabric: [{ name: "Mulberry Silk", percentage: 100 }],
     details: [
       "Bias cut — five-prototype development",
@@ -577,7 +584,21 @@ The adjustable straps mean it works across shoulder widths, and the V-neckline s
       "French seam construction throughout",
       "19-momme Bursa silk — heavier drape"
     ],
+    details_tr: [
+      "Verev kesim — beş prototipli geliştirme süreci",
+      "Temiz bitişli V yaka hattı",
+      "Ayarlanabilir ipek kaplı askılar",
+      "Midi boy — baldır hizasında biter",
+      "Tamamında Fransız dikiş yapısı",
+      "19-momme Bursa ipeği — daha ağır döküm"
+    ],
     care: ["Dry clean only", "Do not hang by straps long-term", "Store flat or on padded hanger", "Steam on low to refresh"],
+    care_tr: [
+      "Sadece kuru temizleme",
+      "Uzun süre askılarından asarak saklamayın",
+      "Düz bir şekilde veya dolgulu askıda saklayın",
+      "Tazelemek için düşük ısıda buhar uygulayın"
+    ],
     sizes: ["XS", "S", "M", "L", "XL"],
     pairsWith: [{ slug: "atelier-coat", name: "The Atelier Coat" }, { slug: "mule-no4", name: "Mule No. 4" }, { slug: "sculptural-cuff", name: "Sculptural Brass Cuff" }]
   },
@@ -605,13 +626,21 @@ We think of it as the piece that replaces four blouses in your wardrobe. It work
       "Relaxed fit through the body"
     ],
     care: ["Dry clean recommended", "Hand wash cold with silk detergent", "Iron on low with pressing cloth", "Store on padded hanger"],
+    care_tr: [
+      "Kuru temizleme önerilir",
+      "İpek deterjanı ile soğuk elde yıkayın",
+      "Ütü bezini kullanarak düşük ısıda ütüleyin",
+      "Dolgulu askıda saklayın"
+    ],
     sizes: ["XS", "S", "M", "L"],
     pairsWith: [{ slug: "wide-trouser", name: "Wide Atelier Trouser" }, { slug: "atelier-mini", name: "Atelier Mini" }, { slug: "pleated-midi-skirt", name: "Pleated Midi Skirt" }]
   },
   {
     slug: "pleated-midi-skirt",
     name: "Pleated Midi Skirt",
+    name_tr: "Pileli Midi Etek",
     subtitle: "olive wool-blend · sunray pleats",
+    subtitle_tr: "zeytin yeşili yün karışımı · güneş ışını pileler",
     price: "€ 450",
     category: "women",
     image: "/images/products/pleated-midi-skirt.png",
@@ -621,6 +650,11 @@ We think of it as the piece that replaces four blouses in your wardrobe. It work
 The pleats are heat-set in a process that takes 48 hours per batch. They won't fall out in the rain, on a plane, or after a full day of sitting. The olive colour was chosen to complement the saffron of the Sun-Up Knit — together they create a colour pairing that feels both modern and timeless.
 
 The concealed side zip sits flush against the body, and the elasticated waistband at the back means it fits comfortably across sizes. We tested it through a full Istanbul fashion week — it didn't wrinkle once.`,
+    story_tr: `Kalıcı güneş ışını pileler bu eteğe olağanüstü bir hareket kazandırıyor — yürürken ışığı yakalayan ve her girişi biraz sinematik hissettiren cinsten. Zeytin yeşili yün karışımı, ağır hissettirmeden formu güzelce korumak için yeterli ağırlığı sağlar.
+
+Pileler, parti başına 48 saat süren bir işlemle ısıyla sabitlenir. Yağmurda, uçakta veya tam gün oturduktan sonra bile formunu kaybetmez. Zeytin yeşili rengi, Sun-Up Triko'nun safran tonunu tamamlamak üzere seçilmiştir — birlikte hem modern hem de zamansız hissettiren bir renk eşleşmesi oluştururlar.
+
+Gizli yan fermuar vücuda tam oturur ve arkadaki elastik bel bandı, farklı bedenlere rahatça uyum sağlamasını sağlar. İstanbul moda haftası boyunca test ettik — bir kez bile kırışmadı.`,
     fabric: [{ name: "Merino Wool", percentage: 60 }, { name: "Polyester", percentage: 40 }],
     details: [
       "Permanent sunray pleats — 48-hour heat-set",
@@ -630,14 +664,30 @@ The concealed side zip sits flush against the body, and the elasticated waistban
       "Fully lined in silk-blend lining",
       "Wrinkle-resistant construction"
     ],
+    details_tr: [
+      "Kalıcı güneş ışını pileler — 48 saatlik ısı sabitleme",
+      "Kancalı gizli yan fermuar",
+      "Midi boy — diz altında biter",
+      "Konfor için elastik arka bel bandı",
+      "İpek karışımlı tam astar",
+      "Kırışmaya dayanıklı yapı"
+    ],
     care: ["Dry clean only", "Store hanging — never fold", "Steam on low to refresh pleats", "Avoid ironing directly on pleats"],
+    care_tr: [
+      "Sadece kuru temizleme",
+      "Asarak saklayın — asla katlamayın",
+      "Pileleri tazelemek için düşük ısıda buhar uygulayın",
+      "Doğrudan pilelerin üzerine ütü yapmaktan kaçının"
+    ],
     sizes: ["XS", "S", "M", "L"],
     pairsWith: [{ slug: "sun-up-knit", name: "Sun-Up Knit" }, { slug: "draped-silk-blouse", name: "Draped Silk Blouse" }, { slug: "mule-no4", name: "Mule No. 4" }]
   },
   {
     slug: "cashmere-wrap-sweater",
     name: "Cashmere Wrap Sweater",
+    name_tr: "Kaşmir Kruvaze Kazak",
     subtitle: "charcoal cashmere · ballet wrap",
+    subtitle_tr: "kömür grisi kaşmir · bale kruvaze",
     price: "€ 520",
     category: "women",
     image: "/images/products/cashmere-wrap-sweater.png",
@@ -647,6 +697,11 @@ The concealed side zip sits flush against the body, and the elasticated waistban
 The charcoal shade was chosen because it's the colour that works hardest in any wardrobe. It pairs with everything from the saffron Sun-Up pieces to the navy tailoring. The 12-gauge knit is dense enough to hold its shape but soft enough to feel like a second skin.
 
 The side tie closure means no buttons, no zips — just a simple wrap that lets you adjust the neckline from crew to deep V depending on your mood. We added ribbed cuffs that stay put without elastic.`,
+    story_tr: `Bale ısınma giysilerinden ilham alan, ancak saf Moğol kaşmiri ile üretilen bir tasarım. Kruvaze siluet, ayarlanabilir bir uyum sağlar — yapı kazandırmak için sıkıca bağlayın ya da provadan yeni çıkmış gibi rahat ve gevşek bırakın.
+
+Kömür grisi tonu, her gardıropta en çok çalışan renk olduğu için seçildi. Safran rengi Sun-Up parçalarından lacivert terzilik ürünlerine kadar her şeyle eşleşir. 12-gauge örgü, formunu koruyacak kadar yoğun ancak ikinci bir ten hissi verecek kadar yumuşaktır.
+
+Yan bağlama detayı düğme veya fermuar gerektirmez — modunuza göre yaka dekoltesini bisiklet yakadan derin V yakaya kadar ayarlamanızı sağlayan basit bir kruvaze yapı sunar. Lastik kullanmadan yerinde duran fitilli manşetler ekledik.`,
     fabric: [{ name: "Mongolian Cashmere", percentage: 100 }],
     details: [
       "Wrap front with side tie closure",
@@ -656,14 +711,30 @@ The side tie closure means no buttons, no zips — just a simple wrap that lets 
       "Flat-locked seams for comfort",
       "Mongolian cashmere — Grade A fibres"
     ],
+    details_tr: [
+      "Yan bağlamalı kruvaze ön kapama",
+      "12-gauge örgü — formunu koruyan yoğunluk",
+      "Fitilli manşetler ve etek ucu — lastiksiz tasarım",
+      "Ayarlanabilir yaka derinliği",
+      "Konfor için düz dikişler",
+      "Moğol kaşmiri — Sınıf A lifler"
+    ],
     care: ["Hand wash cold with cashmere shampoo", "Reshape and dry flat", "Never hang — knit will stretch", "Store folded with cedar block"],
+    care_tr: [
+      "Kaşmir şampuanı ile soğuk elde yıkayın",
+      "Yeniden şekillendirip düz sererek kurutun",
+      "Asla asmayın — örgü esneyecektir",
+      "Sedir ağacı bloku ile katlanmış olarak saklayın"
+    ],
     sizes: ["XS", "S", "M", "L", "XL"],
     pairsWith: [{ slug: "wide-trouser", name: "Wide Atelier Trouser" }, { slug: "atelier-mini", name: "Atelier Mini" }, { slug: "silk-slip-dress", name: "Silk Slip Dress" }]
   },
   {
     slug: "tailored-vest",
     name: "Tailored Vest",
+    name_tr: "Tailored Yelek",
     subtitle: "sand linen · tailored fit",
+    subtitle_tr: "kum beji keten · tailored kesim",
     price: "€ 280",
     category: "women",
     image: "/images/products/tailored-vest.png",
@@ -673,6 +744,11 @@ The side tie closure means no buttons, no zips — just a simple wrap that lets 
 The five-button front uses the same horn buttons as the Atelier Coat — a small detail that ties the collection together. The welt pockets are hand-finished and sit at exactly the right height for your hands. The adjustable back tab lets you cinch the waist for a more fitted silhouette.
 
 We designed it to be the piece you throw on when a jacket feels like too much. It adds structure without weight, and it photographs beautifully — which, honestly, matters.`,
+    story_tr: `Tailored Yelek, sıcak günlerde tek başına bir üst olarak giyilebilir veya sıcaklık düştüğünde Soft Rules Gömlek'in üzerine katmanlanabilir. Wide Atelier Pantolon'umuzla aynı Normandiya keteninden kesilmiştir — böylece birlikte satın alırsanız kumaşlar zamanla aynı tonda yaşlanır.
+
+Beş düğmeli ön kısım, Atelier Palto ile aynı kemik düğmeleri kullanır — koleksiyonu birbirine bağlayan küçük bir detay. Fileto cepler el işçiliğiyle tamamlanmıştır ve elleriniz için tam olarak doğru yükseklikte konumlandırılmıştır. Ayarlanabilir arka kemer kısmı, daha oturan bir siluet için beli büzmenize olanak tanır.
+
+Ceketin fazla hissettirdiği anlar için gardırobun vazgeçilmezi olarak tasarladık. Ağırlık yapmadan yapı kazandırır ve fotoğraflarda son derece şık durur — ki dürüst olmak gerekirse, bu önemlidir.`,
     fabric: [{ name: "French Linen", percentage: 100 }],
     details: [
       "Five-button front with horn buttons",
@@ -682,7 +758,21 @@ We designed it to be the piece you throw on when a jacket feels like too much. I
       "Fully lined in cotton voile",
       "Pre-washed for softness"
     ],
+    details_tr: [
+      "Kemik düğmeli beş düğmeli ön kapama",
+      "El işçiliğiyle tamamlanmış fileto cepler",
+      "Uyum için ayarlanabilir arka kemer detayı",
+      "Normandiya keteni — Wide Atelier Pantolon ile takım",
+      "Tamamen pamuk vual astarlı",
+      "Yumuşaklık için önceden yıkanmış kumaş"
+    ],
     care: ["Dry clean or hand wash cold", "Hang dry — iron while slightly damp", "Linen softens beautifully with each wash", "Store on hanger"],
+    care_tr: [
+      "Kuru temizleme veya soğuk elde yıkama",
+      "Asarak kurutun — hafif nemliyken ütüleyin",
+      "Keten her yıkamada güzelce yumuşar",
+      "Askıda saklayın"
+    ],
     sizes: ["XS", "S", "M", "L"],
     pairsWith: [{ slug: "wide-trouser", name: "Wide Atelier Trouser" }, { slug: "soft-rules-shirt", name: "Soft Rules Shirt" }, { slug: "mule-no4", name: "Mule No. 4" }]
   },
@@ -691,7 +781,9 @@ We designed it to be the piece you throw on when a jacket feels like too much. I
   {
     slug: "leather-belt-no1",
     name: "Leather Belt No. 1",
+    name_tr: "Deri Kemer No. 1",
     subtitle: "espresso leather · brass buckle",
+    subtitle_tr: "espresso deri · pirinç toka",
     price: "€ 160",
     category: "accessories",
     image: "/images/products/leather-belt-no1.png",
@@ -701,6 +793,11 @@ We designed it to be the piece you throw on when a jacket feels like too much. I
 The espresso leather matches the Mule No. 4 exactly. It's cut from the same Izmir tannery hide, vegetable-tanned and hand-burnished at the edges. The 25mm width was chosen because it threads through every trouser loop in the collection without looking too thin or too heavy.
 
 This is the kind of belt you buy once and wear for twenty years. The leather darkens, the brass mellows, and somehow it just gets better.`,
+    story_tr: `Sade ve mükemmel oranlara sahip bir kemer. Pirinç toka, İstanbul'daki bir dökümhanede SHOLÉ için özel olarak dökülmüştür ve zamanla benzersiz bir patina geliştirecektir — hiçbir iki toka aynı şekilde yaşlanmaz.
+
+Espresso derisi, Mule No. 4 ile tam olarak eşleşir. Aynı İzmir tabakhanesinden elde edilen deriden kesilmiş, bitkisel tabaklanmış ve kenarları el işçiliğiyle parlatılmıştır. 25 mm genişlik, çok ince veya çok ağır görünmeden koleksiyondaki her pantolon köprüsünden geçecek şekilde seçilmiştir.
+
+Bu, bir kez satın alıp yirmi yıl boyunca takacağınız türden bir kemerdir. Deri koyulaşır, pirinç olgunlaşır ve bir şekilde zaman geçtikçe daha da güzelleşir.`,
     fabric: [{ name: "Vegetable-Tanned Leather", percentage: 100 }],
     details: [
       "25mm width — universal trouser fit",
@@ -710,14 +807,30 @@ This is the kind of belt you buy once and wear for twenty years. The leather dar
       "Five adjustment holes",
       "Vegetable-tanned — ages beautifully"
     ],
+    details_tr: [
+      "25mm genişlik — evrensel pantolon köprüsü uyumu",
+      "Masif pirinç toka — SHOLÉ özel döküm",
+      "El işçiliğiyle parlatılmış kenarlar",
+      "İzmir tabakhanesi derisi — Mule No. 4 ile uyumlu",
+      "Beş adet ayar deliği",
+      "Bitkisel tabaklanmış deri — zamanla güzelleşir"
+    ],
     care: ["Condition with leather balm bi-annually", "Hang or roll — never fold sharply", "Brass will patina naturally", "Wipe with dry cloth"],
+    care_tr: [
+      "Yılda iki kez deri bakım kremi uygulayın",
+      "Asarak veya rulo yaparak saklayın — asla sertçe katlamayın",
+      "Pirinç toka zamanla doğal olarak patina kazanacaktır",
+      "Kuru bir bezle silin"
+    ],
     sizes: ["S", "M", "L"],
     pairsWith: [{ slug: "wide-trouser", name: "Wide Atelier Trouser" }, { slug: "tailored-vest", name: "Tailored Vest" }, { slug: "mule-no4", name: "Mule No. 4" }]
   },
   {
     slug: "oversized-sunglasses",
     name: "Oversized Acetate Sunglasses",
+    name_tr: "Oversized Asetat Güneş Gözlüğü",
     subtitle: "tortoiseshell · polarized",
+    subtitle_tr: "kaplumbağa kabuğu desenli · polarize",
     price: "€ 280",
     category: "accessories",
     image: "/images/products/oversized-sunglasses.png",
@@ -727,6 +840,11 @@ This is the kind of belt you buy once and wear for twenty years. The leather dar
 The tortoiseshell pattern is hand-layered — each pair has a slightly different marbling, which means yours will be one of a kind. The five-barrel hinges are the same mechanism used by heritage Italian eyewear houses, and they're built to withstand years of daily use.
 
 We think of sunglasses as the punctuation mark of an outfit. These are the full stop — bold, definitive, and impossible to ignore.`,
+    story_tr: `İtalya'da birinci sınıf Mazzucchelli asetattan el yapımı olarak üretilmiştir. Büyük boy kare çerçeve, Carl Zeiss polarize camlar aracılığıyla tam UV koruması sağlarken sinematik ve büyüleyici bir siluet sunar.
+
+Kaplumbağa kabuğu deseni elle tabakalandırılmıştır — her bir çiftin deseni hafifçe farklıdır, bu da sizinkinin eşsiz olacağı anlamına gelir. Beş milli menteşeler, köklü İtalyan gözlük markalarının kullandığı mekanizmanın aynısıdır ve yıllarca günlük kullanıma dayanacak şekilde üretilmiştir.
+
+Gözlükleri bir kıyafetin noktalama işareti olarak görüyoruz. Bunlar tam nokta — cesur, belirgin ve göz ardı edilmesi imkansız.`,
     fabric: [{ name: "Italian Acetate", percentage: 100 }],
     details: [
       "Carl Zeiss polarized lenses",
@@ -736,14 +854,30 @@ We think of sunglasses as the punctuation mark of an outfit. These are the full 
       "Includes SHOLÉ leather case",
       "Handmade in Italy"
     ],
+    details_tr: [
+      "Carl Zeiss polarize camlar",
+      "Beş milli yaylı menteşeler",
+      "100% UVA/UVB koruması",
+      "Mazzucchelli asetat — elle tabakalanmış",
+      "SHOLÉ deri kılıf dahildir",
+      "İtalya'da el yapımı"
+    ],
     care: ["Clean with included microfiber cloth", "Store in leather case when not worn", "Avoid leaving in direct heat", "Rinse with water before wiping"],
+    care_tr: [
+      "Birlikte verilen mikrofiber bezle temizleyin",
+      "Kullanmadığınız zamanlarda deri kılıfında saklayın",
+      "Doğrudan ısıda bırakmaktan kaçının",
+      "Silmeden önce tozunu almak için suyla durulayın"
+    ],
     sizes: ["One Size"],
     pairsWith: [{ slug: "atelier-coat", name: "The Atelier Coat" }, { slug: "sun-up-scarf", name: "Sun-Up Scarf" }, { slug: "atelier-tote", name: "Atelier Tote" }]
   },
   {
     slug: "silk-hair-tie",
     name: "Silk Hair Tie Set",
+    name_tr: "İpek Saç Tokası Seti",
     subtitle: "saffron & black · pure silk",
+    subtitle_tr: "safran ve siyah · saf ipek",
     price: "€ 65",
     category: "accessories",
     tag: "gift",
@@ -754,6 +888,11 @@ We think of sunglasses as the punctuation mark of an outfit. These are the full 
 Unlike synthetic hair ties, silk doesn't create friction. That means no creasing, no pulling, and no breakage. The internal elastic is gentle enough to hold without squeezing, and the silk covering means it doubles as a wrist accessory.
 
 At €65, it's our most giftable piece — and often someone's first SHOLÉ purchase. We package them in a recycled cotton pouch with a handwritten card from the atelier.`,
+    story_tr: `Atıkları en aza indirmek için Bursa ipeklerimizin kumaş artıkları kullanılarak üretilmiştir — atölyeye giren her bir santimetre ipek mutlaka değerlendirilir. Safran tonu Sun-Up Triko ve Eşarp ile; siyah ise koleksiyondaki diğer her şeyle uyum sağlar.
+
+Sentetik saç tokalarının aksine, ipek sürtünme yaratmaz. Bu da saçta iz bırakmama, çekmeme ve kırılma yapmama anlamına gelir. İç lastiği sıkmadan kavrayacak kadar naziktir ve ipek kaplaması sayesinde bilek aksesuarı olarak da kullanılabilir.
+
+65 € fiyatıyla en çok hediye edilen parçamızdır ve genellikle birinin ilk SHOLÉ alışverişidir. Bunları, atölyeden el yazısıyla yazılmış bir kartla birlikte geri dönüştürülmüş pamuklu bir poşette paketliyoruz.`,
     fabric: [{ name: "Mulberry Silk", percentage: 100 }],
     details: [
       "Set of two — saffron and black",
@@ -763,23 +902,44 @@ At €65, it's our most giftable piece — and often someone's first SHOLÉ purc
       "Doubles as wrist accessory",
       "Packaged in recycled cotton pouch"
     ],
+    details_tr: [
+      "İkili set — safran ve siyah",
+      "İç kısımda saç dostu nazik lastik",
+      "İpek artıklarından sıfır atık tasarımı",
+      "Bursa ipeği — Sun-Up koleksiyonu ile uyumlu",
+      "Bilek aksesuarı olarak da kullanılabilir",
+      "Geri dönüştürülmüş pamuklu kesede paketlenmiştir"
+    ],
     care: ["Hand wash cold with silk detergent", "Air dry flat", "Do not tumble dry", "Store in included pouch"],
+    care_tr: [
+      "İpek deterjanı ile soğuk elde yıkayın",
+      "Düz sererek kurutun",
+      "Tamburlu kurutma yapmayın",
+      "Birlikte verilen kesesinde saklayın"
+    ],
     sizes: ["One Size"],
     pairsWith: [{ slug: "soft-rules-shirt", name: "Soft Rules Shirt" }, { slug: "sun-up-scarf", name: "Sun-Up Scarf" }, { slug: "sun-up-knit", name: "Sun-Up Knit" }]
   },
   {
     slug: "sculptural-cuff",
     name: "Sculptural Brass Cuff",
+    name_tr: "Heykelsi Pirinç Kelepçe Bilezik",
     subtitle: "solid brass · hand-cast",
+    subtitle_tr: "masif pirinç · el dökümü",
     price: "€ 320",
     category: "accessories",
-    image: "/images/products/leather-belt-no1.png",
-    detailImage: "/images/products/leather-belt-no1-detail.png",
+    image: "/images/products/sculptural-cuff.png",
+    detailImage: "/images/products/sculptural-cuff-detail.png",
     story: `A bold, undulating cuff bracelet cast in solid brass by a third-generation jeweller in Istanbul's Grand Bazaar. Each piece is hand-cast using the lost-wax method — a process that takes three days per cuff and produces organic variations that make every piece unique.
 
 Designed to be the only piece of jewellery you need to wear. The sculptural form was inspired by the undulating walls of the atelier's courtyard in Istanbul. It catches light from every angle and looks equally striking on bare skin or over a shirt cuff.
 
 The adjustable fit means it works on any wrist size. Simply squeeze gently to tighten or open. The polished finish will develop a warm patina over time — we encourage it.`,
+    story_tr: `İstanbul Kapalıçarşı'da üçüncü kuşak bir kuyumcu ustası tarafından masif pirinçten dökülmüş cesur, dalgalı bir kelepçe bilezik. Her bir parça, kayıp mum yöntemi kullanılarak elde dökülür — bu işlem kelepçe başına üç gün sürer ve her parçayı benzersiz kılan organik varyasyonlar üretir.
+
+Takmanız gereken tek mücevher parçası olacak şekilde tasarlandı. Heykelsi form, atölyenin İstanbul'daki avlusunun dalgalı duvarlarından ilham almıştır. Her açıdan ışığı yakalar ve çıplak ten üzerinde veya gömlek manşetinin üstünde eşit derecede çarpıcı görünür.
+
+Ayarlanabilir yapısı, her bilek ölçüsüne uyum sağladığı anlamına gelir. Sadece hafifçe sıkarak daraltın veya açın. Cilalı yüzey zamanla sıcak bir patina geliştirecektir — bunu özellikle tavsiye ediyoruz.`,
     fabric: [{ name: "Solid Brass", percentage: 100 }],
     details: [
       "Hand-cast in Istanbul — lost-wax method",
@@ -789,6 +949,14 @@ The adjustable fit means it works on any wrist size. Simply squeeze gently to ti
       "Organic variations in each cuff",
       "Weight: 85g — substantial presence"
     ],
+    details_tr: [
+      "İstanbul'da el dökümü — kayıp mum yöntemi",
+      "Cilalı yüzey — zamanla patina kazanır",
+      "Ayarlanabilir form — bileğe göre sıkıştırılır",
+      "Parça başına üç günlük döküm süreci",
+      "Her kelepçede kendine özgü organik varyasyonlar",
+      "Ağırlık: 85g — belirgin ve tok duruş"
+    ],
     care: ["Polish with brass cleaner when desired", "Patina can be preserved or removed", "Store in included cotton pouch", "Remove before swimming"],
     sizes: ["One Size"],
     pairsWith: [{ slug: "soft-bomber", name: "Soft Bomber" }, { slug: "silk-slip-dress", name: "Silk Slip Dress" }, { slug: "soft-rules-shirt", name: "Soft Rules Shirt" }]
@@ -796,16 +964,23 @@ The adjustable fit means it works on any wrist size. Simply squeeze gently to ti
   {
     slug: "mini-crossbody-bag",
     name: "Mini Crossbody Bag",
+    name_tr: "Mini Çapraz Çanta",
     subtitle: "camel leather · structured",
+    subtitle_tr: "deve tüyü rengi deri · yapılandırılmış form",
     price: "€ 420",
     category: "accessories",
-    image: "/images/products/atelier-tote.png",
-    detailImage: "/images/products/atelier-tote-detail.png",
+    image: "/images/products/mini-crossbody-bag.png",
+    detailImage: "/images/products/mini-crossbody-bag-detail.png",
     story: `A miniature companion to the Atelier Tote. Cut from the same camel leather and made at the same Izmir tannery, it fits just the essentials: phone, cardholder, and keys. Nothing more, nothing less.
 
 The structured shape means it holds its form even when empty — no sad, deflated bag at the end of the night. The magnetic closure opens with one hand, and the suede lining protects your phone screen from scratches.
 
 The adjustable strap lets you wear it as a crossbody or shorten it for a shoulder carry. We designed it for the moments when the Atelier Tote is too much — dinners, galleries, weekends.`,
+    story_tr: `Atelier Tote'un minyatür bir eşlikçisi. Aynı deve tüyü rengi deriden kesilmiş ve aynı İzmir tabakhanesinde üretilmiştir; sadece en gerekli eşyalara yer ayırır: telefon, kartlık ve anahtarlar. Ne daha fazla, ne daha az.
+
+Yapılandırılmış formu, çanta boşken bile şeklini korumasını sağlar — gecenin sonunda sönmüş, formu bozulmuş bir çanta görüntüsüne son. Mıknatıslı kapağı tek elle kolayca açılır ve süet astarı telefon ekranınızı çizilmelere karşı korur.
+
+Ayarlanabilir askısı, çapraz çanta olarak takmanıza veya kısaltarak omuzda taşımanıza olanak tanır. Atelier Tote'un fazla gelebileceği anlar için tasarladık — akşam yemekleri, galeriler ve hafta sonları için.`,
     fabric: [{ name: "Full-Grain Leather", percentage: 100 }],
     details: [
       "Magnetic closure — one-hand opening",
@@ -815,7 +990,21 @@ The adjustable strap lets you wear it as a crossbody or shorten it for a shoulde
       "Interior card slot",
       "Izmir tannery — matching Atelier Tote"
     ],
+    details_tr: [
+      "Mıknatıslı kapama — tek elle açılma kolaylığı",
+      "Ayarlanabilir deri askı — çapraz veya omuzda kullanım",
+      "Süet astar — ekran korumalı iç yüzey",
+      "Yapılandırılmış form — boşken bile şeklini korur",
+      "İç kart bölmesi",
+      "İzmir tabakhanesi — Atelier Tote ile uyumlu"
+    ],
     care: ["Condition with leather balm quarterly", "Stuff with tissue when storing", "Wipe spills immediately", "Leather patina develops naturally"],
+    care_tr: [
+      "Üç ayda bir deri bakım kremi uygulayın",
+      "Saklarken içine kağıt doldurun",
+      "Dökülmeleri hemen silin",
+      "Deri patinası doğal olarak gelişir"
+    ],
     sizes: ["One Size"],
     pairsWith: [{ slug: "atelier-tote", name: "Atelier Tote" }, { slug: "silk-slip-dress", name: "Silk Slip Dress" }, { slug: "soft-bomber", name: "Soft Bomber" }]
   },
@@ -824,16 +1013,23 @@ The adjustable strap lets you wear it as a crossbody or shorten it for a shoulde
   {
     slug: "pointed-flat",
     name: "Pointed Leather Flat",
+    name_tr: "Sivri Burunlu Deri Babet",
     subtitle: "black leather · slight heel",
+    subtitle_tr: "siyah deri · hafif topuklu",
     price: "€ 340",
     category: "shoes",
-    image: "/images/products/mule-no4.png",
-    detailImage: "/images/products/mule-no4-detail.png",
+    image: "/images/products/pointed-flat.png",
+    detailImage: "/images/products/pointed-flat-detail.png",
     story: `The elegant alternative to the Mule. Where the Mule No. 4 is relaxed and open-backed, the Pointed Flat is polished and decisive. The pointed toe elongates the leg line, while the slight 15mm stacked heel provides all-day support without fatigue.
 
 The black leather comes from the same Izmir tannery as the Mule, but finished with a fine grain that resists scuffing. The cushioned insole uses memory foam wrapped in leather — your feet won't know it's a flat and not a sneaker.
 
 We designed it for the woman who walks everywhere. Istanbul's cobblestones, gallery openings, airport corridors — it handles all of them.`,
+    story_tr: `Mule terliklerin zarif bir alternatifi. Mule No. 4 rahat ve arkası açıkken, Sivri Burunlu Babet daha resmi ve net bir duruş sergiler. Sivri burun bacak hattını uzatırken, hafif 15 mm katmanlı topuk yorulmadan gün boyu destek sunar.
+
+Siyah deri, Mule ile aynı İzmir tabakhanesinden geliyor; ancak çizilmelere karşı dayanıklı, ince taneli bir doku ile işlenmiştir. Destekli iç tabanı deri kaplı hafızalı köpük kullanır — ayaklarınız spor ayakkabı konforunu aramayacak.
+
+Her yere yürüyen kadınlar için tasarladık. İstanbul'un arnavut kaldırımları, galeri açılışları, havaalanı koridorları — hepsinin üstesinden rahatlıkla gelir.`,
     fabric: [{ name: "Calfskin Leather", percentage: 100 }],
     details: [
       "Pointed toe — leg-elongating silhouette",
@@ -843,24 +1039,45 @@ We designed it for the woman who walks everywhere. Istanbul's cobblestones, gall
       "Izmir tannery — fine-grain finish",
       "Reinforced heel counter for structure"
     ],
+    details_tr: [
+      "Sivri burun — bacak boyunu uzatan siluet",
+      "15mm katmanlı deri topuk",
+      "Hafızalı köpük destekli iç taban",
+      "Kauçuk topuk uçlu deri taban",
+      "İzmir tabakhanesi — ince gözenekli doku",
+      "Formunu koruyan takviyeli topuk yapısı"
+    ],
     care: ["Use leather conditioner monthly", "Store with shoe trees", "Wipe with damp cloth", "Let rest 24h between wears"],
+    care_tr: [
+      "Ayda bir deri bakım kremi uygulayın",
+      "Ayakkabı kalıbı kullanarak saklayın",
+      "Nemli bezle silin",
+      "Kullanımlar arasında 24 saat dinlendirin"
+    ],
     sizes: ["36", "37", "38", "39", "40"],
     pairsWith: [{ slug: "wide-trouser", name: "Wide Atelier Trouser" }, { slug: "pleated-midi-skirt", name: "Pleated Midi Skirt" }, { slug: "silk-slip-dress", name: "Silk Slip Dress" }]
   },
   {
     slug: "strappy-sandal",
     name: "Minimalist Strappy Sandal",
+    name_tr: "Minimalist İnce Bantlı Sandalet",
     subtitle: "espresso leather · 50mm heel",
+    subtitle_tr: "espresso deri · 50mm topuk",
     price: "€ 390",
     category: "shoes",
     tag: "evening",
-    image: "/images/products/mule-no4.png",
-    detailImage: "/images/products/mule-no4-detail.png",
+    image: "/images/products/strappy-sandal.png",
+    detailImage: "/images/products/strappy-sandal-detail.png",
     story: `Barely-there straps hold the foot securely atop a comfortable 50mm heel. The espresso leather matches the Mule No. 4 and the Atelier Mini — creating a tonal leg line from ankle to knee.
 
 The straps are lined with suede to prevent slipping, and the ankle closure uses a micro-buckle that's easy to fasten yourself. The 50mm heel height was tested across cobblestones, marble floors, and dance floors — high enough to feel dressed, low enough to last all night.
 
 We think of it as the shoe that replaces three pairs in your wardrobe. It works with everything from the Silk Slip Dress to the Wide Trouser and looks better with every scratch on the sole.`,
+    story_tr: `Yok denecek kadar ince bantlar, ayağı konforlu 50 mm blok topuk üzerinde güvenle tutar. Espresso derisi, Mule No. 4 ve Atelier Mini ile mükemmel bir uyum sağlayarak ayak bileğinden dize kadar ton sür ton bir bacak hattı oluşturur.
+
+Bantların içi kaymayı önlemek için süetle astarlanmıştır ve bilek kapaması kendinizin kolayca bağlayabileceği bir mikro toka kullanır. 50 mm topuk yüksekliği arnavut kaldırımları, mermer zeminler ve dans pistlerinde test edilmiştir — şık hissettirecek kadar yüksek, tüm gece dayanacak kadar alçak.
+
+Gardırobunuzdaki üç çift ayakkabının yerini alacak bir parça olarak görüyoruz. İpek Slip Elbise'den Wide Atelier Pantolon'a kadar her şeyle uyum sağlar ve tabanındaki her kullanım iziyle daha da karakter kazanır.`,
     fabric: [{ name: "Vegetable-Tanned Leather", percentage: 100 }],
     details: [
       "Suede-lined ankle strap",
@@ -870,23 +1087,44 @@ We think of it as the shoe that replaces three pairs in your wardrobe. It works 
       "Foam-cushioned leather insole",
       "Espresso dye matching Mule No. 4"
     ],
+    details_tr: [
+      "Süet astarlı bilek bandı",
+      "50mm blok topuk — dans pistinde test edildi",
+      "Blake dikişli deri taban",
+      "Mikro toka kapama detayı",
+      "Köpük destekli deri iç taban",
+      "Mule No. 4 ile uyumlu espresso boya"
+    ],
     care: ["Wipe clean with dry cloth", "Condition straps with leather balm", "Store in dust bag", "Avoid water exposure"],
+    care_tr: [
+      "Kuru bir bezle silerek temizleyin",
+      "Bantları deri bakım kremi ile nemlendirin",
+      "Toz torbasında saklayın",
+      "Su ile temastan kaçının"
+    ],
     sizes: ["36", "37", "38", "39", "40", "41"],
     pairsWith: [{ slug: "atelier-mini", name: "Atelier Mini" }, { slug: "silk-slip-dress", name: "Silk Slip Dress" }, { slug: "silk-tuxedo-jacket", name: "Silk Tuxedo Jacket" }]
   },
   {
     slug: "tall-leather-boot",
     name: "Tall Leather Boot",
+    name_tr: "Uzun Deri Çizme",
     subtitle: "black leather · riding boot style",
+    subtitle_tr: "siyah deri · binici çizmesi stili",
     price: "€ 680",
     category: "shoes",
-    image: "/images/products/mule-no4.png",
-    detailImage: "/images/products/mule-no4-detail.png",
+    image: "/images/products/tall-leather-boot.png",
+    detailImage: "/images/products/tall-leather-boot-detail.png",
     story: `A classic riding boot silhouette updated with a modern square toe that echoes the Mule No. 4. It hits just below the knee and creates a clean, unbroken line from ankle to hem.
 
 The black leather is sourced from a different section of the same Izmir tannery — a thicker, more structured hide that holds the boot's shape without a zip all the way up. The inside zip runs from ankle to calf for easy on and off.
 
 The block heel is low enough for all-day wear but high enough to give your posture a subtle lift. We think of it as the autumn-to-spring shoe — the one that sees you through six months without complaint.`,
+    story_tr: `Mule No. 4'ün küt burun formunu yansıtan modern bir detayla güncellenmiş klasik binici çizmesi silueti. Diz hemen altında biter ve bilekten etek ucuna kadar pürüzsüz, kesintisiz bir hat oluşturur.
+
+Siyah deri, aynı İzmir tabakhanesinin farklı bir bölümünden temin edilmiştir — çizmenin formunu fermuara gerek duymadan dik tutacak kadar kalın ve yapılı bir deridir. İç kısımdaki fermuar kolay giyip çıkarmak için bilekten baldır hizasına kadar uzanır.
+
+Blok topuk, gün boyu giyilebilecek kadar alçak, ancak duruşunuza ince bir asalet katacak kadar yüksektir. Sonbahardan ilkbahara kadar süren o altı aylık dönemi şikayetsiz geçirmenizi sağlayacak bir çizme.`,
     fabric: [{ name: "Full-Grain Leather", percentage: 100 }],
     details: [
       "Below-knee height — riding boot silhouette",
@@ -896,23 +1134,44 @@ The block heel is low enough for all-day wear but high enough to give your postu
       "Leather sole with rubber grip",
       "Pull tab at back for easy dressing"
     ],
+    details_tr: [
+      "Diz altı boy — binici çizmesi silueti",
+      "Bilekten baldıra kadar iç fermuar",
+      "30mm blok topuk — gün boyu rahatlık",
+      "Mule No. 4 ile uyumlu küt burun yapısı",
+      "Kauçuk tabanlı koruyucu deri taban",
+      "Kolay giyim için arkada çekme halkası"
+    ],
     care: ["Store with boot trees", "Condition leather seasonally", "Wipe with damp cloth after wear", "Protect with waterproofing spray"],
+    care_tr: [
+      "Çizme kalıbıyla saklayın",
+      "Mevsimsel olarak deri bakımı yapın",
+      "Giyildikten sonra nemli bir bezle silin",
+      "Su geçirmez koruyucu sprey kullanın"
+    ],
     sizes: ["37", "38", "39", "40", "41"],
     pairsWith: [{ slug: "atelier-mini", name: "Atelier Mini" }, { slug: "pleated-midi-skirt", name: "Pleated Midi Skirt" }, { slug: "double-breasted-blazer", name: "Double-Breasted Blazer" }]
   },
   {
     slug: "woven-loafer",
     name: "Woven Loafer",
+    name_tr: "Örgü Makosen",
     subtitle: "camel leather · hand-woven",
+    subtitle_tr: "deve tüyü rengi deri · el örgüsü",
     price: "€ 460",
     category: "shoes",
-    image: "/images/products/mule-no4.png",
-    detailImage: "/images/products/mule-no4-detail.png",
+    image: "/images/products/woven-loafer.png",
+    detailImage: "/images/products/woven-loafer-detail.png",
     story: `Intricately hand-woven leather gives this loafer a rich texture that no machine can replicate. Each pair takes a full day to weave — a single artisan in our Izmir workshop creates the lattice pattern strip by strip.
 
 The camel leather matches the Atelier Tote and Mini Crossbody, creating a unified accessories story. The open weave provides exceptional breathability for warmer months, while the leather sole keeps everything polished.
 
 Slip them on with the Wide Trouser and Tailored Vest for what we call the “Summer Friday.” It's the most relaxed outfit in the collection, and somehow the one that gets the most compliments.`,
+    story_tr: `İnce el işçiliğiyle örülmüş deri, bu makosene hiçbir makinenin taklit edemeyeceği zengin bir doku kazandırıyor. Her bir çiftin örülmesi tam bir gün sürüyor — İzmir atölyemizdeki tek bir zanaatkar kafes desenini şerit şerit örüyor.
+
+Deve tüyü rengi deri, Atelier Tote ve Mini Çapraz Çanta ile eşleşerek bütünsel bir aksesuar dili yaratır. Açık örgü yapısı sıcak aylar için olağanüstü nefes alabilirlik sağlarken, deri tabanı her an şık görünmenizi sağlar.
+
+"Yaz Cuması" adını verdiğimiz görünüm için Wide Atelier Pantolon ve Tailored Yelek ile giyin. Koleksiyonun en rahat kombini olmasına rağmen en çok iltifat alanıdır.`,
     fabric: [{ name: "Vegetable-Tanned Leather", percentage: 100 }],
     details: [
       "Hand-woven upper — one-day per pair",
@@ -922,24 +1181,45 @@ Slip them on with the Wide Trouser and Tailored Vest for what we call the “Sum
       "Cushioned leather insole",
       "Breathable open-weave design"
     ],
+    details_tr: [
+      "El örgüsü üst yüzey — çift başına bir günlük el emeği",
+      "Kauçuk eklemeli deri taban",
+      "Kolay giyilebilir slip-on yapı",
+      "Atelier Tote ile uyumlu deve tüyü rengi deri",
+      "Yumuşak dolgulu deri iç taban",
+      "Nefes alabilen açık örgü tasarım"
+    ],
     care: ["Condition gently with leather cream", "Avoid water — leather is uncoated", "Store with shoe trees", "Use soft brush for cleaning"],
+    care_tr: [
+      "Deri bakım kremi ile nazikçe besleyin",
+      "Sudan kaçının — deri kaplamasızdır",
+      "Ayakkabı kalıbıyla saklayın",
+      "Temizlik için yumuşak uçlu bir fırça kullanın"
+    ],
     sizes: ["36", "37", "38", "39", "40"],
     pairsWith: [{ slug: "wide-trouser", name: "Wide Atelier Trouser" }, { slug: "tailored-vest", name: "Tailored Vest" }, { slug: "atelier-tote", name: "Atelier Tote" }]
   },
   {
     slug: "chunky-derby",
     name: "Chunky Sole Derby",
+    name_tr: "Kalın Tabanlı Derby Ayakkabı",
     subtitle: "black leather · platform",
+    subtitle_tr: "siyah deri · platform taban",
     price: "€ 420",
     category: "shoes",
     tag: "new",
-    image: "/images/products/mule-no4.png",
-    detailImage: "/images/products/mule-no4-detail.png",
+    image: "/images/products/chunky-derby.png",
+    detailImage: "/images/products/chunky-derby-detail.png",
     story: `A robust take on the classic derby, designed for the woman who wants her footwear to make a statement. The lightweight platform sole adds 45mm of height while keeping the shoe surprisingly easy to walk in.
 
 The black leather upper is polished to a subtle sheen that catches light without screaming “shiny.” The lug sole provides grip on cobblestones, wet marble, and every other surface Istanbul throws at you.
 
 Pair it with the Wide Trouser for an androgynous tailored look, or with the Atelier Mini for something more unexpected. Either way, people will hear you coming — in the best possible way.`,
+    story_tr: `Klasik derby tarzının, ayakkabısının bir duruş sergilemesini isteyen kadınlar için tasarlanmış güçlü bir yorumu. Hafif platform tabanı, şaşırtıcı derecede kolay bir yürüyüş deneyimi sunarken siluete 45 mm boy katar.
+
+Siyah deri üst kısım, aşırı parlak görünmeden ışığı yakalayan hafif bir cila ile işlenmiştir. Tırtıklı kalın taban; arnavut kaldırımlarında, ıslak mermerlerde ve İstanbul'un karşınıza çıkaracağı diğer tüm zeminlerde tam zemin tutuşu sağlar.
+
+Maskülen bir takım elbise görünümü için Wide Atelier Pantolon ile veya daha beklenmedik bir tarz için Atelier Mini Etek ile eşleştirin. Her iki şekilde de, adımlarınızın sesi —en asil şekilde— siz gelmeden önce duyulacaktır.`,
     fabric: [{ name: "Polished Calfskin", percentage: 100 }],
     details: [
       "Lace-up with waxed cotton laces",
@@ -949,7 +1229,21 @@ Pair it with the Wide Trouser for an androgynous tailored look, or with the Atel
       "Cushioned insole with arch support",
       "Goodyear welted construction"
     ],
+    details_tr: [
+      "Vakslı pamuklu bağcıklarla bağcıklı tasarım",
+      "Hafif kauçuk tırtıklı taban — 45mm platform",
+      "Tamamen deri iç astar",
+      "Cilalı dana derisi üst yüzey",
+      "Ortopedik destekli yastıklı iç taban",
+      "Goodyear welt (çift dikişli) taban yapısı"
+    ],
     care: ["Polish regularly with black shoe cream", "Clean sole with stiff brush", "Use shoe trees when not wearing", "Re-wax laces as needed"],
+    care_tr: [
+      "Siyah ayakkabı boyası ile düzenli olarak cilalayın",
+      "Tabanı sert uçlu bir fırça ile temizleyin",
+      "Kullanmadığınız zamanlarda ayakkabı kalıbı takın",
+      "Gerektiğinde bağcıkları yeniden vakslayın"
+    ],
     sizes: ["36", "37", "38", "39", "40", "41"],
     pairsWith: [{ slug: "wide-trouser", name: "Wide Atelier Trouser" }, { slug: "atelier-mini", name: "Atelier Mini" }, { slug: "double-breasted-blazer", name: "Double-Breasted Blazer" }]
   },
@@ -958,16 +1252,23 @@ Pair it with the Wide Trouser for an androgynous tailored look, or with the Atel
   {
     slug: "double-breasted-blazer",
     name: "Double-Breasted Blazer",
+    name_tr: "Kruvaze Yün Blazer Ceket",
     subtitle: "navy wool · sharp shoulder",
+    subtitle_tr: "lacivert yün · keskin omuz kesimi",
     price: "€ 720",
     category: "tailoring",
-    image: "/images/products/atelier-coat.png",
-    detailImage: "/images/products/atelier-coat-detail.png",
+    image: "/images/products/double-breasted-blazer.png",
+    detailImage: "/images/products/double-breasted-blazer-detail.png",
     story: `The cornerstone of any tailored wardrobe, and the piece that connects SHOLÉ most directly to SARAR's 78-year tailoring heritage. Strong shoulders, a nipped waist, and six horn buttons define this classic blazer.
 
 The navy wool is from the same Italian mill that supplies some of the world's oldest tailoring houses. The canvas interlining is hand-padded — a technique that takes three times longer than machine fusing but produces a lapel that rolls naturally and improves with wear.
 
 Pair it with the matching Pleated Trousers for a complete suit, or throw it over the Silk Slip Dress for something less expected. Either way, the shoulders will make you stand straighter.`,
+    story_tr: `Her terzilik gardırobunun temel taşı ve SHOLÉ'yi SARAR'ın 78 yıllık asil terzilik mirasına doğrudan bağlayan en özel parça. Güçlü omuzlar, belirgin bir bel kesimi ve altı adet gerçek boynuz düğme bu klasik blazerı tanımlar.
+
+Lacivert yün kumaş, dünyanın en eski terzilik evlerine de tedarik sağlayan köklü bir İtalyan dokuma atölyesinden temin edilmiştir. İç kısmındaki kıl tela konstrüksiyonu tamamen elde işlenmiştir; bu teknik, makine preslemesine kıyasla üç kat daha fazla zaman alsa da, yakanın doğal bir şekilde dökümlü durmasını sağlar ve giyildikçe vücudun şeklini alarak kusursuzlaşır.
+
+Tam bir takım görünümü için aynı kumaştan üretilen Pileli Yün Pantolon ile eşleştirin veya daha beklenmedik ve modern bir siluet için İpek Kombinezon Elbise'nin üzerine zahmetsizce omuzlarınıza atın. Her iki şekilde de, keskin omuz yapısı duruşunuza asil bir zarafet katacaktır.`,
     fabric: [{ name: "Super 130s Wool", percentage: 100 }],
     details: [
       "Double-breasted with six horn buttons",
@@ -977,23 +1278,44 @@ Pair it with the matching Pleated Trousers for a complete suit, or throw it over
       "Interior SHOLÉ label, hand-stitched",
       "Super 130s Italian wool — 280gsm"
     ],
+    details_tr: [
+      "Altı adet boynuz düğmeli kruvaze tasarım",
+      "Kırlangıç yaka — elde işlenmiş geleneksel kıl tela konstrüksiyonu",
+      "Tamamen Bemberg kupro astar",
+      "Vücuda oturan bel hattı ve yapılandırılmış omuz formu",
+      "El dikişiyle tutturulmuş iç SHOLÉ etiketi",
+      "Super 130s İtalyan yünü — 280 gsm"
+    ],
     care: ["Dry clean only", "Store on padded hanger — never fold", "Steam to refresh between wears", "Brush with garment brush"],
+    care_tr: [
+      "Yalnızca kuru temizleme yapılması önerilir",
+      "Destekli askıda muhafaza edin — asla katlamayın",
+      "Giyilme aralarında buhar ile tazeleyin",
+      "Narin giysi fırçasıyla düzenli olarak tarayın"
+    ],
     sizes: ["XS", "S", "M", "L"],
     pairsWith: [{ slug: "pleated-trousers-navy", name: "Pleated Trousers" }, { slug: "wide-trouser", name: "Wide Atelier Trouser" }, { slug: "silk-slip-dress", name: "Silk Slip Dress" }]
   },
   {
     slug: "pleated-trousers-navy",
     name: "Pleated Trousers",
+    name_tr: "Pileli Yün Pantolon",
     subtitle: "navy wool · matching blazer",
+    subtitle_tr: "lacivert yün · takım pantolonu",
     price: "€ 440",
     category: "tailoring",
-    image: "/images/products/wide-trouser.png",
-    detailImage: "/images/products/wide-trouser-detail.png",
+    image: "/images/products/pleated-trousers-navy.png",
+    detailImage: "/images/products/pleated-trousers-navy-detail.png",
     story: `Designed to pair perfectly with the Double-Breasted Blazer for a complete suit, or worn separately for an elevated everyday look. The navy wool matches the blazer exactly — sourced from the same Italian mill, dyed in the same batch.
 
 The single pleat gives structure at the waist while allowing the straight leg to fall cleanly. The belt loops are wide enough for a statement belt but proportioned enough to look clean without one.
 
 We think of tailored trousers as the most underrated piece in any wardrobe. They do more work than anything else you own and rarely get the credit.`,
+    story_tr: `Kusursuz bir takım silueti için Kruvaze Yün Blazer ile tam uyum sağlamak üzere tasarlanmış ya da günlük şıklığı bir üst seviyeye taşımak için tek başına giyilebilecek özel bir tasarım. Lacivert yün kumaş, blazer ile birebir aynı İtalyan atölyesinden alınmış ve aynı parti boyamayla üretilmiştir; bu sayede renk tonu kusursuzca eşleşir.
+
+Öndeki tek pile, bel hattına yapısal bir duruş kazandırırken düz kesim paçanın aşağıya doğru temiz ve akıcı bir şekilde dökülmesini sağlar. Kemer köprüleri, dikkat çekici genişlikte bir kemeri taşıyacak kadar geniş, ancak kemersiz kullanıldığında da minimalist ve temiz görünecek şekilde oranlanmıştır.
+
+Özel dikim kumaş pantolonları, bir gardırobun hak ettiği değeri en az gören ama en çok emek veren kahramanları olarak görüyoruz. Sahip olduğunuz diğer her şeyden daha fazla işlev görürler ve nadiren övgü alırlar.`,
     fabric: [{ name: "Super 130s Wool", percentage: 100 }],
     details: [
       "Single forward pleat",
@@ -1003,24 +1325,45 @@ We think of tailored trousers as the most underrated piece in any wardrobe. They
       "Matching Double-Breasted Blazer fabric",
       "Half-lined to the knee"
     ],
+    details_tr: [
+      "Ön kısımda tek pile detayı",
+      "Düz paça kesimi — 26 cm paça genişliği",
+      "Geniş kemer köprüleri",
+      "Gizli kancalı ve fermuarlı pat kapama",
+      "Kruvaze Yün Blazer ile birebir aynı takım kumaşı",
+      "Dize kadar yarım astar yapısı"
+    ],
     care: ["Dry clean only", "Hang on trouser hanger with clips", "Steam to remove creases", "Avoid over-washing"],
+    care_tr: [
+      "Yalnızca kuru temizleme yapılması önerilir",
+      "Klipsli pantolon askısında muhafaza edin",
+      "Kırışıklıkları gidermek için buhar uygulayın",
+      "Aşırı yıkamadan kaçının"
+    ],
     sizes: ["XS", "S", "M", "L", "XL"],
     pairsWith: [{ slug: "double-breasted-blazer", name: "Double-Breasted Blazer" }, { slug: "soft-rules-shirt", name: "Soft Rules Shirt" }, { slug: "pointed-flat", name: "Pointed Leather Flat" }]
   },
   {
     slug: "silk-tuxedo-jacket",
     name: "Silk Tuxedo Jacket",
+    name_tr: "İpek Smokin Ceketi",
     subtitle: "black silk · satin lapel",
+    subtitle_tr: "siyah ipek · saten şal yaka",
     price: "€ 850",
     category: "tailoring",
     tag: "evening",
-    image: "/images/products/soft-bomber.png",
-    detailImage: "/images/products/soft-bomber-detail.png",
+    image: "/images/products/silk-tuxedo-jacket.png",
+    detailImage: "/images/products/silk-tuxedo-jacket-detail.png",
     story: `Evening tailoring at its finest. The contrast between the matte silk body and the glossy satin shawl lapel creates a striking visual that works under candlelight, gallery spots, and camera flashes.
 
 The single button closure keeps the silhouette clean and decisive. The jet pockets sit flat against the body — no flaps, no bulk. The silk is from the same Bursa mill as the Soft Bomber, but in a denser weave that holds the structured shoulder.
 
 We designed it as the piece that replaces the “I have nothing to wear” panic at 7pm. Throw it over the Silk Slip Dress and you're dressed for anything from a private view to a New Year's party.`,
+    story_tr: `Akşam şıklığının en asil ve rafine yorumu. Mat ipek gövde ile parlak saten şal yaka arasındaki kontrast, mum ışığında, galeri spotlarında ve flaşlar altında göz alıcı bir görsel zenginlik yaratır.
+
+Tek düğmeli kapama, silueti temiz ve net tutar. Fileto cepler, vücuda tamamen düz oturarak hiçbir potluk yaratmaz. Kullanılan ipek, Soft Bomber ceketimizle aynı Bursa atölyesinden temin edilmiş olup, omuz yapısını ve formunu korumak adına daha yoğun bir dokumayla işlenmiştir.
+
+Bu ceketi, akşam saat yedide yaşanan "ne giyeceğim" paniğine kesin bir çözüm olarak tasarladık. İpek Kombinezon Elbise'nin üzerine giyerek özel bir sergiden yılbaşı davetine kadar her ortama zahmetsizce ve kusursuzca hazır olabilirsiniz.`,
     fabric: [{ name: "Mulberry Silk", percentage: 100 }],
     details: [
       "Satin shawl lapel — high-gloss contrast",
@@ -1030,23 +1373,44 @@ We designed it as the piece that replaces the “I have nothing to wear” panic
       "Structured shoulder with light padding",
       "Bursa silk — dense evening weave"
     ],
+    details_tr: [
+      "Saten şal yaka — yüksek parlaklıkta kontrast detay",
+      "Tek düğmeli kapama — mat pirinç düğme",
+      "Fileto cepler — pürüzsüz ve düz form",
+      "Tamamen ipek karışımlı astar",
+      "Hafif vatkalı, yapılandırılmış omuz formu",
+      "Bursa ipeği — yoğun akşam dokuması"
+    ],
     care: ["Dry clean only", "Store on padded hanger in garment bag", "Steam on low — avoid direct contact", "Handle satin lapel with care"],
+    care_tr: [
+      "Yalnızca kuru temizleme yapılması önerilir",
+      "Destekli askıda, koruyucu giysi kılıfında saklayın",
+      "Düşük ısıda buhar uygulayın — doğrudan temastan kaçının",
+      "Saten şal yakaya hassas davranın"
+    ],
     sizes: ["XS", "S", "M", "L"],
     pairsWith: [{ slug: "silk-slip-dress", name: "Silk Slip Dress" }, { slug: "strappy-sandal", name: "Minimalist Strappy Sandal" }, { slug: "sculptural-cuff", name: "Sculptural Brass Cuff" }]
   },
   {
     slug: "wool-pencil-skirt",
     name: "Tailored Pencil Skirt",
+    name_tr: "Terzilik İşi Yün Kalem Etek",
     subtitle: "charcoal wool · back slit",
+    subtitle_tr: "antrasit yün · arka yırtmaç",
     price: "€ 360",
     category: "tailoring",
-    image: "/images/products/atelier-mini.png",
-    detailImage: "/images/products/atelier-mini-detail.png",
+    image: "/images/products/wool-pencil-skirt.png",
+    detailImage: "/images/products/wool-pencil-skirt-detail.png",
     story: `A masterclass in fit. This pencil skirt is engineered to contour the body while allowing comfortable movement via a deep back walking slit. The charcoal wool provides year-round weight — warm enough for autumn, light enough for spring.
 
 The concealed zip sits at the back, keeping the front silhouette completely clean. The elastane blend means it moves with you through a full day of sitting, standing, and walking without losing shape.
 
 Pair it with the Soft Rules Shirt tucked in and the Mule No. 4 for what we call “the meeting outfit” — polished enough to command the room but comfortable enough to forget you're wearing it.`,
+    story_tr: `Kalıp ve uyumun başyapıtı. Bu kalem etek, vücut hatlarını mükemmel şekilde saracak şekilde tasarlanmış olup, arkadaki derin yürüme yırtmacıyla rahat hareket imkanı sunar. Antrasit yün kumaş, dört mevsim giyilebilecek ideal bir ağırlığa sahiptir — sonbahar için sıcak tutacak kadar tok, ilkbahar için ise nefes alacak kadar hafiftir.
+
+Arkadaki gizli fermuar, ön silueti tamamen pürüzsüz ve temiz tutar. Elastan karışımı, gün boyu otururken, ayakta dururken ve yürürken formunu kaybetmeden sizinle birlikte esner.
+
+Zahmetsizce asil bir "toplantı stili" için içine yerleştirilmiş Soft Rules Gömlek ve Mule No. 4 ile tamamlayın — odayı yönetebilecek kadar otoriter ve üzerinizde olduğunu unutturacak kadar konforlu.`,
     fabric: [{ name: "Merino Wool", percentage: 95 }, { name: "Elastane", percentage: 5 }],
     details: [
       "Knee length — sits at the natural knee",
@@ -1056,24 +1420,45 @@ Pair it with the Soft Rules Shirt tucked in and the Mule No. 4 for what we call 
       "Elastane blend for stretch recovery",
       "Charcoal dye — year-round weight"
     ],
+    details_tr: [
+      "Diz boyu — doğal diz hizasında oturur",
+      "Rahat hareket için derin arka yırtmaç detayı",
+      "Gizli arka fermuar ve kopçalı kapama",
+      "Kusursuz döküm için tamamen viskon iç astar",
+      "Esneklik ve form koruması için elastan karışımı",
+      "Antrasit tonu — dört mevsim giyilebilecek dokuma ağırlığı"
+    ],
     care: ["Dry clean only", "Iron on medium with pressing cloth", "Hang or fold flat", "Brush with garment brush between wears"],
+    care_tr: [
+      "Yalnızca kuru temizleme yapılması önerilir",
+      "Orta derecede ütü bezli ütüleme yapın",
+      "Askıda veya düz sererek muhafaza edin",
+      "Giyim aralarında narin giysi fırçasıyla temizleyin"
+    ],
     sizes: ["XS", "S", "M", "L"],
     pairsWith: [{ slug: "soft-rules-shirt", name: "Soft Rules Shirt" }, { slug: "draped-silk-blouse", name: "Draped Silk Blouse" }, { slug: "mule-no4", name: "Mule No. 4" }]
   },
   {
     slug: "trench-coat-reimagined",
     name: "The Reimagined Trench",
+    name_tr: "Yeniden Yorumlanan Trençkot",
     subtitle: "sand cotton-gabardine · oversized",
+    subtitle_tr: "kum rengi pamuk gabardin · oversized kesim",
     price: "€ 940",
     category: "tailoring",
     tag: "bestseller",
-    image: "/images/products/atelier-coat.png",
-    detailImage: "/images/products/atelier-coat-detail.png",
+    image: "/images/products/trench-coat-reimagined.png",
+    detailImage: "/images/products/trench-coat-reimagined-detail.png",
     story: `We took the traditional trench and exaggerated the proportions — wider shoulders, longer hem, deeper pockets. The result is a coat that provides both shelter and style, the kind of piece that makes even a grocery run feel cinematic.
 
 The sand cotton-gabardine is weatherproof without being stiff. It softens with wear and develops the kind of lived-in character that no new coat can replicate. The belted waist allows you to cinch for structure or leave open for drama.
 
 The storm flap isn't just decorative — it actually works. We tested it in Istanbul's November rains. Not a drop got through. It's the coat that started as outerwear and became a wardrobe essential.`,
+    story_tr: `Geleneksel trençkot tasarımını ele alıp oranları abarttık — daha geniş omuzlar, daha uzun bir etek ucu ve daha derin cepler. Sonuç; hem rüzgardan koruyan hem de stil sunan, en basit market alışverişini bile sinematik bir ana dönüştüren eşsiz bir dış giyim parçası.
+
+Kum rengi pamuklu gabardin kumaş, sert ve kaba durmadan hava koşullarına dayanıklılık sağlar. Giyildikçe yumuşar ve hiçbir yeni ceketin taklit edemeyeceği, yaşanmışlık kokan asil bir karakter kazanır. Kemerli bel kısmı, yapısal bir duruş için sıkılabilir ya da dökümlü bir drama hissi için açık bırakılabilir.
+
+Rüzgar kanadı sadece dekoratif değildir — gerçekten çalışır. İstanbul'un Kasım yağmurlarında test ettik; tek bir damla bile sızmadı. Dış giyim olarak başlayıp gardırobun vazgeçilmez temel parçasına dönüşen bir ikon.`,
     fabric: [{ name: "Cotton Gabardine", percentage: 100 }],
     details: [
       "Oversized fit — exaggerated proportions",
@@ -1083,7 +1468,21 @@ The storm flap isn't just decorative — it actually works. We tested it in Ista
       "Back vent for movement",
       "Cotton gabardine — weatherproof finish"
     ],
+    details_tr: [
+      "Oversized kalıp — hacimli ve abartılı oranlar",
+      "Fonksiyonel rüzgar kanadı — yağmur testi onaylı",
+      "Boynuz tokalı kemerli bel hattı",
+      "Derin yama cepler",
+      "Rahat hareket için arka yırtmaç yapısı",
+      "Hava şartlarına dayanıklı apreli pamuk gabardin"
+    ],
     care: ["Dry clean only", "Store on padded hanger", "Re-proof with waterproofing spray seasonally", "Steam to refresh between wears"],
+    care_tr: [
+      "Yalnızca kuru temizleme yapılması önerilir",
+      "Destekli askıda muhafaza edin",
+      "Mevsimsel olarak su geçirmezlik spreyi ile koruma sağlayın",
+      "Giyilme aralarında buhar ile tazeleyin"
+    ],
     sizes: ["S", "M", "L"],
     pairsWith: [{ slug: "wide-trouser", name: "Wide Atelier Trouser" }, { slug: "silk-slip-dress", name: "Silk Slip Dress" }, { slug: "pointed-flat", name: "Pointed Leather Flat" }]
   }
