@@ -408,11 +408,8 @@ export function AIAssistant({
     }
 
     setIsConnecting(true);
-    // Auto-open the log panel during voice connection so the user can see
-    // VAD heartbeats, mic level, and any errors without hunting for the
-    // log button.
-    setShowLog(true);
-
+    // Log panel is now hidden by default per user request. You can manually toggle it.
+    
     const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
     if (!apiKey) {
       pushLog("ERROR: NEXT_PUBLIC_GEMINI_API_KEY not set");
@@ -453,12 +450,26 @@ export function AIAssistant({
         });
       },
       onTranscription: (text, isUser) => {
-        // Voice mode is voice-only by design — no transcript bubbles in
-        // the chat UI. We still receive transcription server-side for
-        // tool-call grounding, but the user just hears the assistant.
+        // Log to database
         if (sessionId) {
           logChatMessage(sessionId, isUser ? "user" : "model", text);
         }
+        
+        // Display voice transcripts as text chat bubbles
+        setMessages((prev) => {
+          const role = isUser ? "user" : "model";
+          const lastMsg = prev[prev.length - 1];
+          
+          if (lastMsg && lastMsg.role === role) {
+            // Overwrite current turn (handles running/interim transcripts cleanly)
+            const updated = [...prev];
+            updated[updated.length - 1] = { ...lastMsg, content: text };
+            return updated;
+          } else {
+            // Start a new message bubble
+            return [...prev, { role, content: text }];
+          }
+        });
       },
       onToolCall: handleToolCall,
       onInterrupted: () => {
