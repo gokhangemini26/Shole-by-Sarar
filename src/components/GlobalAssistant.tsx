@@ -111,8 +111,7 @@ export function GlobalAssistant() {
         if (call.name === "show_product" && !navigated) {
           const productId = asStr(call.args.product_id);
           if (VALID_SLUGS.has(productId)) {
-            router.push(`/product/${productId}`);
-            triggerScroll();
+            router.push(`/product/${productId}?tour=true`);
           } else {
             console.warn(
               `[SHOLÉ] hallucinated product slug ignored: "${productId}"`
@@ -130,8 +129,7 @@ export function GlobalAssistant() {
               .replace(/\s+/g, "-")
               .replace(/[^a-z0-9-]/g, "");
             if (first && VALID_SLUGS.has(first)) {
-              router.push(`/product/${first}`);
-              triggerScroll();
+              router.push(`/product/${first}?tour=true`);
             } else {
               console.warn(
                 `[SHOLÉ] outfit hero piece "${first}" not in catalog`
