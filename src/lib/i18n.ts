@@ -190,7 +190,7 @@ const labels: Record<Locale, Labels> = {
     shopChapter: "Koleksiyonu keşfet →",
     tryStylist: "Stilisti dene",
     collectionTitle: "Yumuşak gelenler.",
-    storyTitle: "Üç kuşak terzi, bir çok meraklı yapay zeka.",
+    storyTitle: "Üç kuşak terzi, çok meraklı bir yapay zeka.",
     aiInviteTitle: "Merhaba, ben SHOLÉ. Akşam 8'de panik yapmamanıza yardım ediyorum.",
     aiInviteDesc: "Nereye gideceğinizi söyleyin. Neredeyse aldığınız elbiseyi gösterin. Bir fotoğraf gönderin — paltonun nasıl durduğunu göstereyim.",
     startConversation: "Sohbete başla →",

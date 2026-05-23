@@ -601,7 +601,16 @@ export function StorySplit({
         >
           {labels.storyTitle.split(",")[0]},
           <br />
-          <em style={{ color: accent }}>{locale === "tr" ? "bir" : "one"}</em> {labels.storyTitle.split(",")[1].trim()}
+          {(() => {
+            const secondPart = labels.storyTitle.split(",")[1]?.trim() || "";
+            const firstWord = secondPart.split(" ")[0];
+            const rest = secondPart.slice(firstWord.length);
+            return (
+              <>
+                <em style={{ color: accent }}>{firstWord}</em>{rest}
+              </>
+            );
+          })()}
         </h2>
         <p
           style={{
