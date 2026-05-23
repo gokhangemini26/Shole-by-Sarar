@@ -66,17 +66,6 @@ export function Hero({
     }
   }, []);
 
-  // Force-play on mount (covers client-side navigation back to homepage)
-  React.useEffect(() => {
-    const vid = heroVidRef.current;
-    if (vid) {
-      heroVidIdx.current = 0;
-      vid.src = heroVideos[0];
-      vid.load();
-      vid.play().catch(() => {});
-    }
-  }, []);
-
   return (
     <section
       id="hero"
@@ -217,12 +206,14 @@ export function Hero({
           <video
             ref={heroVidRef}
             autoPlay
+            loop={false}
             muted
             playsInline
             onEnded={handleHeroVideoEnded}
             style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-            src="/videos/hero.mp4"
-          />
+          >
+            <source src="/videos/hero.mp4" type="video/mp4" />
+          </video>
         </div>
         <div
           style={{

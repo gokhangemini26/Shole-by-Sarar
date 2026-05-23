@@ -26,17 +26,6 @@ export default function MobileHome() {
     }
   }, []);
 
-  // Force-play on mount (covers client-side navigation back to homepage)
-  React.useEffect(() => {
-    const vid = mobileVidRef.current;
-    if (vid) {
-      mobileVidIdx.current = 0;
-      vid.src = mobileVideos[0];
-      vid.load();
-      vid.play().catch(() => {});
-    }
-  }, []);
-
   // Take the first 3 featured products from desktop for "Soft Arrivals"
   const featuredSlugs = ["atelier-coat", "soft-rules-shirt", "sun-up-knit"];
   const featuredProducts = featuredSlugs.map(s => PRODUCTS.find(p => p.slug === s)).filter(Boolean) as typeof PRODUCTS;
@@ -105,12 +94,14 @@ export default function MobileHome() {
             <video
               ref={mobileVidRef}
               autoPlay
+              loop={false}
               muted
               playsInline
               onEnded={handleMobileVideoEnded}
               className="w-full h-full object-cover"
-              src="/videos/hero.mp4"
-            />
+            >
+              <source src="/videos/hero.mp4" type="video/mp4" />
+            </video>
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
           </div>
           <div className="relative z-10 p-6 flex flex-col gap-8 pb-12">
