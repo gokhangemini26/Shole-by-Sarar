@@ -269,7 +269,7 @@ const labels: Record<Locale, Labels> = {
     introRec: "kayıt · bölüm 01 · sholé sizi görüyor",
     introSkip: "atla ↗",
     introLocation: "bir SARAR evi · İstanbul · krl. 1944",
-    introDesc: "içeri adım atın —<br />kapı sizin için açık bırakıldı.",
+    introDesc: "içeriye adım atın,<br />kapımız size her zaman açık.",
     introCue: "◇ iy26 — bölüm 01<br />sholé ✦ misafir ai stilist yönetimiyle",
     introEnter: "atölyeye girin",
   },
