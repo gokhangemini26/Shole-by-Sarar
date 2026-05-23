@@ -189,11 +189,17 @@ export function Hero({
       </div>
 
       <div style={{ position: "relative" }}>
-        <ProductImage
-          src={PRODUCT_IMAGES["hero-coat"]}
-          alt={`SHOLÉ — ${labels.navTailoring}`}
-          ratio="3 / 4"
-        />
+        <div style={{ position: "relative", aspectRatio: "3 / 4", width: "100%", overflow: "hidden", borderRadius: 12, background: "#E8DFCF" }}>
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+          >
+            <source src="/videos/hero.mp4" type="video/mp4" />
+          </video>
+        </div>
         <div
           style={{
             position: "absolute",
