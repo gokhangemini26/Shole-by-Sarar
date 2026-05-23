@@ -119,6 +119,7 @@ export function AIAssistant({
   // After a barge-in we keep dropping incoming chunks until Gemini sends
   // turnComplete — otherwise the ~1 s of in-flight audio still arrives,
   // gets played, and produces the choppy start/stop pattern.
+  const turnActiveRef = useRef(false);
   const suppressUntilTurnRef = useRef(false);
 
   /* ── Logging ───────────────────────────────────────────────────────── */
@@ -321,9 +322,10 @@ export function AIAssistant({
           onLog: pushLog,
           onLevel: (lvl) => setAudioLevel(lvl),
           // Belt-and-braces echo guard: the duck cuts amplitude (and the
-          // VAD probability with it); when AI is playing we additionally
-          // require >0.92 confidence before counting as user speech.
-          isAISpeaking: () => isPlayingRef.current,
+          // VAD probability with it); when AI is playing (or actively streaming
+          // its turn), we require >0.92 confidence before counting as user speech.
+          // This prevents stray noise/echo from interrupting during network underruns.
+          isAISpeaking: () => isPlayingRef.current || turnActiveRef.current,
           aiPlaybackThreshold: 0.92,
           onSpeechStart: () => {
             if (isPlayingRef.current) {
@@ -441,6 +443,9 @@ export function AIAssistant({
         });
       },
       onAudioData: (data) => {
+        // We're receiving audio from the model, so the turn is definitely active.
+        turnActiveRef.current = true;
+        
         // Drop late chunks that arrive after we locally interrupted —
         // server hasn't acknowledged yet but we're already done with
         // this turn. Without this gate the in-flight ~1 s of audio
@@ -456,6 +461,7 @@ export function AIAssistant({
         if (isUser) {
           currentUserTranscriptRef.current += text;
         } else {
+          turnActiveRef.current = true;
           currentBotTranscriptRef.current += text;
         }
 
@@ -475,8 +481,12 @@ export function AIAssistant({
           }
         });
       },
-      onToolCall: handleToolCall,
+      onToolCall: (calls) => {
+        turnActiveRef.current = true;
+        handleToolCall(calls);
+      },
       onInterrupted: () => {
+        turnActiveRef.current = false;
         suppressUntilTurnRef.current = true;
         stopAudio();
 
@@ -492,6 +502,8 @@ export function AIAssistant({
         }
       },
       onTurnComplete: () => {
+        turnActiveRef.current = false;
+        
         if (sessionId) {
           if (currentUserTranscriptRef.current) {
             logChatMessage(sessionId, "user", currentUserTranscriptRef.current);
