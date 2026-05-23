@@ -42,7 +42,7 @@ Free shipping over €200. Made in Istanbul. Sizes XS–XL.`;
 type Msg = { role: "user" | "model"; content: string };
 type LogLine = { ts: string; text: string };
 
-const MAX_LOG_LINES = 200;
+const MAX_LOG_LINES = 1000;
 
 export interface ToolCallHandler {
   (calls: FunctionCall[]): void;
@@ -217,6 +217,7 @@ export function AIAssistant({
       outputChannelCount: [1],
     });
     let lastPriming = true;
+    let turnEndedLocally = false;
     node.port.onmessage = (ev) => {
       const msg = ev.data;
       if (msg && msg.type === "level") {
@@ -225,11 +226,18 @@ export function AIAssistant({
           setIsSpeaking(msg.isPlaying);
         }
         // Detect underruns (priming flipping back on while we've been
-        // streaming) — that's the signal that buffer ran dry mid-turn.
-        if (msg.priming && !lastPriming && !suppressUntilTurnRef.current) {
-          pushLog(`underrun! re-priming jitter buffer (had 0 ms)`);
+        // streaming) — only report mid-turn underruns, not natural
+        // end-of-turn buffer drains.
+        if (msg.priming && !lastPriming && !suppressUntilTurnRef.current && !turnEndedLocally) {
+          pushLog(`underrun! re-priming jitter buffer (had ${Math.round(msg.bufferedMs ?? 0)} ms)`);
+        }
+        // Reset turn-ended flag once we're idle (no audio in buffer)
+        if (msg.priming && msg.bufferedMs <= 0) {
+          turnEndedLocally = false;
         }
         lastPriming = msg.priming;
+      } else if (msg && msg.type === "turn_ended_ack") {
+        turnEndedLocally = true;
       }
     };
     node.connect(ctx.destination);
@@ -434,6 +442,13 @@ export function AIAssistant({
         stopAudio();
       },
       onTurnComplete: () => {
+        // Tell the worklet the turn is done — buffer draining is expected,
+        // and the next turn should use HOT priming (80ms) for fast start.
+        playerNodeRef.current?.port.postMessage({ type: "turn_ended" });
+        // Immediately lift the echo guard so the user can speak without
+        // waiting for the worklet's 50ms polling interval to catch up.
+        isPlayingRef.current = false;
+        setIsSpeaking(false);
         // Server has fully wound down — safe to accept new audio again.
         if (suppressUntilTurnRef.current) {
           pushLog("turn complete — re-enabling audio playback");

@@ -4,21 +4,21 @@
 // Holds a ~6-second ring buffer of Float32 samples at the context's
 // sample rate (we run the parent context at 24 kHz, matching Gemini Live).
 //
-// Jitter buffer behaviour:
-//   - When idle (fillCount === 0) we require PREBUFFER_MS of audio to
-//     accumulate before resuming output. This absorbs Gemini's bursty
-//     chunk delivery so we don't start playing on a near-empty buffer
-//     and then underrun a few ms later.
-//   - Once playing, the buffer can drain freely. If it hits zero we go
-//     back to 'priming' mode silently — no crackle, just a short gap.
+// Dual-mode jitter buffer:
+//   COLD priming (350 ms): After a stop/clear/barge-in. Absorbs Gemini's
+//       bursty recovery delivery so we don't play a near-empty buffer.
+//   HOT priming (80 ms): After a natural end-of-turn drain. The next
+//       response starts with minimal latency — no perceptible gap.
 //
 // Message protocol from the main thread:
 //   { type: 'pcm', data: ArrayBuffer (Int16 little-endian samples) }
-//   { type: 'stop' }   — fade out over ~25 ms then clear buffer
-//   { type: 'clear' }  — instant clear, no fade
+//   { type: 'stop' }        — fade out over ~25 ms then clear buffer
+//   { type: 'clear' }       — instant clear, no fade
+//   { type: 'turn_ended' }  — mark that the current turn is done (buffer
+//                              will drain naturally; don't report underrun)
 //
 // Periodically posts back:
-//   { type: 'level', bufferedMs: number, isPlaying: boolean }
+//   { type: 'level', bufferedMs: number, isPlaying: boolean, priming: boolean }
 class PCMPlayerProcessor extends AudioWorkletProcessor {
   constructor() {
     super();
@@ -29,12 +29,22 @@ class PCMPlayerProcessor extends AudioWorkletProcessor {
     this.writeIdx = 0;
     this.fillCount = 0;
 
-    // Wait until this many samples are buffered before (re)starting
-    // playback. 400 ms @ 24 kHz = 9600 samples. Tuned to absorb
-    // Gemini's bursty delivery (200–800 ms inter-chunk gaps, sometimes
-    // 3+ s during barge-in recovery) without noticeable startup latency.
-    this.prebufferSamples = 9600;
-    this.priming = true; // start in 'wait for prebuffer' mode
+    // ── Dual-mode prebuffer thresholds ────────────────────────────────
+    // COLD: after stop/clear/barge-in — need more buffer to survive the
+    //       burst-then-gap pattern Gemini sends during recovery.
+    this.coldPrebufferSamples = 8400; // 350 ms @ 24 kHz
+    // HOT: after natural end-of-turn drain — the next response's chunks
+    //       arrive in a tight burst, so 80 ms is plenty.
+    this.hotPrebufferSamples  = 1920; //  80 ms @ 24 kHz
+
+    this.prebufferSamples = this.coldPrebufferSamples; // start cold
+    this.priming = true;
+
+    // When true, the current turn's audio is done — buffer draining to
+    // zero is expected and should NOT be reported as an underrun.
+    this.turnEnded = false;
+    // Track whether we were actively playing (had audio) before drain.
+    this.wasPlaying = false;
 
     this.fadeOut = false;
     this.fadeFrames = 0;
@@ -45,6 +55,7 @@ class PCMPlayerProcessor extends AudioWorkletProcessor {
     this.port.onmessage = (ev) => {
       const msg = ev.data;
       if (!msg) return;
+
       if (msg.type === 'pcm' && msg.data) {
         const i16 = new Int16Array(msg.data);
         for (let i = 0; i < i16.length; i++) {
@@ -53,20 +64,22 @@ class PCMPlayerProcessor extends AudioWorkletProcessor {
           this.writeIdx = (this.writeIdx + 1) % this.bufferSize;
           this.fillCount++;
         }
-        // New audio cancels any pending fade-out.
+        // New audio cancels any pending fade-out and clears turn-ended flag.
         this.fadeOut = false;
         this.fadeFrames = 0;
+        this.turnEnded = false;
       } else if (msg.type === 'stop') {
         if (this.fillCount > 0 && !this.priming) {
           this.fadeOut = true;
           this.fadeFrames = 0;
         } else {
-          // Nothing playing — just clear so any tail can't sneak in.
           this.readIdx = 0;
           this.writeIdx = 0;
           this.fillCount = 0;
           this.priming = true;
+          this.prebufferSamples = this.coldPrebufferSamples; // cold after barge-in
         }
+        this.turnEnded = false;
       } else if (msg.type === 'clear') {
         this.readIdx = 0;
         this.writeIdx = 0;
@@ -74,6 +87,12 @@ class PCMPlayerProcessor extends AudioWorkletProcessor {
         this.fadeOut = false;
         this.fadeFrames = 0;
         this.priming = true;
+        this.prebufferSamples = this.coldPrebufferSamples; // cold after clear
+        this.turnEnded = false;
+      } else if (msg.type === 'turn_ended') {
+        // The server has sent turnComplete. When the buffer drains, it's
+        // a natural end — not an underrun. Next turn uses hot priming.
+        this.turnEnded = true;
       }
     };
   }
@@ -82,18 +101,26 @@ class PCMPlayerProcessor extends AudioWorkletProcessor {
     const out = outputs[0] && outputs[0][0];
     if (!out) return true;
 
-    // Exit priming mode when the prebuffer is full.
+    // Exit priming mode when enough audio has accumulated.
     if (this.priming && this.fillCount >= this.prebufferSamples) {
       this.priming = false;
+      this.wasPlaying = true;
     }
 
     for (let i = 0; i < out.length; i++) {
       if (this.priming || this.fillCount === 0) {
         out[i] = 0;
-        if (this.fillCount === 0 && !this.priming) {
-          // Underrun → re-enter priming so the next chunks fill before
-          // we resume, avoiding the next stutter.
+        if (this.fillCount === 0 && !this.priming && this.wasPlaying) {
+          // Buffer drained while we were playing.
           this.priming = true;
+          this.wasPlaying = false;
+          if (this.turnEnded) {
+            // Natural end-of-turn → use HOT priming for the next response.
+            this.prebufferSamples = this.hotPrebufferSamples;
+          } else {
+            // Mid-turn underrun → use COLD priming (more conservative).
+            this.prebufferSamples = this.coldPrebufferSamples;
+          }
         }
         continue;
       }
@@ -102,12 +129,14 @@ class PCMPlayerProcessor extends AudioWorkletProcessor {
       if (this.fadeOut) {
         const t = this.fadeFrames / this.maxFadeFrames;
         if (t >= 1) {
-          // fade done — clear ring buffer, output silence
+          // Fade done — clear ring buffer, output silence.
           this.fillCount = 0;
           this.readIdx = 0;
           this.writeIdx = 0;
           this.fadeOut = false;
           this.priming = true;
+          this.prebufferSamples = this.coldPrebufferSamples; // cold after barge-in fade
+          this.wasPlaying = false;
           sample = 0;
         } else {
           sample *= 1 - t;
