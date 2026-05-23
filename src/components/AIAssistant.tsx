@@ -78,6 +78,9 @@ export function AIAssistant({
   
   const [memoryContext, setMemoryContext] = useState("");
   const [sessionId, setSessionId] = useState<string | null>(null);
+  
+  const currentBotTranscriptRef = useRef("");
+  const currentUserTranscriptRef = useRef("");
 
   useEffect(() => {
     async function initMemory() {
@@ -450,20 +453,21 @@ export function AIAssistant({
         });
       },
       onTranscription: (text, isUser) => {
-        // Log to database
-        if (sessionId) {
-          logChatMessage(sessionId, isUser ? "user" : "model", text);
+        if (isUser) {
+          currentUserTranscriptRef.current += text;
+        } else {
+          currentBotTranscriptRef.current += text;
         }
-        
+
         // Display voice transcripts as text chat bubbles
         setMessages((prev) => {
           const role = isUser ? "user" : "model";
           const lastMsg = prev[prev.length - 1];
           
           if (lastMsg && lastMsg.role === role) {
-            // Overwrite current turn (handles running/interim transcripts cleanly)
+            // Append chunks to current turn
             const updated = [...prev];
-            updated[updated.length - 1] = { ...lastMsg, content: text };
+            updated[updated.length - 1] = { ...lastMsg, content: lastMsg.content + text };
             return updated;
           } else {
             // Start a new message bubble
@@ -475,8 +479,30 @@ export function AIAssistant({
       onInterrupted: () => {
         suppressUntilTurnRef.current = true;
         stopAudio();
+
+        if (sessionId) {
+          if (currentUserTranscriptRef.current) {
+            logChatMessage(sessionId, "user", currentUserTranscriptRef.current);
+            currentUserTranscriptRef.current = "";
+          }
+          if (currentBotTranscriptRef.current) {
+            logChatMessage(sessionId, "model", currentBotTranscriptRef.current + " [interrupted]");
+            currentBotTranscriptRef.current = "";
+          }
+        }
       },
       onTurnComplete: () => {
+        if (sessionId) {
+          if (currentUserTranscriptRef.current) {
+            logChatMessage(sessionId, "user", currentUserTranscriptRef.current);
+            currentUserTranscriptRef.current = "";
+          }
+          if (currentBotTranscriptRef.current) {
+            logChatMessage(sessionId, "model", currentBotTranscriptRef.current);
+            currentBotTranscriptRef.current = "";
+          }
+        }
+        
         // Tell the worklet the turn is done — buffer draining is expected,
         // and the next turn should use HOT priming (80ms) for fast start.
         playerNodeRef.current?.port.postMessage({ type: "turn_ended" });
