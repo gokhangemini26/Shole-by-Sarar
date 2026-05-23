@@ -125,6 +125,9 @@ export function AIAssistant({
   // gets played, and produces the choppy start/stop pattern.
   const turnActiveRef = useRef(false);
   const suppressUntilTurnRef = useRef(false);
+  // Safety valve: if audio playback stops but turnComplete never arrives,
+  // release the echo guard after 1.5 s so the user's mic isn't blocked.
+  const echoGuardTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   /* ── Logging ───────────────────────────────────────────────────────── */
   const pushLog = useCallback((text: string) => {
@@ -253,8 +256,28 @@ export function AIAssistant({
       const msg = ev.data;
       if (msg && msg.type === "level") {
         if (msg.isPlaying !== isPlayingRef.current) {
+          const wasPlaying = isPlayingRef.current;
           isPlayingRef.current = msg.isPlaying;
           setIsSpeaking(msg.isPlaying);
+
+          // Audio just stopped but turn hasn't completed yet —
+          // start a safety timer to release the echo guard.
+          if (wasPlaying && !msg.isPlaying && turnActiveRef.current) {
+            if (echoGuardTimerRef.current) clearTimeout(echoGuardTimerRef.current);
+            echoGuardTimerRef.current = setTimeout(() => {
+              if (!isPlayingRef.current && turnActiveRef.current) {
+                pushLog("echo guard safety release (no turnComplete after 1.5 s)");
+                turnActiveRef.current = false;
+                setIsTurnActive(false);
+              }
+              echoGuardTimerRef.current = null;
+            }, 1500);
+          }
+          // New audio arrived — cancel any pending safety release.
+          if (!wasPlaying && msg.isPlaying && echoGuardTimerRef.current) {
+            clearTimeout(echoGuardTimerRef.current);
+            echoGuardTimerRef.current = null;
+          }
         }
         // Detect underruns (priming flipping back on while we've been
         // streaming) — only report mid-turn underruns, not natural
@@ -331,7 +354,10 @@ export function AIAssistant({
           // VAD probability with it); when AI is playing (or actively streaming
           // its turn), we require >0.92 confidence before counting as user speech.
           // This prevents stray noise/echo from interrupting during network underruns.
-          isAISpeaking: () => isPlayingRef.current || turnActiveRef.current,
+          // Only gate on actual audio output — NOT turnActiveRef. Once
+          // the speaker stops, there's no echo to guard against even if
+          // the server hasn't sent turnComplete yet.
+          isAISpeaking: () => isPlayingRef.current,
           aiPlaybackThreshold: 0.92,
           onSpeechStart: () => {
             if (isPlayingRef.current) {
