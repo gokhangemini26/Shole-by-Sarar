@@ -1485,8 +1485,145 @@ Rüzgar kanadı sadece dekoratif değildir — gerçekten çalışır. İstanbul
     ],
     sizes: ["S", "M", "L"],
     pairsWith: [{ slug: "wide-trouser", name: "Wide Atelier Trouser" }, { slug: "silk-slip-dress", name: "Silk Slip Dress" }, { slug: "pointed-flat", name: "Square-Toe Leather Flat" }]
+  },
+  {
+    slug: "executive-navy-blazer",
+    name: "The Executive Blazer",
+    name_tr: "Executive Navy Ceket",
+    subtitle: "navy wool · tailored fit",
+    subtitle_tr: "gece mavisi yün · tailored kesim",
+    price: "€ 750",
+    category: "tailoring",
+    tag: "business",
+    image: "/images/products/navy-blazer.png",
+    detailImage: "/images/products/navy-blazer-detail.png",
+    story: `A blazer that commands the room without shouting. The Executive Blazer was built for the days when you need absolute confidence. Cut from a premium navy wool blend, it offers a slight stretch for comfort through long meetings while maintaining a razor-sharp silhouette.\n\nThe single horn button and structural shoulder are nods to classic tailoring, updated with a modern, slightly elongated profile. Wear it over the Soft Rules Shirt for a boardroom-ready look, or draped over the Silk Slip Dress for evening transitions.`,
+    story_tr: `Bağırmadan odaya hakim olan bir ceket. Executive Navy Ceket, mutlak özgüvene ihtiyaç duyduğunuz günler için tasarlandı. Birinci sınıf gece mavisi yün karışımından kesilen kumaşı, keskin siluetini korurken uzun toplantılar boyunca rahatlık için hafif bir esneklik sunar.\n\nTek kemik düğme ve yapılı omuz, klasik terziliğe gönderme yaparken, modern ve biraz uzatılmış profili ile güncellendi. Toplantı salonuna hazır bir görünüm için Soft Rules Gömlek üzerine giyin veya akşam geçişleri için İpek Slip Elbise üzerine atın.`,
+    fabric: [
+      { name: "Merino Wool", percentage: 95 },
+      { name: "Elastane", percentage: 5 },
+    ],
+    details: [
+      "Tailored fit with structured shoulders",
+      "Single horn button closure",
+      "Flap pockets, hand-finished",
+      "Fully lined in breathable cupro",
+      "Single back vent for movement",
+      "Premium navy wool — 260gsm"
+    ],
+    details_tr: [
+      "Yapılı omuzlarla tailored (özel dikim) kesim",
+      "Tek kemik düğmeli ön kapama",
+      "El işçiliğiyle tamamlanmış kapaklı cepler",
+      "Nefes alabilen kupro tam astar",
+      "Hareket için tek arka yırtmaç",
+      "Birinci sınıf gece mavisi yün — 260gsm"
+    ],
+    care: ["Dry clean only", "Store on padded hanger", "Steam to refresh", "Avoid direct heat"],
+    care_tr: [
+      "Sadece kuru temizleme",
+      "Dolgulu askıda saklayın",
+      "Tazelemek için buhar uygulayın",
+      "Doğrudan ısıdan kaçının"
+    ],
+    sizes: ["XS", "S", "M", "L", "XL"],
+    pairsWith: [
+      { slug: "navy-tailored-trouser", name: "Navy Tailored Trouser" },
+      { slug: "soft-rules-shirt", name: "Soft Rules Shirt" },
+      { slug: "mule-no4", name: "Mule No. 4" },
+    ],
+  },
+  {
+    slug: "navy-tailored-trouser",
+    name: "Navy Tailored Trouser",
+    name_tr: "Gece Mavisi Tailored Pantolon",
+    subtitle: "navy wool · high waist · straight leg",
+    subtitle_tr: "gece mavisi yün · yüksek bel · düz paça",
+    price: "€ 420",
+    category: "tailoring",
+    tag: "business",
+    image: "/images/products/navy-trousers.png",
+    detailImage: "/images/products/navy-trousers-detail.png",
+    story: `The definitive business trouser. We took the high waist of our beloved Wide Trouser and gave it a sharper, straighter leg for the office. The deep navy wool matches the Executive Blazer perfectly, creating a suiting option that feels both authoritative and modern.\n\nThe sharp center crease is permanent, engineered to stay crisp even after international flights. The fabric offers just enough give to be comfortable sitting at a desk all day, while the clean drape visually elongates the leg.`,
+    story_tr: `Nihai iş pantolonu. Sevdiğimiz Wide Trouser'ın yüksek belini alıp, ofis için daha keskin, daha düz bir paça ile yeniden yorumladık. Derin gece mavisi yünü, Executive Ceket ile mükemmel uyum sağlayarak hem otoriter hem de modern hissettiren bir takım elbise seçeneği oluşturur.\n\nKeskin ön ütü çizgisi kalıcıdır, uluslararası uçuşlardan sonra bile net kalması için tasarlanmıştır. Kumaş, tüm gün masada otururken rahat olmanız için tam kıvamında bir esneklik sunarken, temiz dökümü bacak boyunu görsel olarak uzatır.`,
+    fabric: [
+      { name: "Merino Wool", percentage: 95 },
+      { name: "Elastane", percentage: 5 },
+    ],
+    details: [
+      "High waist with clean waistband",
+      "Straight leg with permanent center crease",
+      "Concealed side zip closure",
+      "Matching fabric to Executive Blazer",
+      "Two back welt pockets",
+      "Wrinkle-resistant wool blend"
+    ],
+    details_tr: [
+      "Temiz bel kemerli yüksek bel",
+      "Kalıcı ütü çizgili düz paça",
+      "Gizli yan fermuar kapama",
+      "Executive Ceket ile takım kumaş",
+      "İki arka fileto cep",
+      "Kırışmaya dayanıklı yün karışımı"
+    ],
+    care: ["Dry clean recommended", "Hang on trouser hanger", "Press with pressing cloth"],
+    care_tr: [
+      "Kuru temizleme önerilir",
+      "Pantolon askısında asın",
+      "Ütü bezi kullanarak ütüleyin"
+    ],
+    sizes: ["XS", "S", "M", "L", "XL"],
+    pairsWith: [
+      { slug: "executive-navy-blazer", name: "The Executive Blazer" },
+      { slug: "soft-rules-shirt", name: "Soft Rules Shirt" },
+      { slug: "mule-no4", name: "Mule No. 4" },
+    ],
+  },
+  {
+    slug: "briefcase-tote",
+    name: "The Briefcase Tote",
+    name_tr: "Yapılı Ofis Çantası",
+    subtitle: "espresso leather · structured · fits 15\" laptop",
+    subtitle_tr: "espresso deri · formunu koruyan · 15\" laptop sığar",
+    price: "€ 580",
+    category: "accessories",
+    tag: "business",
+    image: "/images/products/briefcase-tote.png",
+    detailImage: "/images/products/briefcase-tote-detail.png",
+    story: `When a standard tote is too relaxed, and a traditional briefcase is too stiff, there is the Briefcase Tote. Cut from the same espresso vegetable-tanned leather as our Mule No. 4, it's designed to bring structure and professionalism to your daily carry.\n\nThe minimalist exterior features zero visible hardware, letting the quality of the Izmir-sourced leather speak for itself. It stands on its own thanks to a reinforced base, and the interior is perfectly proportioned to hold a 15" laptop, a notebook, and your essentials without bulging.`,
+    story_tr: `Standart bir bez çanta çok rahat, geleneksel bir evrak çantası ise çok sert olduğunda, devreye Briefcase Tote girer. Mule No. 4'ümüzle aynı espresso bitkisel tabaklanmış deriden kesilen bu çanta, günlük taşımalarınıza yapı ve profesyonellik kazandırmak için tasarlandı.\n\nMinimalist dış yüzeyinde hiçbir görünür metal aksesuar yoktur, bu da İzmir kaynaklı derinin kalitesinin kendi adına konuşmasına izin verir. Güçlendirilmiş tabanı sayesinde kendi başına dik durabilir; iç hacmi ise 15 inçlik bir dizüstü bilgisayarı, bir defteri ve temel eşyalarınızı şişkinlik yapmadan alacak şekilde mükemmel orantılanmıştır.`,
+    fabric: [
+      { name: "Full-Grain Leather", percentage: 100 },
+    ],
+    details: [
+      "Structured silhouette — stands on its own",
+      "Fits up to 15\" laptop securely",
+      "Vegetable-tanned espresso leather",
+      "No visible hardware for minimalist look",
+      "Sturdy top handles",
+      "Izmir tannery — 3rd generation"
+    ],
+    details_tr: [
+      "Yapılı siluet — kendi başına dik durur",
+      "15 inç'e kadar laptop sığar",
+      "Bitkisel tabaklanmış espresso deri",
+      "Minimalist görünüm için gizli donanım",
+      "Dayanıklı üst taşıma sapları",
+      "İzmir tabakhanesi — 3. kuşak"
+    ],
+    care: ["Condition with leather balm quarterly", "Stuff with tissue when not in use", "Keep away from prolonged direct sunlight"],
+    care_tr: [
+      "Üç ayda bir deri kremi ile besleyin",
+      "Kullanılmadığında kağıt ile doldurun",
+      "Uzun süre doğrudan güneş ışığından koruyun"
+    ],
+    sizes: ["One Size"],
+    pairsWith: [
+      { slug: "executive-navy-blazer", name: "The Executive Blazer" },
+      { slug: "navy-tailored-trouser", name: "Navy Tailored Trouser" },
+      { slug: "mule-no4", name: "Mule No. 4" },
+    ],
   }
-
 ];
 
 export function getProduct(slug: string): Product | undefined {
