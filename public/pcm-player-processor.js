@@ -32,10 +32,10 @@ class PCMPlayerProcessor extends AudioWorkletProcessor {
     // ── Dual-mode prebuffer thresholds ────────────────────────────────
     // COLD: after stop/clear/barge-in — need more buffer to survive the
     //       burst-then-gap pattern Gemini sends during recovery.
-    this.coldPrebufferSamples = 9600; // 400 ms @ 24 kHz
+    this.coldPrebufferSamples = 14400; // 600 ms @ 24 kHz
     // HOT: after natural end-of-turn drain — the next response's chunks
     //       arrive in a tight burst, but can still have 100-200ms gaps.
-    this.hotPrebufferSamples  = 4800; // 200 ms @ 24 kHz
+    this.hotPrebufferSamples  = 7200; // 300 ms @ 24 kHz
 
     this.prebufferSamples = this.coldPrebufferSamples; // start cold
     this.priming = true;

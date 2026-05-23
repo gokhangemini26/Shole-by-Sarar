@@ -62,8 +62,8 @@ export async function startVADMic(
   cfg: VADMicConfig
 ): Promise<VADMicHandle> {
   const log = cfg.onLog ?? (() => {});
-  const positiveSpeechThreshold = cfg.positiveSpeechThreshold ?? 0.4;
-  const negativeSpeechThreshold = cfg.negativeSpeechThreshold ?? 0.25;
+  const positiveSpeechThreshold = cfg.positiveSpeechThreshold ?? 0.7;
+  const negativeSpeechThreshold = cfg.negativeSpeechThreshold ?? 0.4;
   // Tighter than positive threshold — only confidently human voice should
   // bypass the echo gate while AI is talking.
   const aiPlaybackThreshold = cfg.aiPlaybackThreshold ?? 0.95;
