@@ -715,160 +715,128 @@ export function AIAssistant({
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 50 }}
-      className="fixed bottom-6 right-6 w-full max-w-[440px] max-h-[85vh] flex flex-col bg-white border border-gray-200 shadow-2xl rounded-[32px] overflow-hidden z-[100]"
+      className="fixed bottom-0 left-0 right-0 w-full md:bottom-6 md:left-1/2 md:-translate-x-1/2 md:w-[760px] h-auto max-h-[25vh] md:max-h-[20vh] flex flex-col bg-white/50 backdrop-blur-2xl border-t md:border border-white/50 shadow-2xl md:rounded-[32px] overflow-hidden z-[100]"
     >
-      {/* Header */}
-      <div className="flex items-center justify-between px-6 py-5 border-b bg-black text-white">
-        <div className="flex items-center gap-3">
+      {/* Voice key warning */}
+      {!hasVoiceKey && (
+        <div className="bg-amber-500/90 text-white px-4 py-1 text-[10px] text-center">
+          Voice mode disabled: NEXT_PUBLIC_GEMINI_API_KEY is not set. Text chat works.
+        </div>
+      )}
+
+      {/* Debug log panel (Hidden on Mobile) */}
+      {showLog && (
+        <div className="hidden md:block bg-black/80 backdrop-blur-md text-green-400 font-mono text-[10px] px-3 py-2 max-h-[100px] overflow-y-auto border-b border-green-900/50">
+          <div className="flex justify-between items-center mb-1 sticky top-0 bg-transparent pb-1">
+            <span className="text-green-300 font-bold">activity log ({logs.length})</span>
+            <button onClick={() => setLogs([])} className="text-green-300 hover:text-white text-[9px]">clear</button>
+          </div>
+          <div ref={logScrollRef}>
+            {logs.length === 0 && <div className="text-green-700">no activity yet...</div>}
+            {logs.map((l, i) => <div key={i}><span className="text-green-700">{l.ts}</span> {l.text}</div>)}
+          </div>
+        </div>
+      )}
+
+      {/* Messages / Horizontal Flow */}
+      <div className="flex-1 overflow-hidden flex flex-col relative bg-transparent min-h-[60px]">
+        {isLive && isSpeaking && (
+          <button
+            onClick={interruptNow}
+            className="absolute top-1 left-1/2 -translate-x-1/2 z-10 bg-black/80 text-white text-[10px] px-3 py-1 rounded-full shadow-lg flex items-center gap-1.5 hover:bg-black transition-colors animate-pulse"
+          >
+            <span className="w-1.5 h-1.5 bg-red-400 rounded-full" />
+            interrupt
+          </button>
+        )}
+        <div ref={chatScrollRef} className="flex-1 overflow-y-auto px-4 py-2 space-y-2 no-scrollbar flex flex-col justify-end">
+          {messages.slice(-3).map((m, i) => (
+            <div
+              key={i}
+              className={`max-w-[90%] rounded-2xl px-3 py-1.5 text-xs whitespace-pre-wrap shadow-sm backdrop-blur-md ${
+                m.role === "user"
+                  ? "bg-black/80 text-white ml-auto"
+                  : "bg-white/80 border border-white/40 text-black"
+              }`}
+            >
+              {m.content || (isLoading && i === messages.slice(-3).length - 1 ? "…" : "")}
+            </div>
+          ))}
+          {isLoading && messages[messages.length - 1]?.role === "user" && (
+            <div className="flex gap-1 p-2">
+              <div className="w-1.5 h-1.5 bg-black/40 rounded-full animate-bounce" />
+              <div className="w-1.5 h-1.5 bg-black/40 rounded-full animate-bounce [animation-delay:0.2s]" />
+              <div className="w-1.5 h-1.5 bg-black/40 rounded-full animate-bounce [animation-delay:0.4s]" />
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Footer / Input Bar */}
+      <div className="p-3 bg-white/40 border-t border-white/30 flex items-center gap-2 backdrop-blur-3xl">
+        {/* Status Indicator */}
+        <div className="hidden md:flex flex-col justify-center items-center mr-2">
           <div
-            className="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center font-bold transition-transform"
+            className="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center font-bold transition-transform"
             style={{ transform: isLive ? `scale(${1 + audioLevel * 0.2})` : "none" }}
           >
             S
           </div>
-          <div>
-            <h3 className="font-bold text-sm">SHOLÉ Personal Shopper</h3>
-            <p className="text-[10px] text-gray-400 uppercase tracking-widest">
-              {statusText}
-            </p>
-          </div>
         </div>
-        <div className="flex items-center gap-2">
+
+        <button
+          onClick={toggleVoice}
+          className={`w-10 h-10 shrink-0 rounded-full flex items-center justify-center transition-all shadow-sm ${
+            isLive
+              ? "bg-red-500 text-white animate-pulse shadow-red-500/30"
+              : isConnecting
+              ? "bg-amber-400 text-white"
+              : "bg-black text-white"
+          }`}
+        >
+          {isLive ? <MicOff size={16} /> : <Mic size={16} />}
+        </button>
+
+        <div className="flex-1 flex items-center gap-2 bg-white/60 rounded-full px-4 py-1.5 border border-white/50 focus-within:border-black/20 focus-within:bg-white/80 transition-all shadow-inner">
+          <input
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+            placeholder={isLive 
+              ? (locale === "tr" ? "ses aktif · veya yazın" : "voice live · or type") 
+              : labels.askShole + "..."}
+            className="flex-1 bg-transparent border-none focus:ring-0 text-sm py-1 outline-none text-black placeholder-black/50"
+            disabled={isLoading}
+          />
+          <button
+            onClick={() => sendMessage()}
+            disabled={isLoading || !input.trim()}
+            className="text-black disabled:opacity-30"
+          >
+            <Send size={16} />
+          </button>
+        </div>
+
+        {/* Controls */}
+        <div className="flex items-center gap-1 shrink-0 ml-1">
           <button
             onClick={() => setShowLog((v) => !v)}
             title="Activity log"
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-colors border ${
+            className={`hidden md:flex items-center gap-1 px-2 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-wider transition-colors border ${
               showLog
                 ? "bg-emerald-400 text-black border-emerald-400"
-                : "bg-white/10 text-white border-white/20 hover:bg-white/20"
+                : "bg-white/30 text-black/70 border-white/40 hover:bg-white/50"
             }`}
           >
             <Terminal size={12} />
-            LOG
           </button>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-white/10 rounded-full transition-colors"
+            className="p-2 hover:bg-black/10 rounded-full transition-colors text-black/70"
           >
-            <X size={20} />
+            <X size={18} />
           </button>
-        </div>
-      </div>
-
-      {/* Voice key warning */}
-      {!hasVoiceKey && (
-        <div className="bg-amber-50 border-b border-amber-200 px-4 py-2 flex items-start gap-2">
-          <AlertTriangle size={14} className="text-amber-700 flex-shrink-0 mt-0.5" />
-          <div className="text-[11px] text-amber-900 leading-snug">
-            Voice mode disabled: <code>NEXT_PUBLIC_GEMINI_API_KEY</code> is not set on this deployment.
-            Text chat works. Add the env var in Vercel → Project Settings → Environment Variables and redeploy.
-          </div>
-        </div>
-      )}
-
-      {/* Debug log panel */}
-      {showLog && (
-        <div className="bg-black text-green-400 font-mono text-[10px] px-3 py-2 max-h-[160px] overflow-y-auto border-b border-green-900">
-          <div className="flex justify-between items-center mb-1 sticky top-0 bg-black pb-1">
-            <span className="text-green-300 font-bold">activity log ({logs.length})</span>
-            <button
-              onClick={() => setLogs([])}
-              className="text-green-300 hover:text-white text-[9px]"
-            >
-              clear
-            </button>
-          </div>
-          <div ref={logScrollRef}>
-            {logs.length === 0 && (
-              <div className="text-green-700">no activity yet — interact with the assistant.</div>
-            )}
-            {logs.map((l, i) => (
-              <div key={i}>
-                <span className="text-green-700">{l.ts}</span> {l.text}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Live mode hint — once, when voice is open */}
-      {isLive && !isSpeaking && (
-        <div className="bg-emerald-50 border-b border-emerald-200 px-4 py-1.5 text-[10px] text-emerald-900 text-center">
-          ✦ tip: use headphones for the cleanest barge-in (mic stays open while SHOLÉ speaks)
-        </div>
-      )}
-
-      {/* Messages */}
-      <div className="flex-1 overflow-hidden flex flex-col bg-gray-50/50 relative">
-        {isLive && isSpeaking && (
-          <button
-            onClick={interruptNow}
-            className="absolute top-2 left-1/2 -translate-x-1/2 z-10 bg-black text-white text-[11px] px-3 py-1.5 rounded-full shadow-lg flex items-center gap-2 hover:bg-gray-800 transition-colors animate-pulse"
-          >
-            <span className="w-1.5 h-1.5 bg-red-400 rounded-full" />
-            tap to interrupt
-          </button>
-        )}
-        <div ref={chatScrollRef} className="flex-1 overflow-y-auto p-6 space-y-4">
-          {messages.map((m, i) => (
-            <div
-              key={i}
-              className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm whitespace-pre-wrap ${
-                m.role === "user"
-                  ? "bg-black text-white ml-auto"
-                  : "bg-white border shadow-sm"
-              }`}
-            >
-              {m.content || (isLoading && i === messages.length - 1 ? "…" : "")}
-            </div>
-          ))}
-          {isLoading &&
-            messages[messages.length - 1]?.role === "user" && (
-              <div className="flex gap-1 p-2">
-                <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" />
-                <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:0.2s]" />
-                <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:0.4s]" />
-              </div>
-            )}
-        </div>
-      </div>
-
-      {/* Footer */}
-      <div className="p-4 bg-white border-t">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={toggleVoice}
-            className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${
-              isLive
-                ? "bg-red-500 text-white animate-pulse"
-                : isConnecting
-                ? "bg-amber-400 text-white"
-                : "bg-black text-white"
-            }`}
-          >
-            {isLive ? <MicOff size={20} /> : <Mic size={20} />}
-          </button>
-
-          <div className="flex-1 flex items-center gap-2 bg-gray-100 rounded-full px-4 py-2 border border-transparent focus-within:border-black transition-all">
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-              placeholder={isLive 
-                ? (locale === "tr" ? "ses aktif · veya yazın" : "voice live · or type") 
-                : labels.askShole + "..."}
-              className="flex-1 bg-transparent border-none focus:ring-0 text-sm py-1 outline-none"
-              disabled={isLoading}
-            />
-            <button
-              onClick={() => sendMessage()}
-              disabled={isLoading || !input.trim()}
-              className="text-black disabled:opacity-30"
-            >
-              <Send size={18} />
-            </button>
-          </div>
         </div>
       </div>
     </motion.div>
