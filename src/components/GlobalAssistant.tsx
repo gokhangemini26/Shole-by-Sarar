@@ -66,6 +66,10 @@ export function GlobalAssistant() {
           const category = asStr(call.args.category);
           if (VALID_CATEGORIES.has(category)) {
             router.push(`/${category}`);
+            // Smoothly scroll down after a short delay so the user sees the products
+            setTimeout(() => {
+              window.scrollBy({ top: window.innerHeight * 0.4, behavior: "smooth" });
+            }, 800);
           } else {
             console.warn(`[SHOLÉ] invalid category: "${category}"`);
           }
@@ -75,6 +79,9 @@ export function GlobalAssistant() {
           const productId = asStr(call.args.product_id);
           if (VALID_SLUGS.has(productId)) {
             router.push(`/product/${productId}`);
+            setTimeout(() => {
+              window.scrollBy({ top: window.innerHeight * 0.4, behavior: "smooth" });
+            }, 800);
           } else {
             console.warn(
               `[SHOLÉ] hallucinated product slug ignored: "${productId}"`
@@ -93,6 +100,9 @@ export function GlobalAssistant() {
               .replace(/[^a-z0-9-]/g, "");
             if (first && VALID_SLUGS.has(first)) {
               router.push(`/product/${first}`);
+              setTimeout(() => {
+                window.scrollBy({ top: window.innerHeight * 0.4, behavior: "smooth" });
+              }, 800);
             } else {
               console.warn(
                 `[SHOLÉ] outfit hero piece "${first}" not in catalog`
