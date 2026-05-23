@@ -22,7 +22,8 @@ export default function MobileHome() {
     { label: locale === "tr" ? "Terzilik" : "Tailoring", slug: "tailoring" },
     { label: locale === "tr" ? "Aksesuar" : "Accessories", slug: "accessories" },
     { label: locale === "tr" ? "Ayakkabı" : "Shoes", slug: "shoes" },
-    { label: locale === "tr" ? "Dergi" : "Journal", slug: "journal" }
+    { label: locale === "tr" ? "Dergi" : "Journal", slug: "journal" },
+    { label: labels.account, slug: "login" }
   ];
 
   return (

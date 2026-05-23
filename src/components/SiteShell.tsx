@@ -3,6 +3,7 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { Menu, X } from "lucide-react";
 import { TYPE, Palette } from "@/lib/design";
 import { getLabels } from "@/lib/i18n";
 import { useLocale } from "@/lib/LocaleContext";
@@ -196,6 +197,7 @@ export function Nav({
   const { locale, setLocale } = useLocale();
   const labels = getLabels(locale);
   const [scrolled, setScrolled] = React.useState(false);
+  const [menuOpen, setMenuOpen] = React.useState(false);
   
   React.useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -230,6 +232,31 @@ export function Nav({
         transition: "all 0.3s ease",
       }}
     >
+      {/* Mobile Drawer */}
+      {menuOpen && (
+        <div style={{ position: "fixed", inset: 0, background: palette.bg, zIndex: 110, padding: "24px", overflowY: "auto", display: "flex", flexDirection: "column" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 48 }}>
+            <span style={{ fontFamily: TYPE.display, fontSize: 24, letterSpacing: "0.18em", color: palette.ink }}>SHOLÉ</span>
+            <button onClick={() => setMenuOpen(false)} style={{ background: "transparent", border: 0, color: palette.ink, cursor: "pointer", padding: 8 }}>
+              <X size={24} />
+            </button>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+            <a style={{...linkStyle, fontSize: 28}} onClick={() => { setMenuOpen(false); router.push("/women"); }}>{labels.navWomen}</a>
+            <a style={{...linkStyle, fontSize: 28}} onClick={() => { setMenuOpen(false); router.push("/accessories"); }}>{labels.navAccessories}</a>
+            <a style={{...linkStyle, fontSize: 28}} onClick={() => { setMenuOpen(false); router.push("/shoes"); }}>{labels.navShoes}</a>
+            <a style={{...linkStyle, fontSize: 28}} onClick={() => { setMenuOpen(false); router.push("/tailoring"); }}>{labels.navTailoring}</a>
+            <a style={{...linkStyle, fontSize: 28}} onClick={() => { setMenuOpen(false); router.push("/journal"); }}>{labels.navJournal}</a>
+            <div style={{ height: 1, background: palette.line, margin: "16px 0" }}></div>
+            <Link href="/login" style={{...linkStyle, fontSize: 20}} onClick={() => setMenuOpen(false)}>{labels.account}</Link>
+          </div>
+          <div style={{ marginTop: "auto", display: "flex", gap: 16, paddingTop: 40 }}>
+             <button onClick={() => { setMenuOpen(false); setLocale("en"); }} style={{ ...linkStyle, border: 0, background: "transparent", opacity: locale === "en" ? 1 : 0.4, fontWeight: locale === "en" ? 700 : 400 }}>EN</button>
+             <button onClick={() => { setMenuOpen(false); setLocale("tr"); }} style={{ ...linkStyle, border: 0, background: "transparent", opacity: locale === "tr" ? 1 : 0.4, fontWeight: locale === "tr" ? 700 : 400 }}>TR</button>
+          </div>
+        </div>
+      )}
+
       <div
         style={{
           maxWidth: 1480,
@@ -241,7 +268,17 @@ export function Nav({
           gap: 24,
         }}
       >
-        <nav className="hide-mobile" style={{ display: "flex", gap: 28, alignItems: "center" }}>
+        <div style={{ display: "flex", gap: 28, alignItems: "center" }}>
+          {/* Mobile hamburger icon */}
+          <button 
+            className="hide-desktop"
+            onClick={() => setMenuOpen(true)}
+            style={{ background: "transparent", border: 0, color: palette.ink, cursor: "pointer", padding: 0, display: "flex" }}
+          >
+            <Menu size={24} />
+          </button>
+          
+          <nav className="hide-mobile" style={{ display: "flex", gap: 28, alignItems: "center" }}>
           <a style={linkStyle} onClick={() => router.push("/women")}>{labels.navWomen}</a>
           <a style={linkStyle} onClick={() => router.push("/accessories")}>{labels.navAccessories}</a>
           <a style={linkStyle} onClick={() => router.push("/shoes")}>{labels.navShoes}</a>
@@ -260,6 +297,7 @@ export function Nav({
             >TR</button>
           </div>
         </nav>
+        </div>
 
         <a
           onClick={() => router.push("/")}
