@@ -236,7 +236,10 @@ export function Nav({
       {menuOpen && (
         <div style={{ position: "fixed", inset: 0, background: palette.bg, zIndex: 110, padding: "24px", overflowY: "auto", display: "flex", flexDirection: "column" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 48 }}>
-            <span style={{ fontFamily: TYPE.display, fontSize: 24, letterSpacing: "0.18em", color: palette.ink }}>SHOLÉ</span>
+            <span style={{ fontFamily: TYPE.display, fontSize: 24, letterSpacing: "0.18em", color: palette.ink }}>
+              SHOLÉ
+              <span style={{ fontFamily: TYPE.mono, fontSize: 11, marginLeft: 6, verticalAlign: "super", opacity: 0.5, letterSpacing: "normal" }}>by SARAR</span>
+            </span>
             <button onClick={() => setMenuOpen(false)} style={{ background: "transparent", border: 0, color: palette.ink, cursor: "pointer", padding: 8 }}>
               <X size={24} />
             </button>
@@ -316,10 +319,11 @@ export function Nav({
           <span
             style={{
               fontFamily: TYPE.mono,
-              fontSize: 9,
-              marginLeft: 4,
+              fontSize: 12,
+              marginLeft: 6,
               verticalAlign: "super",
               color: palette.muted,
+              letterSpacing: "normal",
             }}
           >
             by SARAR
