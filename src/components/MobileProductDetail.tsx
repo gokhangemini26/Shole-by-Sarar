@@ -45,16 +45,18 @@ export default function MobileProductDetail() {
   useEffect(() => {
     if (isTour && product) {
       const seq = async () => {
-        await new Promise((r) => setTimeout(r, 800));
-        window.scrollTo({ top: 0, behavior: "smooth" }); // 1. Image
-        await new Promise((r) => setTimeout(r, 3000));
+        // 1. Once resmi gostersin
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        await new Promise((r) => setTimeout(r, 1500));
         
-        const detailsEl = document.getElementById("product-details");
-        if (detailsEl) detailsEl.scrollIntoView({ behavior: "smooth", block: "start" }); // 2. Details
-        await new Promise((r) => setTimeout(r, 3000));
+        // 2. Sayfanin altina insin
+        window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
         
-        const sizesEl = document.getElementById("product-sizes");
-        if (sizesEl) sizesEl.scrollIntoView({ behavior: "smooth", block: "center" }); // 3. Sizes
+        // 3. 2 sn beklesin
+        await new Promise((r) => setTimeout(r, 2000));
+        
+        // 4. Resme donsun
+        window.scrollTo({ top: 0, behavior: "smooth" });
       };
       seq();
     }
