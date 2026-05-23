@@ -141,7 +141,7 @@ export class GeminiLiveClient {
       config: {
         responseModalities: [Modality.AUDIO],
         speechConfig: {
-          voiceConfig: { prebuiltVoiceConfig: { voiceName: "Zephyr" } },
+          voiceConfig: { prebuiltVoiceConfig: { voiceName: "Puck" } },
         },
         systemInstruction:
           this.config.systemInstruction || "You are a helpful assistant.",
