@@ -445,10 +445,6 @@ export function AIAssistant({
         // Tell the worklet the turn is done — buffer draining is expected,
         // and the next turn should use HOT priming (80ms) for fast start.
         playerNodeRef.current?.port.postMessage({ type: "turn_ended" });
-        // Immediately lift the echo guard so the user can speak without
-        // waiting for the worklet's 50ms polling interval to catch up.
-        isPlayingRef.current = false;
-        setIsSpeaking(false);
         // Server has fully wound down — safe to accept new audio again.
         if (suppressUntilTurnRef.current) {
           pushLog("turn complete — re-enabling audio playback");

@@ -18,6 +18,31 @@ const VALID_CATEGORIES = new Set([
 import { useLocale } from "@/lib/LocaleContext";
 import { getLabels } from "@/lib/i18n";
 
+// A cinematic, slow scroll function to gently reveal the page contents
+function slowScrollDown() {
+  // Try to find the main content area to scroll to, otherwise scroll 60vh
+  const distance = Math.min(window.innerHeight * 0.6, 600);
+  const duration = 2500; // 2.5 seconds for a very slow, elegant scroll
+  const start = window.scrollY;
+  const startTime = performance.now();
+  
+  function step(time: number) {
+    const elapsed = time - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    // Cubic ease-in-out
+    const ease = progress < 0.5 
+      ? 4 * progress * progress * progress 
+      : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+      
+    window.scrollTo(0, start + distance * ease);
+    
+    if (progress < 1) {
+      window.requestAnimationFrame(step);
+    }
+  }
+  window.requestAnimationFrame(step);
+}
+
 export function GlobalAssistant() {
   const [aiOpen, setAiOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -44,44 +69,50 @@ export function GlobalAssistant() {
   const handleToolCall = useCallback(
     (calls: FunctionCall[]) => {
       const asStr = (v: unknown) => (typeof v === "string" ? v : "");
+      
+      let navigated = false;
+      const triggerScroll = () => {
+        if (!navigated) {
+          navigated = true;
+          // Wait for Next.js to mount the new page before scrolling
+          setTimeout(slowScrollDown, 600);
+        }
+      };
+
       for (const call of calls) {
         console.log("[SHOLÉ] tool_call:", call.name, call.args);
 
-        if (call.name === "navigate_to") {
+        if (call.name === "navigate_to" && !navigated) {
           const section = asStr(call.args.section) || asStr(call.args.page);
           if (!section) continue;
-          const scrollTo = () => {
+          navigated = true;
+          const scrollToSection = () => {
             const el = document.getElementById(section);
             if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
           };
           if (pathname !== "/") {
             router.push("/");
-            setTimeout(scrollTo, 500);
+            setTimeout(scrollToSection, 600);
           } else {
-            scrollTo();
+            scrollToSection();
           }
         }
 
-        if (call.name === "navigate_category") {
+        if (call.name === "navigate_category" && !navigated) {
           const category = asStr(call.args.category);
           if (VALID_CATEGORIES.has(category)) {
             router.push(`/${category}`);
-            // Smoothly scroll down after a short delay so the user sees the products
-            setTimeout(() => {
-              window.scrollBy({ top: window.innerHeight * 0.4, behavior: "smooth" });
-            }, 800);
+            triggerScroll();
           } else {
             console.warn(`[SHOLÉ] invalid category: "${category}"`);
           }
         }
 
-        if (call.name === "show_product") {
+        if (call.name === "show_product" && !navigated) {
           const productId = asStr(call.args.product_id);
           if (VALID_SLUGS.has(productId)) {
             router.push(`/product/${productId}`);
-            setTimeout(() => {
-              window.scrollBy({ top: window.innerHeight * 0.4, behavior: "smooth" });
-            }, 800);
+            triggerScroll();
           } else {
             console.warn(
               `[SHOLÉ] hallucinated product slug ignored: "${productId}"`
@@ -89,7 +120,7 @@ export function GlobalAssistant() {
           }
         }
 
-        if (call.name === "recommend_outfit") {
+        if (call.name === "recommend_outfit" && !navigated) {
           const items = asStr(call.args.items);
           if (items) {
             const first = items
@@ -100,9 +131,7 @@ export function GlobalAssistant() {
               .replace(/[^a-z0-9-]/g, "");
             if (first && VALID_SLUGS.has(first)) {
               router.push(`/product/${first}`);
-              setTimeout(() => {
-                window.scrollBy({ top: window.innerHeight * 0.4, behavior: "smooth" });
-              }, 800);
+              triggerScroll();
             } else {
               console.warn(
                 `[SHOLÉ] outfit hero piece "${first}" not in catalog`
