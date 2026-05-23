@@ -66,10 +66,10 @@ export async function startVADMic(
   const negativeSpeechThreshold = cfg.negativeSpeechThreshold ?? 0.25;
   // Tighter than positive threshold — only confidently human voice should
   // bypass the echo gate while AI is talking.
-  const aiPlaybackThreshold = cfg.aiPlaybackThreshold ?? 0.92;
+  const aiPlaybackThreshold = cfg.aiPlaybackThreshold ?? 0.95;
   // Require N consecutive high-confidence frames during AI playback before
   // we trust it's a real barge-in. Single-frame spikes are usually echo.
-  const aiPlaybackConsecutiveFrames = 4;
+  const aiPlaybackConsecutiveFrames = 12; // 360ms of continuous human speech
 
   log(`Silero VAD: loading model from /vad/ + jsdelivr…`);
 
