@@ -72,6 +72,7 @@ export function AIAssistant({
   const [isLive, setIsLive] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isTurnActive, setIsTurnActive] = useState(false);
   const [audioLevel, setAudioLevel] = useState(0);
   const [logs, setLogs] = useState<LogLine[]>([]);
   const [showLog, setShowLog] = useState(false);
@@ -189,12 +190,14 @@ export function AIAssistant({
     if (!ctx) return;
     // -22 dB during AI playback — speaker echo at this level rarely clears
     // Silero's positive threshold even with the noisiest laptops.
-    const target = isSpeaking ? 0.08 : 1.0;
+    // Keep ducking active even during brief buffer underruns if the turn
+    // hasn't officially completed yet.
+    const target = (isSpeaking || isTurnActive) ? 0.08 : 1.0;
     // Smooth 30 ms ramp avoids audible pops
     gain.gain.cancelScheduledValues(ctx.currentTime);
     gain.gain.setValueAtTime(gain.gain.value, ctx.currentTime);
     gain.gain.linearRampToValueAtTime(target, ctx.currentTime + 0.03);
-  }, [isSpeaking]);
+  }, [isSpeaking, isTurnActive]);
 
   /* ── Cleanup ───────────────────────────────────────────────────────── */
   useEffect(() => {
@@ -444,7 +447,10 @@ export function AIAssistant({
       },
       onAudioData: (data) => {
         // We're receiving audio from the model, so the turn is definitely active.
-        turnActiveRef.current = true;
+        if (!turnActiveRef.current) {
+          turnActiveRef.current = true;
+          setIsTurnActive(true);
+        }
         
         // Drop late chunks that arrive after we locally interrupted —
         // server hasn't acknowledged yet but we're already done with
@@ -461,7 +467,10 @@ export function AIAssistant({
         if (isUser) {
           currentUserTranscriptRef.current += text;
         } else {
-          turnActiveRef.current = true;
+          if (!turnActiveRef.current) {
+            turnActiveRef.current = true;
+            setIsTurnActive(true);
+          }
           currentBotTranscriptRef.current += text;
         }
 
@@ -482,11 +491,15 @@ export function AIAssistant({
         });
       },
       onToolCall: (calls) => {
-        turnActiveRef.current = true;
+        if (!turnActiveRef.current) {
+          turnActiveRef.current = true;
+          setIsTurnActive(true);
+        }
         handleToolCall(calls);
       },
       onInterrupted: () => {
         turnActiveRef.current = false;
+        setIsTurnActive(false);
         suppressUntilTurnRef.current = true;
         stopAudio();
 
@@ -503,6 +516,7 @@ export function AIAssistant({
       },
       onTurnComplete: () => {
         turnActiveRef.current = false;
+        setIsTurnActive(false);
         
         if (sessionId) {
           if (currentUserTranscriptRef.current) {
