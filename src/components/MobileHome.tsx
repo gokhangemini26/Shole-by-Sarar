@@ -12,8 +12,19 @@ export default function MobileHome() {
   const labels = getLabels(locale);
   const openAI = () => window.dispatchEvent(new CustomEvent("open-ai"));
   const [menuOpen, setMenuOpen] = useState(false);
-  const [vidIndex, setVidIndex] = useState(0);
-  const videos = ["/videos/hero.mp4", "/videos/Kalem.mp4"];
+  const mobileVidRef = React.useRef<HTMLVideoElement>(null);
+  const mobileVidIdx = React.useRef(0);
+  const mobileVideos = ["/videos/hero.mp4", "/videos/Kalem.mp4"];
+
+  const handleMobileVideoEnded = React.useCallback(() => {
+    mobileVidIdx.current = (mobileVidIdx.current + 1) % mobileVideos.length;
+    const vid = mobileVidRef.current;
+    if (vid) {
+      vid.src = mobileVideos[mobileVidIdx.current];
+      vid.load();
+      vid.play().catch(() => {});
+    }
+  }, []);
 
   // Take the first 3 featured products from desktop for "Soft Arrivals"
   const featuredSlugs = ["atelier-coat", "soft-rules-shirt", "sun-up-knit"];
@@ -81,15 +92,14 @@ export default function MobileHome() {
         <section className="relative w-full h-[90vh] flex flex-col justify-end">
           <div className="absolute inset-0 z-0 bg-[#E8DFCF]">
             <video
-              key={videos[vidIndex]}
+              ref={mobileVidRef}
               autoPlay
               muted
               playsInline
-              onEnded={() => setVidIndex(v => (v + 1) % videos.length)}
+              onEnded={handleMobileVideoEnded}
               className="w-full h-full object-cover"
-            >
-              <source src={videos[vidIndex]} type="video/mp4" />
-            </video>
+              src="/videos/hero.mp4"
+            />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
           </div>
           <div className="relative z-10 p-6 flex flex-col gap-8 pb-12">

@@ -52,8 +52,19 @@ export function Hero({
 }) {
   const { locale } = useLocale();
   const labels = getLabels(locale);
-  const [vidIndex, setVidIndex] = React.useState(0);
-  const videos = ["/videos/hero.mp4", "/videos/Kalem.mp4"];
+  const heroVidRef = React.useRef<HTMLVideoElement>(null);
+  const heroVidIdx = React.useRef(0);
+  const heroVideos = ["/videos/hero.mp4", "/videos/Kalem.mp4"];
+
+  const handleHeroVideoEnded = React.useCallback(() => {
+    heroVidIdx.current = (heroVidIdx.current + 1) % heroVideos.length;
+    const vid = heroVidRef.current;
+    if (vid) {
+      vid.src = heroVideos[heroVidIdx.current];
+      vid.load();
+      vid.play().catch(() => {});
+    }
+  }, []);
 
   return (
     <section
@@ -193,15 +204,14 @@ export function Hero({
       <div style={{ position: "relative" }}>
         <div style={{ position: "relative", aspectRatio: "3 / 4", width: "100%", overflow: "hidden", borderRadius: 12, background: "#E8DFCF" }}>
           <video
-            key={videos[vidIndex]}
+            ref={heroVidRef}
             autoPlay
             muted
             playsInline
-            onEnded={() => setVidIndex(v => (v + 1) % videos.length)}
+            onEnded={handleHeroVideoEnded}
             style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-          >
-            <source src={videos[vidIndex]} type="video/mp4" />
-          </video>
+            src="/videos/hero.mp4"
+          />
         </div>
         <div
           style={{
