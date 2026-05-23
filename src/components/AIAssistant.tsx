@@ -43,7 +43,7 @@ Free shipping over €200. Made in Istanbul. Sizes XS–XL.
 ${memoryContext}`;
 }
 
-type Msg = { role: "user" | "model"; content: string };
+type Msg = { role: "user" | "model"; content: string; products?: string[] };
 type LogLine = { ts: string; text: string };
 
 const MAX_LOG_LINES = 1000;
@@ -76,6 +76,7 @@ export function AIAssistant({
   const [audioLevel, setAudioLevel] = useState(0);
   const [logs, setLogs] = useState<LogLine[]>([]);
   const [showLog, setShowLog] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
   
   const [memoryContext, setMemoryContext] = useState("");
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -363,6 +364,29 @@ export function AIAssistant({
     (calls: FunctionCall[]) => {
       pushLog(`tool: ${calls.map((c) => c.name).join(",")}`);
       onToolCall?.(calls);
+
+      const productSlugs: string[] = [];
+      calls.forEach(c => {
+        if (c.name === "show_product" && typeof c.args.product_id === "string") {
+          productSlugs.push(c.args.product_id);
+        }
+        if (c.name === "recommend_outfit" && typeof c.args.items === "string") {
+          const slugs = c.args.items.split(",").map(s => s.trim().toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""));
+          productSlugs.push(...slugs);
+        }
+      });
+
+      if (productSlugs.length > 0) {
+        setMessages(prev => {
+          const last = prev[prev.length - 1];
+          if (last && last.role === "model") {
+            return [...prev.slice(0, -1), { ...last, products: [...(last.products || []), ...productSlugs] }];
+          } else {
+            return [...prev, { role: "model", content: "", products: productSlugs }];
+          }
+        });
+      }
+
       const responses = calls.map((c) => ({
         id: c.id,
         name: c.name,
@@ -715,18 +739,41 @@ export function AIAssistant({
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 50 }}
-      className="fixed bottom-0 left-0 right-0 w-full md:bottom-6 md:left-1/2 md:-translate-x-1/2 md:w-[760px] h-auto max-h-[25vh] md:max-h-[20vh] flex flex-col bg-white/50 backdrop-blur-2xl border-t md:border border-white/50 shadow-2xl md:rounded-[32px] overflow-hidden z-[100]"
+      className={`fixed z-[100] flex flex-col overflow-hidden transition-all duration-500 ease-in-out ${
+        isExpanded
+          ? "inset-0 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 w-full h-full md:w-[800px] md:h-[80vh] md:max-h-[800px] bg-gradient-to-br from-[#352A22] to-[#1A1410] md:rounded-[32px] md:border border-white/20 shadow-2xl"
+          : "bottom-0 left-0 right-0 md:bottom-6 md:left-1/2 md:-translate-x-1/2 md:w-[760px] h-auto max-h-[25vh] md:max-h-[20vh] bg-white/50 backdrop-blur-2xl border-t md:border border-white/50 shadow-2xl md:rounded-[32px]"
+      }`}
     >
+      {/* Header for expanded view */}
+      {isExpanded && (
+        <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between shrink-0">
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 rounded-full bg-[#D48C51] text-black font-serif flex items-center justify-center text-xl">S</div>
+            <div className="flex flex-col">
+              <span className="text-white font-medium text-sm tracking-wide">SHOLÉ</span>
+              <span className="text-white/50 text-[10px] font-mono uppercase tracking-widest flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full border border-white/50"></span>
+                çevrimiçi • ai stilist
+              </span>
+            </div>
+          </div>
+          <button onClick={() => setIsExpanded(false)} className="text-white/50 hover:text-white transition-colors text-[10px] uppercase tracking-widest font-mono flex items-center gap-1">
+            önizleme <Sparkles size={10} />
+          </button>
+        </div>
+      )}
+
       {/* Voice key warning */}
       {!hasVoiceKey && (
-        <div className="bg-amber-500/90 text-white px-4 py-1 text-[10px] text-center">
+        <div className="bg-amber-500/90 text-white px-4 py-1 text-[10px] text-center shrink-0">
           Voice mode disabled: NEXT_PUBLIC_GEMINI_API_KEY is not set. Text chat works.
         </div>
       )}
 
       {/* Debug log panel (Hidden on Mobile) */}
       {showLog && (
-        <div className="hidden md:block bg-black/80 backdrop-blur-md text-green-400 font-mono text-[10px] px-3 py-2 max-h-[100px] overflow-y-auto border-b border-green-900/50">
+        <div className="hidden md:block bg-black/80 backdrop-blur-md text-green-400 font-mono text-[10px] px-3 py-2 max-h-[100px] overflow-y-auto border-b border-green-900/50 shrink-0">
           <div className="flex justify-between items-center mb-1 sticky top-0 bg-transparent pb-1">
             <span className="text-green-300 font-bold">activity log ({logs.length})</span>
             <button onClick={() => setLogs([])} className="text-green-300 hover:text-white text-[9px]">clear</button>
@@ -739,7 +786,10 @@ export function AIAssistant({
       )}
 
       {/* Messages / Horizontal Flow */}
-      <div className="flex-1 overflow-hidden flex flex-col relative bg-transparent min-h-[60px]">
+      <div 
+        className={`flex-1 overflow-hidden flex flex-col relative bg-transparent min-h-[60px] ${!isExpanded ? "cursor-pointer" : ""}`}
+        onClick={() => !isExpanded && setIsExpanded(true)}
+      >
         {isLive && isSpeaking && (
           <button
             onClick={interruptNow}
@@ -749,35 +799,55 @@ export function AIAssistant({
             interrupt
           </button>
         )}
-        <div ref={chatScrollRef} className="flex-1 overflow-y-auto px-4 py-2 space-y-2 no-scrollbar flex flex-col justify-end">
-          {messages.slice(-3).map((m, i) => (
-            <div
-              key={i}
-              className={`max-w-[90%] rounded-2xl px-3 py-1.5 text-xs whitespace-pre-wrap shadow-sm backdrop-blur-md ${
-                m.role === "user"
-                  ? "bg-black/80 text-white ml-auto"
-                  : "bg-white/80 border border-white/40 text-black"
-              }`}
-            >
-              {m.content || (isLoading && i === messages.slice(-3).length - 1 ? "…" : "")}
+        <div ref={chatScrollRef} className={`flex-1 overflow-y-auto px-4 py-4 space-y-4 no-scrollbar flex flex-col ${!isExpanded && "justify-end pb-2"}`}>
+          {(isExpanded ? messages : messages.slice(-3)).map((m, i) => (
+            <div key={i} className={`flex flex-col gap-2 ${!isExpanded && "mb-0 space-y-0"}`}>
+              <div
+                className={`max-w-[90%] md:max-w-[80%] rounded-2xl px-4 py-3 text-sm whitespace-pre-wrap shadow-sm backdrop-blur-md ${
+                  m.role === "user"
+                    ? (isExpanded ? "bg-[#D48C51] text-black ml-auto rounded-br-sm" : "bg-black/80 text-white ml-auto rounded-br-sm")
+                    : (isExpanded ? "bg-white/10 text-white/90 border border-white/10 rounded-bl-sm mr-auto" : "bg-white/80 border border-white/40 text-black rounded-bl-sm mr-auto")
+                }`}
+              >
+                {m.content || (isLoading && i === (isExpanded ? messages.length : messages.slice(-3).length) - 1 ? "…" : "")}
+              </div>
+              
+              {isExpanded && m.products && m.products.length > 0 && (
+                <div className="flex gap-3 overflow-x-auto no-scrollbar py-2 max-w-[90%] mr-auto pl-2">
+                  {m.products.map(slug => {
+                    const product = PRODUCTS.find(p => p.slug === slug);
+                    if (!product) return null;
+                    const imgSrc = `/images/products/${slug}.png`;
+                    return (
+                      <div key={slug} className="w-[120px] shrink-0 flex flex-col gap-2 cursor-pointer group" onClick={() => window.location.href = `/product/${slug}`}>
+                        <div className="w-full aspect-[4/5] bg-white/5 rounded-xl overflow-hidden border border-white/10 relative">
+                           <img src={imgSrc} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           ))}
           {isLoading && messages[messages.length - 1]?.role === "user" && (
             <div className="flex gap-1 p-2">
-              <div className="w-1.5 h-1.5 bg-black/40 rounded-full animate-bounce" />
-              <div className="w-1.5 h-1.5 bg-black/40 rounded-full animate-bounce [animation-delay:0.2s]" />
-              <div className="w-1.5 h-1.5 bg-black/40 rounded-full animate-bounce [animation-delay:0.4s]" />
+              <div className={`w-1.5 h-1.5 rounded-full animate-bounce ${isExpanded ? "bg-white/40" : "bg-black/40"}`} />
+              <div className={`w-1.5 h-1.5 rounded-full animate-bounce [animation-delay:0.2s] ${isExpanded ? "bg-white/40" : "bg-black/40"}`} />
+              <div className={`w-1.5 h-1.5 rounded-full animate-bounce [animation-delay:0.4s] ${isExpanded ? "bg-white/40" : "bg-black/40"}`} />
             </div>
           )}
         </div>
       </div>
 
       {/* Footer / Input Bar */}
-      <div className="p-3 bg-white/40 border-t border-white/30 flex items-center gap-2 backdrop-blur-3xl">
+      <div className={`p-3 flex items-center gap-2 backdrop-blur-3xl shrink-0 ${
+        isExpanded ? "bg-black/20 border-t border-white/10" : "bg-white/40 border-t border-white/30"
+      }`}>
         {/* Status Indicator */}
         <div className="hidden md:flex flex-col justify-center items-center mr-2">
           <div
-            className="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center font-bold transition-transform"
+            className={`w-8 h-8 rounded-full flex items-center justify-center font-bold transition-transform ${isExpanded ? "bg-white/10 text-white" : "bg-black text-white"}`}
             style={{ transform: isLive ? `scale(${1 + audioLevel * 0.2})` : "none" }}
           >
             S
@@ -791,13 +861,15 @@ export function AIAssistant({
               ? "bg-red-500 text-white animate-pulse shadow-red-500/30"
               : isConnecting
               ? "bg-amber-400 text-white"
-              : "bg-black text-white"
+              : isExpanded ? "bg-white/10 text-white hover:bg-white/20" : "bg-black text-white"
           }`}
         >
           {isLive ? <MicOff size={16} /> : <Mic size={16} />}
         </button>
 
-        <div className="flex-1 flex items-center gap-2 bg-white/60 rounded-full px-4 py-1.5 border border-white/50 focus-within:border-black/20 focus-within:bg-white/80 transition-all shadow-inner">
+        <div className={`flex-1 flex items-center gap-2 rounded-full px-4 py-1.5 border transition-all shadow-inner ${
+          isExpanded ? "bg-white/5 border-white/10 focus-within:border-white/30 focus-within:bg-white/10" : "bg-white/60 border-white/50 focus-within:border-black/20 focus-within:bg-white/80"
+        }`}>
           <input
             type="text"
             value={input}
@@ -806,13 +878,15 @@ export function AIAssistant({
             placeholder={isLive 
               ? (locale === "tr" ? "ses aktif · veya yazın" : "voice live · or type") 
               : labels.askShole + "..."}
-            className="flex-1 bg-transparent border-none focus:ring-0 text-sm py-1 outline-none text-black placeholder-black/50"
+            className={`flex-1 bg-transparent border-none focus:ring-0 text-sm py-1 outline-none ${
+              isExpanded ? "text-white placeholder-white/40" : "text-black placeholder-black/50"
+            }`}
             disabled={isLoading}
           />
           <button
             onClick={() => sendMessage()}
             disabled={isLoading || !input.trim()}
-            className="text-black disabled:opacity-30"
+            className={`${isExpanded ? "text-white" : "text-black"} disabled:opacity-30 transition-opacity`}
           >
             <Send size={16} />
           </button>
@@ -826,14 +900,16 @@ export function AIAssistant({
             className={`hidden md:flex items-center gap-1 px-2 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-wider transition-colors border ${
               showLog
                 ? "bg-emerald-400 text-black border-emerald-400"
-                : "bg-white/30 text-black/70 border-white/40 hover:bg-white/50"
+                : isExpanded ? "bg-white/5 text-white/50 border-white/10 hover:bg-white/10 hover:text-white" : "bg-white/30 text-black/70 border-white/40 hover:bg-white/50"
             }`}
           >
             <Terminal size={12} />
           </button>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-black/10 rounded-full transition-colors text-black/70"
+            className={`p-2 rounded-full transition-colors ${
+              isExpanded ? "hover:bg-white/10 text-white/50 hover:text-white" : "hover:bg-black/10 text-black/70"
+            }`}
           >
             <X size={18} />
           </button>
