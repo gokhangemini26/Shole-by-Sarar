@@ -292,7 +292,7 @@ export function AIAssistant({
           // VAD probability with it); when AI is playing we additionally
           // require >0.92 confidence before counting as user speech.
           isAISpeaking: () => isPlayingRef.current,
-          aiPlaybackThreshold: 0.97,
+          aiPlaybackThreshold: 0.92,
           onSpeechStart: () => {
             if (isPlayingRef.current) {
               pushLog("local interrupt → fading out AI audio");

@@ -66,10 +66,10 @@ export async function startVADMic(
   const negativeSpeechThreshold = cfg.negativeSpeechThreshold ?? 0.25;
   // Tighter than positive threshold — only confidently human voice should
   // bypass the echo gate while AI is talking.
-  const aiPlaybackThreshold = cfg.aiPlaybackThreshold ?? 0.97;
+  const aiPlaybackThreshold = cfg.aiPlaybackThreshold ?? 0.92;
   // Require N consecutive high-confidence frames during AI playback before
   // we trust it's a real barge-in. Single-frame spikes are usually echo.
-  const aiPlaybackConsecutiveFrames = 3;
+  const aiPlaybackConsecutiveFrames = 4;
 
   log(`Silero VAD: loading model from /vad/ + jsdelivr…`);
 
@@ -164,8 +164,13 @@ export async function startVADMic(
         }
 
         if (aiTalking && !realBargeInActive) {
-          // Likely speaker echo bleeding into the mic — drop it.
+          // Likely speaker echo bleeding into the mic — send a silent
+          // frame instead of dropping entirely. This keeps the server-side
+          // silence detection working (it needs continuous audio to detect
+          // when the user's turn ends). A zero-filled frame is ~0 dBFS.
           droppedDuringPlayback++;
+          const silent = new Float32Array(frame.length); // all zeros
+          cfg.onSpeechFrameB64(f32ToPCM16Base64(silent));
           return;
         }
 

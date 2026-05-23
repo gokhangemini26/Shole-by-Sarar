@@ -30,10 +30,10 @@ class PCMPlayerProcessor extends AudioWorkletProcessor {
     this.fillCount = 0;
 
     // Wait until this many samples are buffered before (re)starting
-    // playback. 250 ms @ 24 kHz = 6000 samples. Empirically this is
-    // enough to mask Gemini's 200–500 ms inter-chunk gaps without
-    // noticeable startup latency.
-    this.prebufferSamples = 6000;
+    // playback. 400 ms @ 24 kHz = 9600 samples. Tuned to absorb
+    // Gemini's bursty delivery (200–800 ms inter-chunk gaps, sometimes
+    // 3+ s during barge-in recovery) without noticeable startup latency.
+    this.prebufferSamples = 9600;
     this.priming = true; // start in 'wait for prebuffer' mode
 
     this.fadeOut = false;

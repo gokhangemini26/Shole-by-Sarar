@@ -153,10 +153,16 @@ export class GeminiLiveClient {
           // and start listening. Required for natural back-and-forth.
           activityHandling: ActivityHandling.START_OF_ACTIVITY_INTERRUPTS,
           automaticActivityDetection: {
-            startOfSpeechSensitivity: StartSensitivity.START_SENSITIVITY_HIGH,
-            endOfSpeechSensitivity: EndSensitivity.END_SENSITIVITY_HIGH,
-            prefixPaddingMs: 20,
-            silenceDurationMs: 500,
+            // LOW sensitivity avoids echo-triggered false barge-ins
+            // while still catching intentional interruptions reliably.
+            startOfSpeechSensitivity: StartSensitivity.START_SENSITIVITY_LOW,
+            endOfSpeechSensitivity: EndSensitivity.END_SENSITIVITY_LOW,
+            // Require 100ms of sustained speech before triggering a
+            // barge-in — short echo spikes (20–60ms) are filtered out.
+            prefixPaddingMs: 100,
+            // Wait 800ms of silence before ending the user's turn — gives
+            // natural breathing room for mid-sentence pauses.
+            silenceDurationMs: 800,
           },
         },
       },
