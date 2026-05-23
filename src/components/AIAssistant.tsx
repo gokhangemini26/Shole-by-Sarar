@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
-import { X, Mic, MicOff, Send, Terminal, AlertTriangle } from "lucide-react";
+import { X, Mic, MicOff, Send, Terminal, AlertTriangle, Sparkles } from "lucide-react";
 import { GeminiLiveClient, FunctionCall } from "@/lib/gemini-live";
 import { startVADMic, type VADMicHandle } from "@/lib/vad-mic";
 import { PRODUCTS } from "@/lib/products";
@@ -854,11 +854,7 @@ export function FloatingLauncher({
     <motion.button
       onClick={onClick}
       initial={{ opacity: 0, y: 24, scale: 0.92 }}
-      animate={{
-        opacity: 1,
-        y: [0, -3, 0],
-        scale: 1,
-      }}
+      animate={{ opacity: 1, y: [0, -3, 0], scale: 1 }}
       transition={{
         opacity: { duration: 0.5, ease: "easeOut" },
         scale: { duration: 0.5, ease: "easeOut" },
@@ -866,94 +862,23 @@ export function FloatingLauncher({
       }}
       whileHover={{ scale: 1.04 }}
       whileTap={{ scale: 0.97 }}
-      className="group fixed bottom-6 right-6 z-50 flex items-center gap-3 pl-3 pr-5 py-3 rounded-full overflow-hidden"
-      style={{
-        background:
-          "linear-gradient(135deg, #1C1814 0%, #2A211A 50%, #3a2d22 100%)",
-        boxShadow:
-          "0 14px 40px -10px rgba(28,24,20,0.55), 0 4px 12px -2px rgba(217,138,61,0.25), inset 0 1px 0 rgba(255,255,255,0.08)",
-        border: "1px solid rgba(217,138,61,0.25)",
-      }}
+      className="group fixed bottom-6 right-6 z-50 flex items-center justify-center w-14 h-14 md:w-auto md:px-5 md:py-3 md:h-12 rounded-full overflow-hidden bg-white/40 dark:bg-black/40 backdrop-blur-md shadow-lg border border-white/40"
     >
-      {/* shimmer sweep */}
-      <span
-        aria-hidden
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background:
-            "linear-gradient(120deg, transparent 30%, rgba(217,138,61,0.18) 50%, transparent 70%)",
-          transform: "translateX(-100%)",
-          animation: "shole-shimmer 4.5s ease-in-out infinite",
-        }}
-      />
-      {/* monogram */}
-      <span
-        className="relative grid place-items-center w-9 h-9 rounded-full"
-        style={{
-          background:
-            "linear-gradient(135deg, #D98A3D 0%, #C77A2D 100%)",
-          boxShadow:
-            "inset 0 1px 0 rgba(255,255,255,0.4), 0 2px 6px rgba(0,0,0,0.3)",
-        }}
-      >
+      <span className="relative flex items-center justify-center gap-2">
+        <Sparkles size={20} className="text-black dark:text-white md:mr-1" />
         <span
-          style={{
-            fontFamily: '"Fraunces", "Playfair Display", Georgia, serif',
-            fontSize: 16,
-            fontWeight: 600,
-            color: "#1C1814",
-            letterSpacing: "0.02em",
-          }}
+          className="hidden md:inline-block font-sans text-sm font-medium text-black dark:text-white"
         >
-          S
+          {label}
         </span>
+        
         {/* live dot */}
         <motion.span
-          className="absolute -right-0.5 -bottom-0.5 w-2.5 h-2.5 rounded-full"
-          style={{
-            background: "#3FBE5A",
-            boxShadow: "0 0 0 2px #1C1814",
-          }}
+          className="absolute right-0 top-0 w-2 h-2 rounded-full bg-green-500 border-2 border-white dark:border-black md:-right-2 md:-top-1"
           animate={{ scale: [1, 1.25, 1], opacity: [0.9, 1, 0.9] }}
           transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
         />
       </span>
-      <span className="relative flex flex-col items-start leading-tight">
-        <span
-          style={{
-            fontFamily: '"Fraunces", "Playfair Display", Georgia, serif',
-            fontSize: 15,
-            fontStyle: "italic",
-            color: "#FAF7F0",
-            letterSpacing: "0.01em",
-          }}
-        >
-          {label}
-        </span>
-        <span
-          style={{
-            fontFamily: '"JetBrains Mono", "Fira Code", monospace',
-            fontSize: 9,
-            color: "#D98A3D",
-            letterSpacing: "0.18em",
-            textTransform: "uppercase",
-            marginTop: 1,
-          }}
-        >
-          ai stylist · live
-        </span>
-      </span>
-      <style jsx>{`
-        @keyframes shole-shimmer {
-          0% {
-            transform: translateX(-100%);
-          }
-          60%,
-          100% {
-            transform: translateX(100%);
-          }
-        }
-      `}</style>
     </motion.button>
   );
 }
