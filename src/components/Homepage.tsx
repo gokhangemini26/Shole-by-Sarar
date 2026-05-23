@@ -52,6 +52,8 @@ export function Hero({
 }) {
   const { locale } = useLocale();
   const labels = getLabels(locale);
+  const [vidIndex, setVidIndex] = React.useState(0);
+  const videos = ["/videos/hero.mp4", "/videos/Kalem.mp4"];
 
   return (
     <section
@@ -191,13 +193,14 @@ export function Hero({
       <div style={{ position: "relative" }}>
         <div style={{ position: "relative", aspectRatio: "3 / 4", width: "100%", overflow: "hidden", borderRadius: 12, background: "#E8DFCF" }}>
           <video
+            key={videos[vidIndex]}
             autoPlay
-            loop
             muted
             playsInline
+            onEnded={() => setVidIndex(v => (v + 1) % videos.length)}
             style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" }}
           >
-            <source src="/videos/hero.mp4" type="video/mp4" />
+            <source src={videos[vidIndex]} type="video/mp4" />
           </video>
         </div>
         <div
