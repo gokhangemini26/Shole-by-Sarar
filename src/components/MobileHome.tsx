@@ -26,6 +26,17 @@ export default function MobileHome() {
     }
   }, []);
 
+  // Force-play on mount (covers client-side navigation back to homepage)
+  React.useEffect(() => {
+    const vid = mobileVidRef.current;
+    if (vid) {
+      mobileVidIdx.current = 0;
+      vid.src = mobileVideos[0];
+      vid.load();
+      vid.play().catch(() => {});
+    }
+  }, []);
+
   // Take the first 3 featured products from desktop for "Soft Arrivals"
   const featuredSlugs = ["atelier-coat", "soft-rules-shirt", "sun-up-knit"];
   const featuredProducts = featuredSlugs.map(s => PRODUCTS.find(p => p.slug === s)).filter(Boolean) as typeof PRODUCTS;

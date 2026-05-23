@@ -66,6 +66,17 @@ export function Hero({
     }
   }, []);
 
+  // Force-play on mount (covers client-side navigation back to homepage)
+  React.useEffect(() => {
+    const vid = heroVidRef.current;
+    if (vid) {
+      heroVidIdx.current = 0;
+      vid.src = heroVideos[0];
+      vid.load();
+      vid.play().catch(() => {});
+    }
+  }, []);
+
   return (
     <section
       id="hero"
