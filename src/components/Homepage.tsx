@@ -57,47 +57,17 @@ export function Hero({
     <section
       id="hero"
       style={{
-        position: "relative",
-        width: "100%",
-        minHeight: "90vh",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        overflow: "hidden",
-        marginTop: -90, // Pull up behind the nav (approx nav height)
-        padding: "120px 32px 80px",
+        maxWidth: 1480,
+        margin: "0 auto",
+        padding: "80px 32px 72px",
+        display: "grid",
+        gridTemplateColumns: "1.15fr 1fr",
+        gap: 56,
+        alignItems: "end",
+        minHeight: "78vh",
       }}
     >
-      {/* Cinematic Background Video */}
-      <video
-        autoPlay
-        loop
-        muted
-        playsInline
-        style={{
-          position: "absolute",
-          inset: 0,
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
-          zIndex: 0,
-        }}
-      >
-        <source src="/videos/hero.mp4" type="video/mp4" />
-      </video>
-
-      {/* Subtle Gradient Overlay for Readability */}
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          background: "linear-gradient(to bottom, rgba(245,242,235,0.75) 0%, rgba(245,242,235,0) 25%, rgba(28,24,20,0.2) 50%, rgba(28,24,20,0.65) 100%)",
-          zIndex: 1,
-        }}
-      />
-
-      <div style={{ position: "relative", zIndex: 2, textAlign: "center", color: "#FFFFFF", maxWidth: 800 }}>
+      <div>
         <div
           style={{
             display: "inline-flex",
@@ -107,28 +77,26 @@ export function Hero({
             fontSize: 11,
             letterSpacing: "0.14em",
             textTransform: "uppercase",
-            color: "rgba(255,255,255,0.8)",
+            color: palette.muted,
             marginBottom: 32,
           }}
         >
-          <span style={{ width: 24, height: 1, background: "rgba(255,255,255,0.8)" }} />
+          <span style={{ width: 24, height: 1, background: palette.muted }} />
           {labels.heroSubtitle}
-          <span style={{ width: 24, height: 1, background: "rgba(255,255,255,0.8)" }} />
         </div>
-        
         <h1
           style={{
             fontFamily: TYPE.display,
             fontWeight: 400,
-            fontSize: "clamp(56px, 9vw, 130px)",
-            lineHeight: 0.95,
+            fontSize: "clamp(64px, 9vw, 148px)",
+            lineHeight: 0.92,
             letterSpacing: "-0.025em",
             margin: 0,
-            color: "#FFFFFF",
-            textShadow: "0 4px 24px rgba(0,0,0,0.15)",
+            color: palette.ink,
           }}
         >
-          {locale === "tr" ? "Kendin gibi" : "Wear it"}{" "}
+          {locale === "tr" ? "Kendin gibi" : "Wear it"}
+          <br />
           <em style={{ color: accent, fontStyle: "italic" }}>
             {locale === "tr" ? "taşı" : "like it's"}
           </em>
@@ -142,70 +110,60 @@ export function Hero({
               fontSize: "0.18em",
               letterSpacing: "0.16em",
               verticalAlign: "middle",
-              color: "rgba(255,255,255,0.6)",
+              color: palette.muted,
               marginLeft: 12,
             }}
           >
             {labels.herosince}
           </span>
         </h1>
-        
         <p
           style={{
             fontFamily: TYPE.sans,
             fontSize: 18,
             lineHeight: 1.55,
-            color: "rgba(255,255,255,0.85)",
-            maxWidth: 480,
-            margin: "36px auto 0",
-            textShadow: "0 2px 12px rgba(0,0,0,0.1)",
+            color: palette.ink,
+            opacity: 0.7,
+            maxWidth: 460,
+            marginTop: 36,
           }}
         >
           {labels.heroTagline}
         </p>
-        
         <div
           style={{
             display: "flex",
-            gap: 16,
-            marginTop: 48,
+            gap: 12,
+            marginTop: 36,
             alignItems: "center",
-            justifyContent: "center",
             flexWrap: "wrap",
           }}
         >
           <button
             id="hero-shop"
             style={{
-              background: "#FFFFFF",
-              color: "#1C1814",
+              background: palette.ink,
+              color: palette.bg,
               border: 0,
-              padding: "15px 32px",
+              padding: "14px 28px",
               borderRadius: 999,
               cursor: "pointer",
               fontFamily: TYPE.sans,
               fontSize: 13,
-              fontWeight: 600,
+              fontWeight: 500,
               letterSpacing: "0.04em",
-              boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
-              transition: "transform 0.2s",
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
-            onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
           >
             {labels.shopChapter}
           </button>
-          
           <button
             id="hero-stylist"
             onClick={onOpenAI}
             style={{
-              background: "rgba(0,0,0,0.3)",
-              backdropFilter: "blur(12px)",
-              WebkitBackdropFilter: "blur(12px)",
-              color: "#FFFFFF",
-              border: `1px solid rgba(255,255,255,0.3)`,
-              padding: "14px 28px",
+              background: "transparent",
+              color: palette.ink,
+              border: `1px solid ${palette.line}`,
+              padding: "13px 24px",
               borderRadius: 999,
               cursor: "pointer",
               fontFamily: TYPE.sans,
@@ -213,19 +171,16 @@ export function Hero({
               fontWeight: 500,
               display: "inline-flex",
               alignItems: "center",
-              gap: 10,
-              transition: "background 0.2s",
+              gap: 8,
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(0,0,0,0.5)")}
-            onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(0,0,0,0.3)")}
           >
             <span
               style={{
-                width: 8,
-                height: 8,
+                width: 7,
+                height: 7,
                 borderRadius: "50%",
                 background: accent,
-                boxShadow: `0 0 12px ${accent}`,
+                boxShadow: `0 0 0 4px ${accent}22`,
               }}
             />
             {labels.tryStylist}
@@ -233,39 +188,65 @@ export function Hero({
         </div>
       </div>
 
-      {/* Floating AI Summary Tag */}
-      <div
-        style={{
-          position: "absolute",
-          bottom: 40,
-          left: 40,
-          background: "rgba(255,255,255,0.1)",
-          backdropFilter: "blur(16px)",
-          WebkitBackdropFilter: "blur(16px)",
-          border: "1px solid rgba(255,255,255,0.2)",
-          padding: "16px 20px",
-          borderRadius: 16,
-          fontFamily: TYPE.sans,
-          fontSize: 13,
-          color: "#FFFFFF",
-          maxWidth: 260,
-          boxShadow: "0 16px 40px rgba(0,0,0,0.2)",
-          zIndex: 2,
-        }}
-      >
+      <div style={{ position: "relative" }}>
+        <div style={{ position: "relative", aspectRatio: "3 / 4", width: "100%", overflow: "hidden", borderRadius: 12, background: "#E8DFCF" }}>
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+          >
+            <source src="/videos/hero.mp4" type="video/mp4" />
+          </video>
+        </div>
         <div
           style={{
+            position: "absolute",
+            top: -16,
+            right: -12,
+            background: accent,
+            color: "#1C1814",
             fontFamily: TYPE.mono,
-            fontSize: 10,
-            letterSpacing: "0.08em",
-            textTransform: "uppercase",
-            color: "rgba(255,255,255,0.6)",
-            marginBottom: 6,
+            fontSize: 11,
+            letterSpacing: "0.06em",
+            padding: "8px 14px",
+            borderRadius: 999,
+            transform: "rotate(6deg)",
+            boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
           }}
         >
-          {labels.lookSholeSays}
+          {labels.newLooksCount}
         </div>
-        &ldquo;{locale === "tr" ? "kol boyu bileğinde bitiyor — dar pantolonla kombinle." : "the sleeve crops at the wrist on you — pair with the slim trouser."}&rdquo;
+        <div
+          style={{
+            position: "absolute",
+            bottom: 18,
+            left: 18,
+            background: palette.bg,
+            padding: "14px 16px",
+            borderRadius: 12,
+            fontFamily: TYPE.sans,
+            fontSize: 12,
+            color: palette.ink,
+            maxWidth: 220,
+            boxShadow: "0 8px 30px rgba(0,0,0,0.08)",
+          }}
+        >
+          <div
+            style={{
+              fontFamily: TYPE.mono,
+              fontSize: 10,
+              letterSpacing: "0.08em",
+              textTransform: "uppercase",
+              color: palette.muted,
+              marginBottom: 4,
+            }}
+          >
+            {labels.lookSholeSays}
+          </div>
+          &ldquo;{locale === "tr" ? "kol boyu bileğinde bitiyor — dar pantolonla kombinle." : "the sleeve crops at the wrist on you — pair with the slim trouser."}&rdquo;
+        </div>
       </div>
     </section>
   );

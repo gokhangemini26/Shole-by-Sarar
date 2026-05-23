@@ -2,6 +2,7 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { TYPE, Palette } from "@/lib/design";
 import { getLabels } from "@/lib/i18n";
 import { useLocale } from "@/lib/LocaleContext";
@@ -296,7 +297,7 @@ export function Nav({
           }}
         >
           <a className="hide-mobile" style={linkStyle}>{labels.search}</a>
-          <a className="hide-mobile" style={linkStyle}>{labels.account}</a>
+          <Link href="/login" className="hide-mobile" style={linkStyle}>{labels.account}</Link>
           <button
             id="nav-ask-shole"
             onClick={onOpenAI}

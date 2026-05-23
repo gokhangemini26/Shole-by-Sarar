@@ -84,6 +84,12 @@ export interface Labels {
   pressQuote1: string;
   pressQuote2: string;
   pressQuote3: string;
+  introRec: string;
+  introSkip: string;
+  introLocation: string;
+  introDesc: string;
+  introCue: string;
+  introEnter: string;
 }
 
 
@@ -170,6 +176,12 @@ const labels: Record<Locale, Labels> = {
     pressQuote1: '"Tailoring with a sense of humour."',
     pressQuote2: '"The AI you actually want around."',
     pressQuote3: '"SARAR\'s most playful chapter yet."',
+    introRec: "rec · chapter 01 · sholé sees you",
+    introSkip: "skip ↗",
+    introLocation: "a SARAR house · Istanbul · est. 1944",
+    introDesc: "step inside —<br />the door's been left open for you.",
+    introCue: "◇ ss26 — chapter 01<br />directed by sholé ✦ ai stylist in residence",
+    introEnter: "enter the atelier",
   },
 
 
@@ -254,6 +266,12 @@ const labels: Record<Locale, Labels> = {
     pressQuote1: '"Mizah anlayışı olan terzilik."',
     pressQuote2: '"Gerçekten yanınızda olmasını isteyeceğiniz yapay zeka."',
     pressQuote3: '"SARAR\'ın şimdiye kadarki en eğlenceli bölümü."',
+    introRec: "kayıt · bölüm 01 · sholé sizi görüyor",
+    introSkip: "atla ↗",
+    introLocation: "bir SARAR evi · İstanbul · krl. 1944",
+    introDesc: "içeri adım atın —<br />kapı sizin için açık bırakıldı.",
+    introCue: "◇ iy26 — bölüm 01<br />sholé ✦ misafir ai stilist yönetimiyle",
+    introEnter: "atölyeye girin",
   },
 
 

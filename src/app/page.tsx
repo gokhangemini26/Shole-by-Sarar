@@ -5,11 +5,13 @@ import { PALETTES } from "@/lib/design";
 import { getLabels, Locale } from "@/lib/i18n";
 import { TopAnnounce, Nav, MarqueeRow, Footer } from "@/components/SiteShell";
 import { Hero, CollectionGrid, PressStrip, AIInvite, StorySplit } from "@/components/Homepage";
+import { IntroVideo } from "@/components/IntroVideo";
 
 export default function HomePage() {
   const [locale, setLocale] = React.useState<Locale>("en");
   const [highlight, setHighlight] = React.useState<string | null>(null);
   const [highlightedProduct, setHighlightedProduct] = React.useState<string | null>(null);
+  const [introOpen, setIntroOpen] = React.useState(true);
   const palette = PALETTES.warmCream;
   const accent = palette.accent;
   const labels = getLabels(locale);
@@ -69,6 +71,8 @@ export default function HomePage() {
       </div>
 
       <Footer palette={palette} accent={accent} />
+
+      {introOpen && <IntroVideo accent={accent} onDone={() => setIntroOpen(false)} />}
     </div>
   );
 }
