@@ -1,12 +1,14 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { TYPE, PALETTES } from "@/lib/design";
 import { getProduct, PRODUCTS } from "@/lib/products";
 import { Nav, Footer } from "@/components/SiteShell";
 import { useLocale } from "@/lib/LocaleContext";
 import { getLabels } from "@/lib/i18n";
+import { createClient } from "@/lib/supabase/client";
+import { logProductView, logCartEvent } from "@/lib/supabase/tracking";
 
 /* ═══════════════════════════════════════════════════════════════════════
    Product Detail Page — SHOLÉ by SARAR
@@ -22,6 +24,28 @@ export default function ProductPage() {
   const accent = palette.accent;
   const slug = params?.slug as string;
   const product = getProduct(slug);
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    async function initTracking() {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user && product) {
+        setUser(user);
+        logProductView(user.id, product.slug);
+      }
+    }
+    initTracking();
+  }, [product?.slug]);
+
+  const handleAddToCart = () => {
+    if (user && product) {
+      logCartEvent(user.id, product.slug, 'add');
+      alert("Added to bag!");
+    } else if (!user) {
+      router.push('/login');
+    }
+  };
 
   if (!product) {
     return (
@@ -149,7 +173,9 @@ export default function ProductPage() {
 
           {/* Add to bag */}
           <div style={{ display: "flex", gap: 12, marginTop: 32 }}>
-            <button style={{
+            <button 
+              onClick={handleAddToCart}
+              style={{
               flex: 1, background: palette.ink, color: palette.bg, border: 0,
               padding: "16px 28px", borderRadius: 999, cursor: "pointer",
               fontFamily: TYPE.sans, fontSize: 15, fontWeight: 600,

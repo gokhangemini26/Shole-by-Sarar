@@ -7,8 +7,10 @@ import { GeminiLiveClient, FunctionCall } from "@/lib/gemini-live";
 import { startVADMic, type VADMicHandle } from "@/lib/vad-mic";
 import { PRODUCTS } from "@/lib/products";
 import { getLabels } from "@/lib/i18n";
+import { createClient } from "@/lib/supabase/client";
+import { getAIMemoryContext, createChatSession, logChatMessage } from "@/lib/supabase/tracking";
 
-function buildLiveSystemPrompt(locale: string) {
+function buildLiveSystemPrompt(locale: string, memoryContext: string) {
   const productList = PRODUCTS.map(
     (p, i) => {
       const name = locale === "tr" && p.name_tr ? p.name_tr : p.name;
@@ -36,7 +38,9 @@ TOOLS — call them silently, never mention names:
 CATALOG (Spring/Summer 2026):
 ${productList}
 
-Free shipping over €200. Made in Istanbul. Sizes XS–XL.`;
+Free shipping over €200. Made in Istanbul. Sizes XS–XL.
+
+${memoryContext}`;
 }
 
 type Msg = { role: "user" | "model"; content: string };
@@ -71,6 +75,23 @@ export function AIAssistant({
   const [audioLevel, setAudioLevel] = useState(0);
   const [logs, setLogs] = useState<LogLine[]>([]);
   const [showLog, setShowLog] = useState(false);
+  
+  const [memoryContext, setMemoryContext] = useState("");
+  const [sessionId, setSessionId] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function initMemory() {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const ctx = await getAIMemoryContext(user.id);
+        setMemoryContext(ctx);
+        const sid = await createChatSession(user.id);
+        setSessionId(sid);
+      }
+    }
+    initMemory();
+  }, []);
 
   const chatScrollRef = useRef<HTMLDivElement>(null);
   const logScrollRef = useRef<HTMLDivElement>(null);
@@ -410,7 +431,7 @@ export function AIAssistant({
     pushLog(`api key present (len=${apiKey.length})`);
 
     clientRef.current = new GeminiLiveClient(apiKey, {
-      systemInstruction: buildLiveSystemPrompt(locale),
+      systemInstruction: buildLiveSystemPrompt(locale, memoryContext),
       onLog: pushLog,
       onOpen: () => {
         pushLog("Live onOpen → starting mic");
@@ -431,10 +452,13 @@ export function AIAssistant({
           pushLog(`audio schedule error: ${(err as Error).message}`);
         });
       },
-      onTranscription: (_text, _isUser) => {
+      onTranscription: (text, isUser) => {
         // Voice mode is voice-only by design — no transcript bubbles in
         // the chat UI. We still receive transcription server-side for
         // tool-call grounding, but the user just hears the assistant.
+        if (sessionId) {
+          logChatMessage(sessionId, isUser ? "user" : "model", text);
+        }
       },
       onToolCall: handleToolCall,
       onInterrupted: () => {
