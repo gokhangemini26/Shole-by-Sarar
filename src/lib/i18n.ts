@@ -201,7 +201,7 @@ const labels: Record<Locale, Labels> = {
     heroTagline: "SARAR atölyesinden yeni bir bölüm. Vücudunuzu öğrenen terzilik, zamanla güzelleşen dokular ve gerçekten dinleyen bir stilist.",
     shopChapter: "Koleksiyonu keşfet →",
     tryStylist: "Stilisti dene",
-    collectionTitle: "Yumuşak gelenler.",
+    collectionTitle: "Yeni koleksiyonumuzdan parçalar",
     storyTitle: "Üç kuşak terzi, çok meraklı bir yapay zeka.",
     aiInviteTitle: "Merhaba, ben SHOLÉ. Akşam 8'de panik yapmamanıza yardım ediyorum.",
     aiInviteDesc: "Nereye gideceğinizi söyleyin. Neredeyse aldığınız elbiseyi gösterin. Bir fotoğraf gönderin — paltonun nasıl durduğunu göstereyim.",
