@@ -379,6 +379,10 @@ export function AIAssistant({
           },
         });
         vadHandleRef.current = handle;
+        pushLog("VAD loaded and running ✓ — triggering bot greeting");
+        clientRef.current?.triggerGreeting(
+          "Greet the customer warmly in their language and ask how you can help them shop today."
+        );
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err);
         pushLog(`VAD load FAILED: ${msg}`);
@@ -451,6 +455,9 @@ export function AIAssistant({
 
     pushLog("voice ON requested");
 
+    // Initialize/resume the AudioContext synchronously within the user gesture to bypass browser autoplay blocks.
+    ensurePlayerNode().catch((err) => pushLog(`player warm-up error: ${err.message}`));
+
     let stream: MediaStream;
     try {
       stream = await navigator.mediaDevices.getUserMedia({
@@ -461,8 +468,6 @@ export function AIAssistant({
         },
       });
       pushLog("mic permission granted");
-      // Warm up the PCM player node proactively on user interaction so it's fully ready before Gemini's first audio chunk arrives.
-      ensurePlayerNode().catch((err) => pushLog(`player warm-up error: ${err.message}`));
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       pushLog(`mic permission DENIED: ${msg}`);
@@ -620,9 +625,6 @@ export function AIAssistant({
       await clientRef.current.connect();
       setIsLive(true);
       setIsConnecting(false);
-      clientRef.current.triggerGreeting(
-        "Greet the customer warmly in their language and ask how you can help them shop today."
-      );
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       pushLog(`connect FAILED: ${msg}`);
