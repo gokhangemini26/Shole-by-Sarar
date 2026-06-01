@@ -119,6 +119,7 @@ export function AIAssistant({
   // so we never lose continuity to main-thread jank — and we get a real
   // jitter buffer + fade-out on barge-in for free.
   const playerNodeRef = useRef<AudioWorkletNode | null>(null);
+  const playerInitPromiseRef = useRef<Promise<AudioWorkletNode> | null>(null);
   const isPlayingRef = useRef(false);
   // After a barge-in we keep dropping incoming chunks until Gemini sends
   // turnComplete — otherwise the ~1 s of in-flight audio still arrives,
@@ -238,66 +239,73 @@ export function AIAssistant({
   // out instantly on barge-in without crackle.
   const ensurePlayerNode = useCallback(async () => {
     if (playerNodeRef.current) return playerNodeRef.current;
-    const ctx = getOutputCtx();
-    if (ctx.state === "suspended") await ctx.resume().catch(() => {});
-    try {
-      await ctx.audioWorklet.addModule("/pcm-player-processor.js");
-    } catch {
-      // module already registered
-    }
-    const node = new AudioWorkletNode(ctx, "pcm-player", {
-      numberOfInputs: 0,
-      numberOfOutputs: 1,
-      outputChannelCount: [1],
-    });
-    let lastPriming = true;
-    let turnEndedLocally = false;
-    node.port.onmessage = (ev) => {
-      const msg = ev.data;
-      if (msg && msg.type === "level") {
-        if (msg.isPlaying !== isPlayingRef.current) {
-          const wasPlaying = isPlayingRef.current;
-          isPlayingRef.current = msg.isPlaying;
-          setIsSpeaking(msg.isPlaying);
+    
+    if (!playerInitPromiseRef.current) {
+      playerInitPromiseRef.current = (async () => {
+        const ctx = getOutputCtx();
+        if (ctx.state === "suspended") await ctx.resume().catch(() => {});
+        try {
+          await ctx.audioWorklet.addModule("/pcm-player-processor.js");
+        } catch {
+          // module already registered
+        }
+        const node = new AudioWorkletNode(ctx, "pcm-player", {
+          numberOfInputs: 0,
+          numberOfOutputs: 1,
+          outputChannelCount: [1],
+        });
+        let lastPriming = true;
+        let turnEndedLocally = false;
+        node.port.onmessage = (ev) => {
+          const msg = ev.data;
+          if (msg && msg.type === "level") {
+            if (msg.isPlaying !== isPlayingRef.current) {
+              const wasPlaying = isPlayingRef.current;
+              isPlayingRef.current = msg.isPlaying;
+              setIsSpeaking(msg.isPlaying);
 
-          // Audio just stopped but turn hasn't completed yet —
-          // start a safety timer to release the echo guard.
-          if (wasPlaying && !msg.isPlaying && turnActiveRef.current) {
-            if (echoGuardTimerRef.current) clearTimeout(echoGuardTimerRef.current);
-            echoGuardTimerRef.current = setTimeout(() => {
-              if (!isPlayingRef.current && turnActiveRef.current) {
-                pushLog("echo guard safety release (no turnComplete after 1.5 s)");
-                turnActiveRef.current = false;
-                setIsTurnActive(false);
+              // Audio just stopped but turn hasn't completed yet —
+              // start a safety timer to release the echo guard.
+              if (wasPlaying && !msg.isPlaying && turnActiveRef.current) {
+                if (echoGuardTimerRef.current) clearTimeout(echoGuardTimerRef.current);
+                echoGuardTimerRef.current = setTimeout(() => {
+                  if (!isPlayingRef.current && turnActiveRef.current) {
+                    pushLog("echo guard safety release (no turnComplete after 1.5 s)");
+                    turnActiveRef.current = false;
+                    setIsTurnActive(false);
+                  }
+                  echoGuardTimerRef.current = null;
+                }, 1500);
               }
-              echoGuardTimerRef.current = null;
-            }, 1500);
+              // New audio arrived — cancel any pending safety release.
+              if (!wasPlaying && msg.isPlaying && echoGuardTimerRef.current) {
+                clearTimeout(echoGuardTimerRef.current);
+                echoGuardTimerRef.current = null;
+              }
+            }
+            // Detect underruns (priming flipping back on while we've been
+            // streaming) — only report mid-turn underruns, not natural
+            // end-of-turn buffer drains.
+            if (msg.priming && !lastPriming && !suppressUntilTurnRef.current && !turnEndedLocally) {
+              pushLog(`underrun! re-priming jitter buffer (had ${Math.round(msg.bufferedMs ?? 0)} ms)`);
+            }
+            // Reset turn-ended flag once we're idle (no audio in buffer)
+            if (msg.priming && msg.bufferedMs <= 0) {
+              turnEndedLocally = false;
+            }
+            lastPriming = msg.priming;
+          } else if (msg && msg.type === "turn_ended_ack") {
+            turnEndedLocally = true;
           }
-          // New audio arrived — cancel any pending safety release.
-          if (!wasPlaying && msg.isPlaying && echoGuardTimerRef.current) {
-            clearTimeout(echoGuardTimerRef.current);
-            echoGuardTimerRef.current = null;
-          }
-        }
-        // Detect underruns (priming flipping back on while we've been
-        // streaming) — only report mid-turn underruns, not natural
-        // end-of-turn buffer drains.
-        if (msg.priming && !lastPriming && !suppressUntilTurnRef.current && !turnEndedLocally) {
-          pushLog(`underrun! re-priming jitter buffer (had ${Math.round(msg.bufferedMs ?? 0)} ms)`);
-        }
-        // Reset turn-ended flag once we're idle (no audio in buffer)
-        if (msg.priming && msg.bufferedMs <= 0) {
-          turnEndedLocally = false;
-        }
-        lastPriming = msg.priming;
-      } else if (msg && msg.type === "turn_ended_ack") {
-        turnEndedLocally = true;
-      }
-    };
-    node.connect(ctx.destination);
-    playerNodeRef.current = node;
-    pushLog(`pcm-player worklet active (ctx ${ctx.sampleRate} Hz)`);
-    return node;
+        };
+        node.connect(ctx.destination);
+        playerNodeRef.current = node;
+        pushLog(`pcm-player worklet active (ctx ${ctx.sampleRate} Hz)`);
+        return node;
+      })();
+    }
+    
+    return playerInitPromiseRef.current;
   }, [getOutputCtx, pushLog]);
 
   // Push a base64 PCM chunk into the worklet's ring buffer. Decoding and
@@ -453,6 +461,8 @@ export function AIAssistant({
         },
       });
       pushLog("mic permission granted");
+      // Warm up the PCM player node proactively on user interaction so it's fully ready before Gemini's first audio chunk arrives.
+      ensurePlayerNode().catch((err) => pushLog(`player warm-up error: ${err.message}`));
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       pushLog(`mic permission DENIED: ${msg}`);
