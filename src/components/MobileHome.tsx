@@ -16,14 +16,23 @@ export default function MobileHome() {
   const mobileVidIdx = React.useRef(0);
   const mobileVideos = ["/videos/hero.mp4", "/videos/Kalem.mp4"];
 
-  const handleMobileVideoEnded = React.useCallback(() => {
-    mobileVidIdx.current = (mobileVidIdx.current + 1) % mobileVideos.length;
+  React.useEffect(() => {
     const vid = mobileVidRef.current;
-    if (vid) {
+    if (!vid) return;
+
+    const playNext = () => {
+      mobileVidIdx.current = (mobileVidIdx.current + 1) % mobileVideos.length;
       vid.src = mobileVideos[mobileVidIdx.current];
       vid.load();
       vid.play().catch(() => {});
-    }
+    };
+
+    vid.src = mobileVideos[0];
+    vid.load();
+    vid.play().catch(() => {});
+
+    vid.addEventListener("ended", playNext);
+    return () => vid.removeEventListener("ended", playNext);
   }, []);
 
   // Take the first 3 featured products from desktop for "Soft Arrivals"
@@ -93,15 +102,10 @@ export default function MobileHome() {
           <div className="absolute inset-0 z-0 bg-[#E8DFCF]">
             <video
               ref={mobileVidRef}
-              autoPlay
-              loop={false}
               muted
               playsInline
-              onEnded={handleMobileVideoEnded}
               className="w-full h-full object-cover"
-            >
-              <source src="/videos/hero.mp4" type="video/mp4" />
-            </video>
+            />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
           </div>
           <div className="relative z-10 p-6 flex flex-col gap-8 pb-12">

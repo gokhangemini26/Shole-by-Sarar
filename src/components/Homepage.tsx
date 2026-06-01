@@ -56,14 +56,24 @@ export function Hero({
   const heroVidIdx = React.useRef(0);
   const heroVideos = ["/videos/hero.mp4", "/videos/Kalem.mp4"];
 
-  const handleHeroVideoEnded = React.useCallback(() => {
-    heroVidIdx.current = (heroVidIdx.current + 1) % heroVideos.length;
+  React.useEffect(() => {
     const vid = heroVidRef.current;
-    if (vid) {
+    if (!vid) return;
+
+    const playNext = () => {
+      heroVidIdx.current = (heroVidIdx.current + 1) % heroVideos.length;
       vid.src = heroVideos[heroVidIdx.current];
       vid.load();
       vid.play().catch(() => {});
-    }
+    };
+
+    // Set initial source and play
+    vid.src = heroVideos[0];
+    vid.load();
+    vid.play().catch(() => {});
+
+    vid.addEventListener("ended", playNext);
+    return () => vid.removeEventListener("ended", playNext);
   }, []);
 
   return (
@@ -205,15 +215,10 @@ export function Hero({
         <div style={{ position: "relative", aspectRatio: "3 / 4", width: "100%", overflow: "hidden", borderRadius: 12, background: "#E8DFCF" }}>
           <video
             ref={heroVidRef}
-            autoPlay
-            loop={false}
             muted
             playsInline
-            onEnded={handleHeroVideoEnded}
             style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-          >
-            <source src="/videos/hero.mp4" type="video/mp4" />
-          </video>
+          />
         </div>
         <div
           style={{
