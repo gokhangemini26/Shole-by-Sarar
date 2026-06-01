@@ -358,17 +358,11 @@ export function AIAssistant({
           audioContext: ctx,
           onLog: pushLog,
           onLevel: (lvl) => setAudioLevel(lvl),
-          // Belt-and-braces echo guard: the duck cuts amplitude (and the
-          // VAD probability with it); when AI is playing (or actively streaming
-          // its turn), we require >0.92 confidence before counting as user speech.
-          // This prevents stray noise/echo from interrupting during network underruns.
-          // Only gate on actual audio output — NOT turnActiveRef. Once
-          // the speaker stops, there's no echo to guard against even if
-          // the server hasn't sent turnComplete yet.
-          isAISpeaking: () => isPlayingRef.current,
+          // Keep echo guard active during the entire AI turn to survive mid-turn buffer underruns and gaps between sentences.
+          isAISpeaking: () => isPlayingRef.current || turnActiveRef.current,
           aiPlaybackThreshold: 0.92,
           onSpeechStart: () => {
-            if (isPlayingRef.current) {
+            if (isPlayingRef.current || turnActiveRef.current) {
               pushLog("local interrupt → fading out AI audio");
               suppressUntilTurnRef.current = true;
               stopAudio();
