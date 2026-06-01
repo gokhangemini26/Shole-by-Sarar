@@ -21,6 +21,7 @@
 //   { type: 'level', bufferedMs: number, isPlaying: boolean, priming: boolean }
 class PCMPlayerProcessor extends AudioWorkletProcessor {
   constructor() {
+    super();
     // 6 s buffer dynamic based on sample rate. e.g. at 48 kHz = 288 000 samples.
     this.bufferSize = Math.round(sampleRate * 6);
     this.buffer = new Float32Array(this.bufferSize);
