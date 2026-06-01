@@ -9,8 +9,8 @@ export default function TailoringPage() {
       category="tailoring"
       title={locale === "tr" ? "Terzilik" : "Tailoring"}
       description={locale === "tr"
-        ? "Yeniden yorumlanan SARAR mirası. Yapılı omuzlar, keskin yakalar ve özel kanvas iç astarlar."
-        : "The SARAR heritage reimagined. Structured shoulders, sharp lapels, and custom canvas interlinings."}
+        ? "Yapay zeka çağında yeniden tasarlanan yüksek terzilik. Algoritmik hassasiyetle yapılandırılmış omuzlar, keskin yakalar ve özel kanvas iç astarlar."
+        : "High tailoring reimagined for the AI age. Structured shoulders, sharp lapels, and custom canvas interlinings engineered with algorithmic precision."}
     />
   );
 }

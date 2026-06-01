@@ -1,6 +1,6 @@
-# SHOLÉ by SARAR — Interactive Fashion Website with AI Stylist
+# SHOLÉ — Digital-First Fashion Experience with AI Stylist
 
-A modern luxury fashion website for **SHOLÉ by SARAR** featuring an AI-powered personal stylist built with Gemini 3.1 Flash.
+A digital-first luxury fashion experience for **SHOLÉ** featuring an AI-powered personal stylist built with Gemini 3.5 Flash.
 
 ## Features
 
@@ -49,4 +49,4 @@ Open [http://localhost:3000](http://localhost:3000) to see the site.
 
 ## Brand
 
-**SHOLÉ by SARAR** — Modern atelier, est. 1947 in Istanbul. Three generations of tailors, one very curious AI.
+**SHOLÉ** — Digital luxury atelier, est. 2026. Code, thread, and autonomous styling.

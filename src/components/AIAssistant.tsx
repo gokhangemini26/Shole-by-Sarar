@@ -19,7 +19,7 @@ function buildLiveSystemPrompt(locale: string, memoryContext: string) {
     }
   ).join("\n");
 
-  return `You are SHOLÉ, the in-store AI stylist for SHOLÉ by SARAR (Istanbul, 1944).
+  return `You are SHOLÉ, the in-store AI stylist for SHOLÉ (Istanbul, digital-first since 2026).
 Current interface language: ${locale}.
 
 VOICE STYLE — strict, this is a phone-call conversation:

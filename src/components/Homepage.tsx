@@ -625,8 +625,8 @@ export function StorySplit({
           }}
         >
           {locale === "tr" 
-            ? "SHOLÉ, 1944'ten beri İstanbul'da palto kesen bir moda evi olan SARAR'ın yeni yüzüdür. Aynı atölye, daha yumuşak bir tutum ve gerçekten iyi bir arkadaş olan bir stilist."
-            : "SHOLÉ is the new face of SARAR — a house that's been cutting coats in Istanbul since 1944. Same atelier, softer attitude, and a stylist that's genuinely good company."}
+            ? "SHOLÉ, lüks zanaatkarlık ile ileri yapay zeka teknolojilerinin kesişiminden doğan, tamamen dijital öncelikli ve otonom bir moda evidir. Geleneksel tedarik zincirlerini algoritmik tasarım, dijital ikiz bedenleme ve üretken estetikle yeniden yapılandırarak doğrudan vücudunuza ve hareketlerinize yanıt veren kıyafetler üretiyoruz. Sonuç; her an yanınızda olan bir yapay zeka stilistiyle tamamlanan, son derece premium ve sonsuz derecede modern tasarımlardır."
+            : "SHOLÉ is a fully digital-native, autonomous fashion house born from the intersection of luxury craftsmanship and advanced machine intelligence. By replacing traditional supply chains with algorithmic design, digital-twin sizing, and generative aesthetics, we craft garments that respond directly to your body and movement. The result is clothing that is highly premium and infinitely modern—complemented by an AI stylist that is always in your pocket."}
         </p>
         <div
           style={{
@@ -640,9 +640,9 @@ export function StorySplit({
         >
           {(
             [
-              ["1944", labels.statAtelier],
-              ["82", labels.statTailoring],
-              ["12", labels.statPieces],
+              ["2026", labels.statAtelier],
+              ["99.4%", labels.statTailoring],
+              ["0ms", labels.statPieces],
             ] as const
           ).map(([n, l]) => (
             <div key={l}>

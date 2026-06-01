@@ -4,23 +4,22 @@ import { GlobalAssistant } from "@/components/GlobalAssistant";
 import { LocaleProvider } from "@/lib/LocaleContext";
 
 export const metadata: Metadata = {
-  title: "SHOLÉ by SARAR — Modern Atelier",
+  title: "SHOLÉ — Digital-First Luxury Atelier",
   description:
-    "A new chapter from the SARAR atelier. Tailoring that learns your shape, textures that get better with time, and an AI stylist that actually listens. Spring/Summer 2026.",
+    "The future of tailoring. A digital-first atelier where neural networks meet master craftsmanship, fabric learns your movements, and your AI stylist is always by your side. Spring/Summer 2026.",
   keywords: [
     "SHOLÉ",
-    "SARAR",
-    "fashion",
-    "luxury",
-    "tailoring",
     "AI stylist",
+    "digital tailoring",
+    "computational fashion",
+    "luxury",
+    "modern atelier",
     "Istanbul",
-    "atelier",
   ],
   openGraph: {
-    title: "SHOLÉ by SARAR — Modern Atelier",
+    title: "SHOLÉ — Digital-First Luxury Atelier",
     description:
-      "Tailoring that learns your shape. An AI stylist that actually listens.",
+      "The future of tailoring. Neural networks meet master craftsmanship.",
     type: "website",
     locale: "en_US",
   },

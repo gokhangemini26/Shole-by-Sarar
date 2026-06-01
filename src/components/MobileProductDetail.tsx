@@ -93,7 +93,6 @@ export default function MobileProductDetail() {
           style={{ fontFamily: TYPE.display, letterSpacing: "-0.02em" }}
         >
           SHOLÉ
-          <span className="font-utility-mono text-[11px] opacity-50 uppercase align-top ml-1 tracking-normal font-normal">by Sarar</span>
         </div>
         <button className="text-black p-1">
           <Sparkles size={24} strokeWidth={1.5} />

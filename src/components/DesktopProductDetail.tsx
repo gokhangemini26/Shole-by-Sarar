@@ -11,7 +11,7 @@ import { createClient } from "@/lib/supabase/client";
 import { logProductView, logCartEvent } from "@/lib/supabase/tracking";
 
 /* ═══════════════════════════════════════════════════════════════════════
-   Product Detail Page (Desktop) — SHOLÉ by SARAR
+   Product Detail Page (Desktop) — SHOLÉ
    ═══════════════════════════════════════════════════════════════════════ */
 
 export default function DesktopProductDetail() {

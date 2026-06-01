@@ -238,7 +238,6 @@ export function Nav({
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 48 }}>
             <span style={{ fontFamily: TYPE.display, fontSize: 24, letterSpacing: "0.18em", color: palette.ink }}>
               SHOLÉ
-              <span style={{ fontFamily: TYPE.mono, fontSize: 11, marginLeft: 6, verticalAlign: "super", opacity: 0.5, letterSpacing: "normal" }}>by SARAR</span>
             </span>
             <button onClick={() => setMenuOpen(false)} style={{ background: "transparent", border: 0, color: palette.ink, cursor: "pointer", padding: 8 }}>
               <X size={24} />
@@ -316,18 +315,6 @@ export function Nav({
           }}
         >
           SHOLÉ
-          <span
-            style={{
-              fontFamily: TYPE.mono,
-              fontSize: 12,
-              marginLeft: 6,
-              verticalAlign: "super",
-              color: palette.muted,
-              letterSpacing: "normal",
-            }}
-          >
-            by SARAR
-          </span>
         </a>
 
         <div
@@ -523,7 +510,7 @@ export function Footer({
           {col(labels.shopCol, labels.footerShopItems)}
           {col(labels.stylistCol, labels.footerStylistItems)}
           {col(labels.serviceCol, labels.footerServiceItems)}
-          {col(labels.sararCol, labels.footerSararItems)}
+          {col(labels.sholeCol, labels.footerSholeItems)}
           <div
             style={{
               fontFamily: TYPE.mono,

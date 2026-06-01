@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════════════
-   Product Data — SHOLÉ by SARAR · Chapter 01 · Spring/Summer 2026
+   Product Data — SHOLÉ · Chapter 01 · Spring/Summer 2026
    ═══════════════════════════════════════════════════════════════════════ */
 
 export interface Product {
@@ -36,14 +36,14 @@ export const PRODUCTS: Product[] = [
     tag: "new",
     image: "/images/products/atelier-coat.png",
     detailImage: "/images/products/atelier-coat-detail.png",
-    story: `The coat that started it all. When SHOLÉ's design team sat down with the SARAR atelier master in Istanbul, the brief was simple: build a coat you'd wear to every dinner, every meeting, every airport. The result is the Atelier Coat — terra-dyed in a process that takes 72 hours and gives each piece its own unique warmth.
+    story: `The coat that started it all. When SHOLÉ's design team trained our custom tailoring algorithms on classical outerwear silhouettes, the goal was simple: engineer an autonomous design you'd wear to every dinner, every meeting, every airport. The result is the Atelier Coat — computed to perfectly drape and terra-dyed in a process that takes 72 hours and gives each piece its own unique warmth.
 
-The structured shoulder nods to SARAR's tailoring heritage (they've been cutting coats since 1947), while the cropped sleeve is pure SHOLÉ — modern, a little unexpected, and surprisingly practical. It's the kind of piece that makes people ask where you got it.
+The structured shoulder is a high-modernist statement achieved through precise mathematical draping, while the cropped sleeve is pure SHOLÉ — modern, a little unexpected, and surprisingly practical. It's the kind of piece that makes people ask where you got it.
 
 Every coat is cut from a single bolt to match the grain. Twelve per drop, and when they're gone, they're gone.`,
-    story_tr: `Her şeyin başladığı palto. SHOLÉ tasarım ekibi İstanbul'daki SARAR atölye ustasıyla bir araya geldiğinde brief basitti: her akşam yemeğine, her toplantıya, her havalimanına giyebileceğiniz bir palto yapın. Sonuç; 72 saat süren bir işlemle terra boyanan ve her parçaya kendine özgü sıcaklığını veren Atelier Palto oldu.
+    story_tr: `Her şeyin başladığı palto. SHOLÉ tasarım ekibi klasik dış giyim silüetlerini özel terzilik algoritmalarımızla eğittiğinde hedef basitti: her akşam yemeğine, her toplantıya, her havalimanına giyebileceğiniz otonom bir tasarım mühendisliği yapmak. Sonuç; dökümü mükemmel şekilde hesaplanan ve 72 saat süren bir işlemle terra boyanan, her parçaya kendine özgü sıcaklığını veren Atelier Palto oldu.
 
-Yapılı omuzlar, SARAR'ın terzilik mirasına (1944'ten beri palto kesiyorlar) bir saygı duruşu niteliğindeyken, kısa kollar saf SHOLÉ — modern, biraz beklenmedik ve şaşırtıcı derecede pratik. İnsanların nereden aldığınızı sormasına neden olacak türden bir parça.
+Yapılı omuzlar, hassas matematiksel drapajla elde edilen yüksek modernist bir duruş sergilerken, kısa kollar saf SHOLÉ — modern, biraz beklenmedik ve şaşırtıcı derecede pratik. İnsanların nereden aldığınızı sormasına neden olacak türden bir parça.
 
 Her palto, kumaşın dokusuna uyması için tek bir toptan kesilir. Her seride on iki adet üretilir ve bittiklerinde bir daha gelmezler.`,
     fabric: [
@@ -1259,12 +1259,12 @@ Maskülen bir takım elbise görünümü için Wide Atelier Pantolon ile veya da
     category: "tailoring",
     image: "/images/products/double-breasted-blazer.png",
     detailImage: "/images/products/double-breasted-blazer-detail.png",
-    story: `The cornerstone of any tailored wardrobe, and the piece that connects SHOLÉ most directly to SARAR's 78-year tailoring heritage. Strong shoulders, a nipped waist, and six horn buttons define this classic blazer.
+    story: `The cornerstone of any tailored wardrobe, and the piece that connects SHOLÉ most directly to our vision of computational tailoring. Strong shoulders, a nipped waist, and six horn buttons define this classic blazer, engineered for maximum posture confidence.
 
 The navy wool is from the same Italian mill that supplies some of the world's oldest tailoring houses. The canvas interlining is hand-padded — a technique that takes three times longer than machine fusing but produces a lapel that rolls naturally and improves with wear.
 
 Pair it with the matching Pleated Trousers for a complete suit, or throw it over the Silk Slip Dress for something less expected. Either way, the shoulders will make you stand straighter.`,
-    story_tr: `Her terzilik gardırobunun temel taşı ve SHOLÉ'yi SARAR'ın 78 yıllık asil terzilik mirasına doğrudan bağlayan en özel parça. Güçlü omuzlar, belirgin bir bel kesimi ve altı adet gerçek boynuz düğme bu klasik blazerı tanımlar.
+    story_tr: `Her terzilik gardırobunun temel taşı ve SHOLÉ'yi hesaplamalı terzilik vizyonumuza en doğrudan bağlayan en özel parça. Maksimum duruş özgüveni için tasarlanan güçlü omuzlar, belirgin bir bel kesimi ve altı adet gerçek boynuz düğme bu klasik blazerı tanımlar.
 
 Lacivert yün kumaş, dünyanın en eski terzilik evlerine de tedarik sağlayan köklü bir İtalyan dokuma atölyesinden temin edilmiştir. İç kısmındaki kıl tela konstrüksiyonu tamamen elde işlenmiştir; bu teknik, makine preslemesine kıyasla üç kat daha fazla zaman alsa da, yakanın doğal bir şekilde dökümlü durmasını sağlar ve giyildikçe vücudun şeklini alarak kusursuzlaşır.
 
