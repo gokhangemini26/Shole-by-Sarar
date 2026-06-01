@@ -45,17 +45,22 @@ export default function MobileProductDetail() {
   useEffect(() => {
     if (isTour && product) {
       const seq = async () => {
-        // 1. Once resmi gostersin
+        // 1. Önce resmi göstersin
         window.scrollTo({ top: 0, behavior: "smooth" });
         await new Promise((r) => setTimeout(r, 1500));
         
-        // 2. Sayfanin altina insin
-        window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+        // 2. Yavaşça ürün bilgilerinin okunması için detay alanına kaydırsın
+        const detailsEl = document.getElementById("product-details");
+        if (detailsEl) {
+          detailsEl.scrollIntoView({ behavior: "smooth", block: "center" });
+        } else {
+          window.scrollTo({ top: 500, behavior: "smooth" });
+        }
         
-        // 3. 2 sn beklesin
+        // 3. 2 sn orada beklesin
         await new Promise((r) => setTimeout(r, 2000));
         
-        // 4. Resme donsun
+        // 4. Resmi tam göstermek için yavaşça başa dönsün
         window.scrollTo({ top: 0, behavior: "smooth" });
       };
       seq();
