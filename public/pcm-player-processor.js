@@ -21,9 +21,8 @@
 //   { type: 'level', bufferedMs: number, isPlaying: boolean, priming: boolean }
 class PCMPlayerProcessor extends AudioWorkletProcessor {
   constructor() {
-    super();
-    // 6 s @ 24 kHz = 144 000 samples. Cheap (about 576 KB).
-    this.bufferSize = 144000;
+    // 6 s buffer dynamic based on sample rate. e.g. at 48 kHz = 288 000 samples.
+    this.bufferSize = Math.round(sampleRate * 6);
     this.buffer = new Float32Array(this.bufferSize);
     this.readIdx = 0;
     this.writeIdx = 0;
@@ -32,10 +31,12 @@ class PCMPlayerProcessor extends AudioWorkletProcessor {
     // ── Dual-mode prebuffer thresholds ────────────────────────────────
     // COLD: after stop/clear/barge-in — need more buffer to survive the
     //       burst-then-gap pattern Gemini sends during recovery.
-    this.coldPrebufferSamples = 14400; // 600 ms @ 24 kHz
+    this.coldPrebufferSamples = Math.round(sampleRate * 0.6); // 600 ms prebuffer
     // HOT: after natural end-of-turn drain — the next response's chunks
     //       arrive in a tight burst, but can still have 100-200ms gaps.
-    this.hotPrebufferSamples  = 7200; // 300 ms @ 24 kHz
+    this.hotPrebufferSamples  = Math.round(sampleRate * 0.4); // 400 ms prebuffer
+    // UNDERRUN: during mid-turn underrun — recover super fast with minimal gap.
+    this.underrunPrebufferSamples = Math.round(sampleRate * 0.12); // 120 ms prebuffer
 
     this.prebufferSamples = this.coldPrebufferSamples; // start cold
     this.priming = true;
@@ -48,7 +49,7 @@ class PCMPlayerProcessor extends AudioWorkletProcessor {
 
     this.fadeOut = false;
     this.fadeFrames = 0;
-    this.maxFadeFrames = 600; // ~25 ms @ 24 kHz
+    this.maxFadeFrames = Math.round(sampleRate * 0.025); // ~25 ms fade out
 
     this.framesSinceLastReport = 0;
 
@@ -118,8 +119,8 @@ class PCMPlayerProcessor extends AudioWorkletProcessor {
             // Natural end-of-turn → use HOT priming for the next response.
             this.prebufferSamples = this.hotPrebufferSamples;
           } else {
-            // Mid-turn underrun → use COLD priming (more conservative).
-            this.prebufferSamples = this.coldPrebufferSamples;
+            // Mid-turn underrun → use UNDERRUN priming (very fast re-prime to avoid long gaps)
+            this.prebufferSamples = this.underrunPrebufferSamples;
           }
         }
         continue;
@@ -150,7 +151,7 @@ class PCMPlayerProcessor extends AudioWorkletProcessor {
 
     // Telemetry every ~50 ms
     this.framesSinceLastReport += out.length;
-    if (this.framesSinceLastReport >= 1200) {
+    if (this.framesSinceLastReport >= Math.round(sampleRate * 0.05)) { // telemetry every ~50 ms
       this.framesSinceLastReport = 0;
       const bufferedMs = (this.fillCount / sampleRate) * 1000;
       this.port.postMessage({

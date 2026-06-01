@@ -45,6 +45,21 @@ Free shipping over €200. Made in Istanbul. Sizes XS–XL.
 ${memoryContext}`;
 }
 
+function resamplePCM(oldSamples: Int16Array, oldSR: number, newSR: number): Int16Array {
+  if (oldSR === newSR) return oldSamples;
+  const ratio = oldSR / newSR;
+  const newLength = Math.round(oldSamples.length / ratio);
+  const result = new Int16Array(newLength);
+  for (let i = 0; i < newLength; i++) {
+    const oldIdx = i * ratio;
+    const low = Math.floor(oldIdx);
+    const high = Math.min(low + 1, oldSamples.length - 1);
+    const weight = oldIdx - low;
+    result[i] = Math.round(oldSamples[low] * (1 - weight) + oldSamples[high] * weight);
+  }
+  return result;
+}
+
 type Msg = { role: "user" | "model"; content: string; products?: string[] };
 type LogLine = { ts: string; text: string };
 
@@ -320,12 +335,15 @@ export function AIAssistant({
       const bytes = new Int16Array(bin.length / 2);
       for (let i = 0; i < bin.length; i += 2)
         bytes[i / 2] = (bin.charCodeAt(i + 1) << 8) | bin.charCodeAt(i);
-      const buf = bytes.buffer.slice(0); // transfer-safe copy
+      
+      const ctx = getOutputCtx();
+      const resampled = resamplePCM(bytes, 24000, ctx.sampleRate);
+      const buf = resampled.buffer.slice(0); // transfer-safe copy
       node.port.postMessage({ type: "pcm", data: buf }, [buf]);
       isPlayingRef.current = true;
       setIsSpeaking(true);
     },
-    [ensurePlayerNode]
+    [ensurePlayerNode, getOutputCtx]
   );
 
   const stopAudio = useCallback(() => {

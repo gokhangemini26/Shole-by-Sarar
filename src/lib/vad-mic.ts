@@ -69,7 +69,7 @@ export async function startVADMic(
   const aiPlaybackThreshold = cfg.aiPlaybackThreshold ?? 0.95;
   // Require N consecutive high-confidence frames during AI playback before
   // we trust it's a real barge-in. Single-frame spikes are usually echo.
-  const aiPlaybackConsecutiveFrames = 12; // 360ms of continuous human speech
+  const aiPlaybackConsecutiveFrames = 6; // 180ms of continuous human speech
 
   log(`Silero VAD: loading model from /vad/ + jsdelivr…`);
 
@@ -164,14 +164,9 @@ export async function startVADMic(
         }
 
         if (aiTalking && !realBargeInActive) {
-          // Likely speaker echo bleeding into the mic — send a silent
-          // frame instead of dropping entirely. This keeps the server-side
-          // silence detection working (it needs continuous audio to detect
-          // when the user's turn ends). A zero-filled frame is ~0 dBFS.
+          // Speaker echo bleeding into mic is handled by hardware/browser AEC.
+          // We stream the actual mic frames to keep Gemini's silence/pacing detector perfectly aligned.
           droppedDuringPlayback++;
-          const silent = new Float32Array(frame.length); // all zeros
-          cfg.onSpeechFrameB64(f32ToPCM16Base64(silent));
-          return;
         }
 
         cfg.onSpeechFrameB64(f32ToPCM16Base64(frame));
