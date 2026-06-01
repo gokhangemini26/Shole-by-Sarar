@@ -10,6 +10,10 @@ import { getLabels } from "@/lib/i18n";
 import { createClient } from "@/lib/supabase/client";
 import { getAIMemoryContext, createChatSession, logChatMessage } from "@/lib/supabase/tracking";
 
+// ms to keep the mic gated after the last audio sample plays out, covering
+// speaker output latency + room reverb so trailing echo never reaches Gemini.
+const SPEAKER_DRAIN_TAIL_MS = 450;
+
 function buildLiveSystemPrompt(locale: string, memoryContext: string) {
   const productList = PRODUCTS.map(
     (p, i) => {
@@ -144,6 +148,14 @@ export function AIAssistant({
   // Safety valve: if audio playback stops but turnComplete never arrives,
   // release the echo guard after 1.5 s so the user's mic isn't blocked.
   const echoGuardTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Speaker-drain tail: turnComplete / isPlaying=false fire the instant the
+  // ring buffer empties, but the speaker keeps physically emitting the bot's
+  // voice for a few hundred ms after (output latency + room reverb). Keep the
+  // mic suppressed until this timestamp so that trailing echo never reaches
+  // Gemini and gets mistaken for a user barge-in.
+  const aiTailUntilRef = useRef(0);
+  const aiTailTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [aiAudioTail, setAiAudioTail] = useState(false);
 
   /* ── Logging ───────────────────────────────────────────────────────── */
   const pushLog = useCallback((text: string) => {
@@ -214,12 +226,12 @@ export function AIAssistant({
     // Silero's positive threshold even with the noisiest laptops.
     // Keep ducking active even during brief buffer underruns if the turn
     // hasn't officially completed yet.
-    const target = (isSpeaking || isTurnActive) ? 0.08 : 1.0;
+    const target = (isSpeaking || isTurnActive || aiAudioTail) ? 0.08 : 1.0;
     // Smooth 30 ms ramp avoids audible pops
     gain.gain.cancelScheduledValues(ctx.currentTime);
     gain.gain.setValueAtTime(gain.gain.value, ctx.currentTime);
     gain.gain.linearRampToValueAtTime(target, ctx.currentTime + 0.03);
-  }, [isSpeaking, isTurnActive]);
+  }, [isSpeaking, isTurnActive, aiAudioTail]);
 
   /* ── Cleanup ───────────────────────────────────────────────────────── */
   useEffect(() => {
@@ -279,23 +291,45 @@ export function AIAssistant({
               isPlayingRef.current = msg.isPlaying;
               setIsSpeaking(msg.isPlaying);
 
-              // Audio just stopped but turn hasn't completed yet —
-              // start a safety timer to release the echo guard.
-              if (wasPlaying && !msg.isPlaying && turnActiveRef.current) {
-                if (echoGuardTimerRef.current) clearTimeout(echoGuardTimerRef.current);
-                echoGuardTimerRef.current = setTimeout(() => {
-                  if (!isPlayingRef.current && turnActiveRef.current) {
-                    pushLog("echo guard safety release (no turnComplete after 1.5 s)");
-                    turnActiveRef.current = false;
-                    setIsTurnActive(false);
-                  }
-                  echoGuardTimerRef.current = null;
-                }, 1500);
+              // Audio just stopped: arm the speaker-drain tail so the echo
+              // gate + mic ducking stay engaged while the speaker finishes
+              // emitting the bot's voice. Without this, trailing echo leaks
+              // to Gemini and triggers a false barge-in that restarts the turn.
+              if (wasPlaying && !msg.isPlaying) {
+                aiTailUntilRef.current = Date.now() + SPEAKER_DRAIN_TAIL_MS;
+                setAiAudioTail(true);
+                if (aiTailTimerRef.current) clearTimeout(aiTailTimerRef.current);
+                aiTailTimerRef.current = setTimeout(() => {
+                  if (!isPlayingRef.current) setAiAudioTail(false);
+                  aiTailTimerRef.current = null;
+                }, SPEAKER_DRAIN_TAIL_MS);
+
+                // Safety timer to release the echo guard if turnComplete
+                // never arrives.
+                if (turnActiveRef.current) {
+                  if (echoGuardTimerRef.current) clearTimeout(echoGuardTimerRef.current);
+                  echoGuardTimerRef.current = setTimeout(() => {
+                    if (!isPlayingRef.current && turnActiveRef.current) {
+                      pushLog("echo guard safety release (no turnComplete after 1.5 s)");
+                      turnActiveRef.current = false;
+                      setIsTurnActive(false);
+                    }
+                    echoGuardTimerRef.current = null;
+                  }, 1500);
+                }
               }
-              // New audio arrived — cancel any pending safety release.
-              if (!wasPlaying && msg.isPlaying && echoGuardTimerRef.current) {
-                clearTimeout(echoGuardTimerRef.current);
-                echoGuardTimerRef.current = null;
+              // New audio arrived — cancel pending releases and tail.
+              if (!wasPlaying && msg.isPlaying) {
+                aiTailUntilRef.current = 0;
+                setAiAudioTail(false);
+                if (aiTailTimerRef.current) {
+                  clearTimeout(aiTailTimerRef.current);
+                  aiTailTimerRef.current = null;
+                }
+                if (echoGuardTimerRef.current) {
+                  clearTimeout(echoGuardTimerRef.current);
+                  echoGuardTimerRef.current = null;
+                }
               }
             }
             // Detect underruns (priming flipping back on while we've been
@@ -376,8 +410,13 @@ export function AIAssistant({
           audioContext: ctx,
           onLog: pushLog,
           onLevel: (lvl) => setAudioLevel(lvl),
-          // Keep echo guard active during the entire AI turn to survive mid-turn buffer underruns and gaps between sentences.
-          isAISpeaking: () => isPlayingRef.current || turnActiveRef.current,
+          // Keep echo guard active during the entire AI turn AND through the
+          // speaker-drain tail after it ends, so trailing echo never reaches
+          // Gemini as a false barge-in.
+          isAISpeaking: () =>
+            isPlayingRef.current ||
+            turnActiveRef.current ||
+            Date.now() < aiTailUntilRef.current,
           aiPlaybackThreshold: 0.92,
           onSpeechStart: () => {
             // Purely rely on Gemini's highly accurate server-side echo cancellation and interruption detection
