@@ -362,11 +362,9 @@ export function AIAssistant({
           isAISpeaking: () => isPlayingRef.current || turnActiveRef.current,
           aiPlaybackThreshold: 0.92,
           onSpeechStart: () => {
-            if (isPlayingRef.current || turnActiveRef.current) {
-              pushLog("local interrupt → fading out AI audio");
-              suppressUntilTurnRef.current = true;
-              stopAudio();
-            }
+            // Purely rely on Gemini's highly accurate server-side echo cancellation and interruption detection
+            // to avoid client-side speaker echo from falsely cutting off the AI's voice mid-turn.
+            pushLog("local VAD speech start detected");
           },
           onSpeechFrameB64: (b64) => {
             clientRef.current?.sendAudio(b64);
