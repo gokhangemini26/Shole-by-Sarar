@@ -40,6 +40,14 @@ export interface VADMicConfig {
   /** When AI is speaking, only frames whose isSpeech ≥ this threshold are
    *  forwarded. Default 0.92. */
   aiPlaybackThreshold?: number;
+  /** While the AI is speaking, a real user barge-in must also clear this
+   *  RMS energy floor (0..1, full-scale). Silero's isSpeech can't separate
+   *  the bot's own (quiet, ducked) speaker echo from the user's (loud,
+   *  close-mic) voice — both are "speech" — so we additionally require the
+   *  frame to be loud. Default 0.02. Raise it if the bot still cuts itself
+   *  off; lower it if genuine barge-in is too hard. Check the VAD heartbeat
+   *  log (peakRms) to tune. */
+  aiPlaybackRmsThreshold?: number;
 }
 
 export interface VADMicHandle {
@@ -67,6 +75,8 @@ export async function startVADMic(
   // Tighter than positive threshold — only confidently human voice should
   // bypass the echo gate while AI is talking.
   const aiPlaybackThreshold = cfg.aiPlaybackThreshold ?? 0.95;
+  // Energy floor a real barge-in must clear while the AI is speaking.
+  const aiPlaybackRmsThreshold = cfg.aiPlaybackRmsThreshold ?? 0.02;
   // Require N consecutive high-confidence frames during AI playback before
   // we trust it's a real barge-in. Single-frame spikes are usually echo.
   const aiPlaybackConsecutiveFrames = 6; // 180ms of continuous human speech
@@ -78,6 +88,7 @@ export async function startVADMic(
   let warmupAnnounced = false;
   let frameCounter = 0;
   let maxProbSeen = 0;
+  let maxRmsDuringPlayback = 0;
   let droppedDuringPlayback = 0;
   let sentFrames = 0;
   let consecutiveHighProbFrames = 0;
@@ -116,15 +127,25 @@ export async function startVADMic(
       onFrameProcessed: (probs, frame) => {
         cfg.onLevel?.(probs.isSpeech);
 
+        // RMS energy of this frame (0..1 full-scale). This is the "dB level"
+        // discriminator: the bot's ducked speaker echo is quiet, the user's
+        // close-mic voice is loud, even though Silero scores both as speech.
+        let sumSq = 0;
+        for (let i = 0; i < frame.length; i++) sumSq += frame[i] * frame[i];
+        const rms = Math.sqrt(sumSq / frame.length);
+
         frameCounter++;
         if (probs.isSpeech > maxProbSeen) maxProbSeen = probs.isSpeech;
+        if (rms > maxRmsDuringPlayback) maxRmsDuringPlayback = rms;
         if (frameCounter % 100 === 0) {
           log(
             `VAD heartbeat: 100f, peak isSpeech=${maxProbSeen.toFixed(2)} ` +
-              `(thr ${positiveSpeechThreshold}/${aiPlaybackThreshold}) ` +
-              `sent=${sentFrames} droppedEcho=${droppedDuringPlayback}`
+              `peakRms=${maxRmsDuringPlayback.toFixed(3)} ` +
+              `(thr ${positiveSpeechThreshold}/${aiPlaybackThreshold}/rms${aiPlaybackRmsThreshold}) ` +
+              `sent=${sentFrames} mutedEcho=${droppedDuringPlayback}`
           );
           maxProbSeen = 0;
+          maxRmsDuringPlayback = 0;
           sentFrames = 0;
           droppedDuringPlayback = 0;
         }
@@ -140,10 +161,15 @@ export async function startVADMic(
 
         const aiTalking = cfg.isAISpeaking?.() ?? false;
 
-        // Track confirmed real barge-in: N consecutive frames above the
-        // echo threshold means the user is genuinely talking over the AI.
+        // Track confirmed real barge-in: N consecutive frames that are BOTH
+        // speech-like AND loud enough to clear the echo floor means the user
+        // is genuinely talking over the AI. The RMS gate is what rejects the
+        // bot's own echo (which Silero alone scores as confident speech).
         if (aiTalking) {
-          if (probs.isSpeech >= aiPlaybackThreshold) {
+          if (
+            probs.isSpeech >= aiPlaybackThreshold &&
+            rms >= aiPlaybackRmsThreshold
+          ) {
             consecutiveHighProbFrames++;
             if (
               consecutiveHighProbFrames >= aiPlaybackConsecutiveFrames &&
@@ -151,7 +177,7 @@ export async function startVADMic(
             ) {
               realBargeInActive = true;
               log(
-                `VAD real barge-in confirmed (${consecutiveHighProbFrames} consecutive frames)`
+                `VAD real barge-in confirmed (${consecutiveHighProbFrames} frames, rms=${rms.toFixed(3)})`
               );
               cfg.onSpeechStart?.();
             }
@@ -164,9 +190,16 @@ export async function startVADMic(
         }
 
         if (aiTalking && !realBargeInActive) {
-          // Speaker echo bleeding into mic is handled by hardware/browser AEC.
-          // We stream the actual mic frames to keep Gemini's silence/pacing detector perfectly aligned.
+          // AI is speaking and no real (loud) user barge-in is confirmed:
+          // forward a SILENT frame instead of the live mic so the bot's
+          // speaker echo can never loop back into Gemini and trigger a false
+          // interruption — while still keeping the stream continuous so the
+          // server's silence/turn detector stays aligned. This is the
+          // half-duplex "lower mic sensitivity while AI talks" behaviour.
           droppedDuringPlayback++;
+          const silent = new Float32Array(frame.length);
+          cfg.onSpeechFrameB64(f32ToPCM16Base64(silent));
+          return;
         }
 
         cfg.onSpeechFrameB64(f32ToPCM16Base64(frame));
