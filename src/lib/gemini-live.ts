@@ -149,9 +149,12 @@ export class GeminiLiveClient {
         outputAudioTranscription: {},
         inputAudioTranscription: {},
         realtimeInputConfig: {
-          // Barge-in: the moment the user speaks, cut off the model's reply
-          // and start listening. Required for natural back-and-forth.
-          activityHandling: ActivityHandling.START_OF_ACTIVITY_INTERRUPTS,
+          // Half-duplex: never let detected activity interrupt the model
+          // mid-turn. The client already mutes the mic (sends silence) while
+          // the AI speaks, but this is the server-side guarantee that the
+          // bot's own speaker echo can't cut its reply short. The user takes
+          // their turn after playback finishes.
+          activityHandling: ActivityHandling.NO_INTERRUPTION,
           automaticActivityDetection: {
             // LOW sensitivity avoids echo-triggered false barge-ins
             // while still catching intentional interruptions reliably.

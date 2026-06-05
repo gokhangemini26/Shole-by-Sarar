@@ -75,11 +75,9 @@ export async function startVADMic(
   // Tighter than positive threshold — only confidently human voice should
   // bypass the echo gate while AI is talking.
   const aiPlaybackThreshold = cfg.aiPlaybackThreshold ?? 0.95;
-  // Energy floor a real barge-in must clear while the AI is speaking.
+  // Energy floor logged for diagnostics (peakRms heartbeat). Echo and real
+  // speech overlap in RMS, so it is no longer used to gate barge-in.
   const aiPlaybackRmsThreshold = cfg.aiPlaybackRmsThreshold ?? 0.02;
-  // Require N consecutive high-confidence frames during AI playback before
-  // we trust it's a real barge-in. Single-frame spikes are usually echo.
-  const aiPlaybackConsecutiveFrames = 6; // 180ms of continuous human speech
 
   log(`Silero VAD: loading model from /vad/ + jsdelivr…`);
 
@@ -91,8 +89,6 @@ export async function startVADMic(
   let maxRmsDuringPlayback = 0;
   let droppedDuringPlayback = 0;
   let sentFrames = 0;
-  let consecutiveHighProbFrames = 0;
-  let realBargeInActive = false;
 
   let vad;
   try {
@@ -116,9 +112,12 @@ export async function startVADMic(
         // During AI playback, only honour onSpeechStart if we already have
         // N consecutive frames above aiPlaybackThreshold. Single-frame
         // spikes (echo) shouldn't kill the AI's reply mid-sentence.
-        const aiTalking = cfg.isAISpeaking?.() ?? false;
-        if (aiTalking && !realBargeInActive) {
-          log("VAD speech start IGNORED (echo guard, awaiting confirmation)");
+        // Half-duplex: never honour a barge-in while the AI is speaking.
+        // Without hardware AEC, echo and ambient noise are indistinguishable
+        // from real speech, so we keep the AI's turn intact and let the user
+        // speak in the gap after playback stops.
+        if (cfg.isAISpeaking?.()) {
+          log("VAD speech start IGNORED (AI speaking — half-duplex)");
           return;
         }
         log("VAD → speech start (barge-in signal)");
@@ -161,41 +160,17 @@ export async function startVADMic(
 
         const aiTalking = cfg.isAISpeaking?.() ?? false;
 
-        // Track confirmed real barge-in: N consecutive frames that are BOTH
-        // speech-like AND loud enough to clear the echo floor means the user
-        // is genuinely talking over the AI. The RMS gate is what rejects the
-        // bot's own echo (which Silero alone scores as confident speech).
+        // HALF-DUPLEX MIC GATE.
+        // While the AI is speaking we forward SILENT frames upstream and
+        // never trigger a barge-in. The bot's speaker echo and ambient noise
+        // can be just as loud (high RMS) and just as speech-like (high Silero
+        // isSpeech) as the real user — the logs show echo at rms 0.07–0.19 —
+        // so no threshold can separate them reliably without hardware AEC.
+        // Per product rule the AI must finish its turn without interrupting
+        // itself; the user speaks in the gap after playback stops
+        // (isAISpeaking → false). Sending silence (not nothing) keeps the
+        // server's turn detector aligned.
         if (aiTalking) {
-          if (
-            probs.isSpeech >= aiPlaybackThreshold &&
-            rms >= aiPlaybackRmsThreshold
-          ) {
-            consecutiveHighProbFrames++;
-            if (
-              consecutiveHighProbFrames >= aiPlaybackConsecutiveFrames &&
-              !realBargeInActive
-            ) {
-              realBargeInActive = true;
-              log(
-                `VAD real barge-in confirmed (${consecutiveHighProbFrames} frames, rms=${rms.toFixed(3)})`
-              );
-              cfg.onSpeechStart?.();
-            }
-          } else {
-            consecutiveHighProbFrames = 0;
-          }
-        } else {
-          consecutiveHighProbFrames = 0;
-          realBargeInActive = false;
-        }
-
-        if (aiTalking && !realBargeInActive) {
-          // AI is speaking and no real (loud) user barge-in is confirmed:
-          // forward a SILENT frame instead of the live mic so the bot's
-          // speaker echo can never loop back into Gemini and trigger a false
-          // interruption — while still keeping the stream continuous so the
-          // server's silence/turn detector stays aligned. This is the
-          // half-duplex "lower mic sensitivity while AI talks" behaviour.
           droppedDuringPlayback++;
           const silent = new Float32Array(frame.length);
           cfg.onSpeechFrameB64(f32ToPCM16Base64(silent));
