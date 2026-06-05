@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 import { X, Mic, MicOff, Send, Terminal, AlertTriangle, Sparkles } from "lucide-react";
+import { AIVoiceInput } from "@/components/ui/ai-voice-input";
 import { GeminiLiveClient, FunctionCall } from "@/lib/gemini-live";
 import { startVADMic, type VADMicHandle } from "@/lib/vad-mic";
 import { PRODUCTS } from "@/lib/products";
@@ -934,28 +935,14 @@ export function AIAssistant({
       <div className={`p-3 flex items-center gap-2 backdrop-blur-3xl shrink-0 ${
         isExpanded ? "bg-black/20 border-t border-white/10" : "bg-white/40 border-t border-white/30"
       }`}>
-        {/* Status Indicator */}
-        <div className="hidden md:flex flex-col justify-center items-center mr-2">
-          <div
-            className={`w-8 h-8 rounded-full flex items-center justify-center font-bold transition-transform ${isExpanded ? "bg-white/10 text-white" : "bg-black text-white"}`}
-            style={{ transform: isLive ? `scale(${1 + audioLevel * 0.2})` : "none" }}
-          >
-            S
-          </div>
-        </div>
-
-        <button
-          onClick={toggleVoice}
-          className={`w-10 h-10 shrink-0 rounded-full flex items-center justify-center transition-all shadow-sm ${
-            isLive
-              ? "bg-red-500 text-white animate-pulse shadow-red-500/30"
-              : isConnecting
-              ? "bg-amber-400 text-white"
-              : isExpanded ? "bg-white/10 text-white hover:bg-white/20" : "bg-black text-white"
-          }`}
-        >
-          {isLive ? <MicOff size={16} /> : <Mic size={16} />}
-        </button>
+        <AIVoiceInput
+          isActive={isLive}
+          isConnecting={isConnecting}
+          onStart={toggleVoice}
+          onStop={toggleVoice}
+          visualizerBars={32}
+          className="py-0 shrink-0"
+        />
 
         <div className={`flex-1 flex items-center gap-2 rounded-full px-4 py-1.5 border transition-all shadow-inner ${
           isExpanded ? "bg-white/5 border-white/10 focus-within:border-white/30 focus-within:bg-white/10" : "bg-white/60 border-white/50 focus-within:border-black/20 focus-within:bg-white/80"
