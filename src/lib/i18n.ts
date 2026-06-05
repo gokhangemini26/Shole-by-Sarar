@@ -196,7 +196,7 @@ const labels: Record<Locale, Labels> = {
     askShole: "SHOLÉ'ye Sor",
     search: "Ara",
     account: "Üye Girişi",
-    bag: "Çanta",
+    bag: "Sepetim",
     heroSubtitle: "İlkbahar / Yaz 2026 — Bölüm 01",
     heroTagline: "Terziliğin geleceği. Yapay sinir ağları ile usta zanaatkarlığın buluştuğu, kumaşın hareketlerinizi öğrendiği ve AI stilistinizin her an yanınızda olduğu dijital öncelikli bir atölye.",
     shopChapter: "Koleksiyonu keşfet →",

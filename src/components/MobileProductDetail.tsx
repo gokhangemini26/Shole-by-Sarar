@@ -94,10 +94,11 @@ export default function MobileProductDetail() {
         </button>
         <div 
           onClick={() => router.push("/")}
-          className="text-2xl font-bold cursor-pointer" 
-          style={{ fontFamily: TYPE.display, letterSpacing: "-0.02em" }}
+          className="text-xl cursor-pointer font-sans" 
+          style={{ fontFamily: TYPE.display }}
         >
-          SHOLÉ
+          <strong style={{ fontWeight: 800, letterSpacing: "0.06em" }}>SHOLÉ</strong>{" "}
+          <span style={{ fontSize: "0.6em", textTransform: "uppercase", opacity: 0.8, letterSpacing: "0.1em", verticalAlign: "middle", marginLeft: 2 }}>by SARAR</span>
         </div>
         <button className="text-black p-1">
           <Sparkles size={24} strokeWidth={1.5} />

@@ -205,57 +205,53 @@ Bu pantolon İstanbul'un arnavut kaldırımlarında, gece uçuşlarında ve çok
       { slug: "sun-up-scarf", name: "Sun-Up Scarf" },
     ],
   },
-  {
+    {
     slug: "mule-no4",
-    name: "Mule No. 4",
-    name_tr: "Mule No. 4",
-    subtitle: "espresso leather · pointed toe · elegant silhouette",
-    subtitle_tr: "espresso deri · sivri burun · zarif siluet",
+    name: "Atelier Suede Mule",
+    name_tr: "Atölye Süet Terlik",
+    subtitle: "espresso suede · seamless · elegant profile",
+    subtitle_tr: "espresso süet · dikişsiz · yalın siluet",
     price: "€ 380",
     category: "shoes",
     tag: "late spring",
     image: "/images/products/mule-no4.png",
     detailImage: "/images/products/mule-no4-detail.png",
-    story: `Mule No. 4 is our house classic — and the one we finally got right. The elegant pointed silhouette took seven prototypes to perfect the drape and curve of the leather. The slight stacked heel was tested from Istanbul to Milan cobblestones. The leather sole is stitched, not glued.
+    story: `A study in sculptural simplicity. The Atelier Suede Mule is defined by its seamless construction, completely free of hardware or visible stitching on the upper. Cut from premium espresso suede, it features a refined pointed profile that naturally elongates the leg line while maintaining an understated, quiet luxury aesthetic.
 
-The espresso leather comes from a tannery in Izmir that's been working hides for three generations. It's vegetable-tanned, which means it darkens and softens with wear — your pair will look different from everyone else's within a month.
+Every pair is handcrafted in our workshop using vegetable-tanned lining and a blake-stitched leather sole. A slight stacked heel and cushioned insole ensure elegance without compromising daily comfort.`,
+    story_tr: `Heykelsi sadeliğin bir ifadesi. Atölye Süet Terlik, dikişsiz tasarımı ve üzerinde hiçbir metal aksesuar ya da dikiş barındırmayan yalın yapısıyla öne çıkar. Birinci sınıf espresso rengi süet deriden kesilen bu model, bacak boyunu zarifçe uzatan sivri burun profiliyle sessiz lüks estetiğini en saf haliyle sunar.
 
-We added a foam-cushioned insole because we believe a shoe can look sharp and feel comfortable. No compromise, that's rule number one at the atelier.`,
-    story_tr: `Mule No. 4, evimizin klasiği — ve sonunda tam doğru yaptığımız parça. Zarif sivri burunlu siluet, derinin dökümünü ve kavisini mükemmelleştirmek için yedi prototip sürdü. Hafif katmanlı topuk yüksekliği İstanbul'dan Milano'nun arnavut kaldırımlarına kadar test edildi. Deri taban yapıştırılmadı, dikildi.
-
-Espresso derisi, İzmir'de üç kuşaktır deri işleyen bir tabakhaneden geliyor. Bitkisel tabaklanmıştır, bu da giyildikçe koyulaşıp yumuşayacağı anlamına gelir — sizin çiftiniz bir ay içinde herkesten farklı görünecektir.
-
-Sert bir görünümün yanında rahat da hissettirmesi gerektiğine inandığımız için köpük destekli bir iç taban ekledik. Taviz yok, atölyenin bir numaralı kuralı budur.`,
+Her bir çift, bitkisel tabaklanmış astar ve blake dikişli deri taban kullanılarak atölyemizde el işçiliğiyle üretilmiştir. Hafif katmanlı topuğu ve destekli iç tabanı, günlük konfordan ödün vermeden asil bir duruş sağlar.`,
     fabric: [
-      { name: "Vegetable-Tanned Leather", percentage: 100 },
+      { name: "Premium Suede Leather", percentage: 100 },
     ],
     details: [
-      "Pointed toe — elegant, leg-elongating silhouette",
-      "Slight stacked heel for all-day support",
-      "Blake-stitched leather sole",
-      "Foam-cushioned leather insole",
-      "Izmir tannery — vegetable-tanned, 3rd generation",
-      "Darkens and softens with wear",
+      "Seamless upper in rich espresso suede",
+      "Pointed-toe elegant silhouette",
+      "Blake-stitched genuine leather sole",
+      "Soft cushioned leather insole",
+      "Vegetable-tanned leather lining",
+      "Slight stacked heel",
     ],
     details_tr: [
-      "Sivri burun — bacak boyunu uzatan zarif siluet",
-      "Gün boyu destek sunan hafif katmanlı topuk",
-      "Blake dikişli deri taban",
-      "Köpük destekli deri iç taban",
-      "İzmir tabakhanesi — bitkisel tabaklanmış, 3. kuşak",
-      "Giyildikçe koyulaşır ve yumuşar",
+      "Zengin espresso rengi süet dikişsiz saya",
+      "Sivri burunlu zarif siluet",
+      "Blake dikişli hakiki deri taban",
+      "Yumuşak dolgulu deri iç taban",
+      "Bitkisel tabaklanmış deri iç astar",
+      "Hafif katmanlı topuk yapısı",
     ],
     care: [
-      "Condition with leather balm monthly",
-      "Store with shoe trees",
-      "Avoid water — leather is uncoated",
-      "Let rest 24h between wears",
+      "Protect with a quality suede waterproofing spray",
+      "Clean gently with a specialized suede brush",
+      "Store in the provided dust bag with shoe trees",
+      "Avoid direct exposure to heavy rain and water",
     ],
     care_tr: [
-      "Ayda bir deri bakım kremi uygulayın",
-      "Ayakkabı kalıbıyla saklayın",
-      "Sudan kaçının — deri kaplamasızdır",
-      "Kullanımlar arasında 24 saat dinlendirin",
+      "Kaliteli bir süet koruyucu sprey ile koruyun",
+      "Özel süet fırçası yardımıyla nazikçe temizleyin",
+      "Size sunulan toz torbasında ve ayakkabı kalıbıyla saklayın",
+      "Yoğun yağmur ve suyla doğrudan temastan kaçının",
     ],
     sizes: ["36", "37", "38", "39", "40", "41"],
     pairsWith: [
@@ -1010,238 +1006,241 @@ Ayarlanabilir askısı, çapraz çanta olarak takmanıza veya kısaltarak omuzda
   },
 
   // --- SHOES ---
-  {
+    {
     slug: "pointed-flat",
-    name: "Square-Toe Leather Flat",
-    name_tr: "Küt Burunlu Deri Babet",
-    subtitle: "black leather · square toe · slight heel",
-    subtitle_tr: "siyah deri · küt burun · hafif topuklu",
+    name: "Sleek Slingback Flat",
+    name_tr: "Zarif Slingback Babet",
+    subtitle: "black calfskin · delicate ankle strap · pointed toe",
+    subtitle_tr: "siyah dana derisi · ince bilek bandı · sivri burun",
     price: "€ 340",
     category: "shoes",
     image: "/images/products/pointed-flat.png",
     detailImage: "/images/products/pointed-flat-detail.png",
-    story: `The elegant alternative to the Mule. Where the Mule No. 4 is relaxed and open-backed, the Square-Toe Flat is polished and decisive. The modern square-toe box offers a contemporary and sculptural silhouette, while the slight 15mm stacked heel provides all-day support without fatigue.
+    story: `The Sleek Slingback Flat is our minimal take on the classic flat. Cut from ultra-soft black calfskin, it features a sharp pointed toe and a delicate ankle strap that secures the foot with sculptural grace. It's the ultimate everyday companion, designed to walk you from morning gallery meetings to evening dinners with absolute ease.
 
-The black leather comes from the same Izmir tannery as the Mule, but finished with a fine grain that resists scuffing. The cushioned insole uses memory foam wrapped in leather — your feet won't know it's a flat and not a sneaker.
+The low-profile stacked heel is designed for continuous wear, and the leather-lined memory foam insole provides unexpected support. A timeless flat that feels completely contemporary.`,
+    story_tr: `Zarif Slingback Babet, klasik babet tasarımına minimalist yorumumuzdur. Ultra yumuşak siyah dana derisinden kesilen bu model, keskin sivri burnu ve ayağı heykelsi bir zarafetle saran incecik bilek bandıyla öne çıkar. Sabah galeri toplantılarından akşam yemeklerine kadar size mutlak bir konforla eşlik edecek mükemmel bir günlük tamamlayıcıdır.
 
-We designed it for the woman who walks everywhere. Istanbul's cobblestones, gallery openings, airport corridors — it handles all of them.`,
-    story_tr: `Mule terliklerin zarif bir alternatifi. Mule No. 4 rahat ve arkası açıkken, Küt Burunlu Babet daha resmi ve net bir duruş sergiler. Modern küt burun tasarımı, çağdaş ve heykelsi bir siluet sunarken, hafif 15 mm katmanlı topuk yorulmadan gün boyu destek sunar.
-
-Siyah deri, Mule ile aynı İzmir tabakhanesinden geliyor; ancak çizilmelere karşı dayanıklı, ince taneli bir doku ile işlenmiştir. Destekli iç tabanı deri kaplı hafızalı köpük kullanır — ayaklarınız spor ayakkabı konforunu aramayacak.
-
-Her yere yürüyen kadınlar için tasarladık. İstanbul'un arnavut kaldırımları, galeri açılışları, havaalanı koridorları — hepsinin üstesinden rahatlıkla gelir.`,
+Düşük profilli katmanlı topuk, uzun süreli kullanım için tasarlanmıştır ve deri kaplı hafızalı köpük iç taban benzersiz bir destek sunar. Tamamen çağdaş hissettiren, zamansız bir babet.`,
     fabric: [{ name: "Calfskin Leather", percentage: 100 }],
     details: [
-      "Square toe — contemporary, sculptural silhouette",
+      "Ultra-soft black calfskin leather",
+      "Delicate ankle strap with micro buckle",
+      "Pointed-toe silhouette",
       "15mm stacked leather heel",
       "Memory foam cushioned insole",
-      "Leather sole with rubber heel tip",
-      "Izmir tannery — fine-grain finish",
-      "Reinforced heel counter for structure"
+      "Blake-stitched leather sole"
     ],
     details_tr: [
-      "Küt burun — çağdaş, heykelsi siluet",
+      "Ultra yumuşak siyah dana derisi",
+      "Mikro tokalı ince bilek bandı",
+      "Sivri burunlu siluet",
       "15mm katmanlı deri topuk",
       "Hafızalı köpük destekli iç taban",
-      "Kauçuk topuk uçlu deri taban",
-      "İzmir tabakhanesi — ince gözenekli doku",
-      "Formunu koruyan takviyeli topuk yapısı"
+      "Blake dikişli deri taban"
     ],
-    care: ["Use leather conditioner monthly", "Store with shoe trees", "Wipe with damp cloth", "Let rest 24h between wears"],
+    care: [
+      "Apply leather conditioner monthly",
+      "Store with shoe trees to maintain shape",
+      "Wipe clean with a soft, damp cloth",
+      "Allow to rest 24 hours between wears"
+    ],
     care_tr: [
       "Ayda bir deri bakım kremi uygulayın",
-      "Ayakkabı kalıbı kullanarak saklayın",
-      "Nemli bezle silin",
+      "Formunu koruması için ayakkabı kalıbıyla saklayın",
+      "Yumuşak, nemli bir bezle silerek temizleyin",
       "Kullanımlar arasında 24 saat dinlendirin"
     ],
     sizes: ["36", "37", "38", "39", "40"],
     pairsWith: [{ slug: "wide-trouser", name: "Wide Atelier Trouser" }, { slug: "pleated-midi-skirt", name: "Pleated Midi Skirt" }, { slug: "silk-slip-dress", name: "Silk Slip Dress" }]
   },
-  {
+    {
     slug: "strappy-sandal",
-    name: "Minimalist Strappy Sandal",
-    name_tr: "Minimalist İnce Bantlı Sandalet",
-    subtitle: "espresso leather · 50mm heel",
-    subtitle_tr: "espresso deri · 50mm topuk",
+    name: "Kitten-Heel Strappy Sandal",
+    name_tr: "Zarif İnce Bantlı Sandalet",
+    subtitle: "black leather · 35mm kitten heel · delicate straps",
+    subtitle_tr: "siyah deri · 35mm ince topuk · zarif bantlar",
     price: "€ 390",
     category: "shoes",
-    tag: "evening",
     image: "/images/products/strappy-sandal.png",
     detailImage: "/images/products/strappy-sandal-detail.png",
-    story: `Barely-there straps hold the foot securely atop a comfortable 50mm heel. The espresso leather matches the Mule No. 4 and the Atelier Mini — creating a tonal leg line from ankle to knee.
+    story: `A study in delicate proportions. The Kitten-Heel Strappy Sandal features minimal, clean lines that frame the foot with striking simplicity. The low 35mm kitten heel is optimized for elegant movement on any surface, from cobblestones to dance floors.
 
-The straps are lined with suede to prevent slipping, and the ankle closure uses a micro-buckle that's easy to fasten yourself. The 50mm heel height was tested across cobblestones, marble floors, and dance floors — high enough to feel dressed, low enough to last all night.
+Crafted from premium black calfskin with a cushioned leather sole, it delivers refined elevation without sacrificing stability. The straps are lined with soft suede to prevent slipping and ensure comfort through long summer nights.`,
+    story_tr: `Zarif oranların bir çalışması. İnce Bantlı Sandalet, ayağı çarpıcı bir sadelikle çerçeveleyen minimalist ve temiz çizgilere sahiptir. Düşük 35 mm ince topuk, arnavut kaldırımlardan dans pistlerine kadar her yüzeyde zarif adımlar atmanız için optimize edilmiştir.
 
-We think of it as the shoe that replaces three pairs in your wardrobe. It works with everything from the Silk Slip Dress to the Wide Trouser and looks better with every scratch on the sole.`,
-    story_tr: `Yok denecek kadar ince bantlar, ayağı konforlu 50 mm blok topuk üzerinde güvenle tutar. Espresso derisi, Mule No. 4 ve Atelier Mini ile mükemmel bir uyum sağlayarak ayak bileğinden dize kadar ton sür ton bir bacak hattı oluşturur.
-
-Bantların içi kaymayı önlemek için süetle astarlanmıştır ve bilek kapaması kendinizin kolayca bağlayabileceği bir mikro toka kullanır. 50 mm topuk yüksekliği arnavut kaldırımları, mermer zeminler ve dans pistlerinde test edilmiştir — şık hissettirecek kadar yüksek, tüm gece dayanacak kadar alçak.
-
-Gardırobunuzdaki üç çift ayakkabının yerini alacak bir parça olarak görüyoruz. İpek Slip Elbise'den Wide Atelier Pantolon'a kadar her şeyle uyum sağlar ve tabanındaki her kullanım iziyle daha da karakter kazanır.`,
-    fabric: [{ name: "Vegetable-Tanned Leather", percentage: 100 }],
+Destekli deri tabanlı birinci sınıf siyah dana derisinden üretilen bu model, dengeden ödün vermeden rafine bir yükseklik sunar. Bantların içi, kaymayı önlemek ve uzun yaz geceleri boyunca konfor sağlamak için yumuşak süetle astarlanmıştır.`,
+    fabric: [{ name: "Calfskin Leather", percentage: 100 }],
     details: [
-      "Suede-lined ankle strap",
-      "50mm block heel — dance-tested",
-      "Blake-stitched leather sole",
-      "Micro-buckle closure",
+      "Premium black calfskin",
+      "35mm kitten heel for effortless height",
+      "Delicate straps lined with soft suede",
+      "Minimalist ankle closure",
       "Foam-cushioned leather insole",
-      "Espresso dye matching Mule No. 4"
+      "Blake-stitched leather sole"
     ],
     details_tr: [
-      "Süet astarlı bilek bandı",
-      "50mm blok topuk — dans pistinde test edildi",
-      "Blake dikişli deri taban",
-      "Mikro toka kapama detayı",
+      "Birinci sınıf siyah dana derisi",
+      "Zahmetsiz yükseklik sunan 35mm ince topuk",
+      "Yumuşak süet astarlı zarif bantlar",
+      "Minimalist bilek kapama",
       "Köpük destekli deri iç taban",
-      "Mule No. 4 ile uyumlu espresso boya"
+      "Blake dikişli deri taban"
     ],
-    care: ["Wipe clean with dry cloth", "Condition straps with leather balm", "Store in dust bag", "Avoid water exposure"],
+    care: [
+      "Wipe clean with a dry cloth",
+      "Condition straps gently with leather balm",
+      "Store in a dust bag in a cool, dry place",
+      "Avoid exposure to water"
+    ],
     care_tr: [
       "Kuru bir bezle silerek temizleyin",
-      "Bantları deri bakım kremi ile nemlendirin",
-      "Toz torbasında saklayın",
+      "Bantları deri kremiyle nazikçe nemlendirin",
+      "Serin ve kuru bir yerde toz torbasında saklayın",
       "Su ile temastan kaçının"
     ],
     sizes: ["36", "37", "38", "39", "40", "41"],
     pairsWith: [{ slug: "atelier-mini", name: "Atelier Mini" }, { slug: "silk-slip-dress", name: "Silk Slip Dress" }, { slug: "silk-tuxedo-jacket", name: "Silk Tuxedo Jacket" }]
   },
-  {
+    {
     slug: "tall-leather-boot",
-    name: "Tall Leather Boot",
-    name_tr: "Uzun Deri Çizme",
-    subtitle: "black leather · riding boot style",
-    subtitle_tr: "siyah deri · binici çizmesi stili",
+    name: "Seamless Riding Boot",
+    name_tr: "Dikişsiz Klasik Deri Çizme",
+    subtitle: "black calfskin · zipperless · flat sole",
+    subtitle_tr: "siyah dana derisi · fermuarsız · düz taban",
     price: "€ 680",
     category: "shoes",
     image: "/images/products/tall-leather-boot.png",
     detailImage: "/images/products/tall-leather-boot-detail.png",
-    story: `A classic riding boot silhouette updated with a modern square toe that echoes the Mule No. 4. It hits just below the knee and creates a clean, unbroken line from ankle to hem.
+    story: `The Seamless Riding Boot is built to create a clean, uninterrupted line from hem to floor. By removing all visible zippers and external hardware, we let the premium black calfskin take center stage. The boot's structured shaft holds its shape naturally while remaining soft enough to move with you.
 
-The black leather is sourced from a different section of the same Izmir tannery — a thicker, more structured hide that holds the boot's shape without a zip all the way up. The inside zip runs from ankle to calf for easy on and off.
+Handcrafted with a durable flat leather sole and a cushioned footbed, it is designed to endure years of wear, developing a beautiful individual character over time.`,
+    story_tr: `Dikişsiz Klasik Deri Çizme, etek ucundan yere kadar kesintisiz ve temiz bir hat oluşturmak için tasarlanmıştır. Görünür fermuarları ve dış aksesuarları ortadan kaldırarak, birinci sınıf siyah dana derisinin kalitesini ön plana çıkardık. Çizmenin yapılı gövdesi formunu doğal bir şekilde korurken, adımlarınızla birlikte esneyecek kadar yumuşaktır.
 
-The block heel is low enough for all-day wear but high enough to give your posture a subtle lift. We think of it as the autumn-to-spring shoe — the one that sees you through six months without complaint.`,
-    story_tr: `Mule No. 4'ün küt burun formunu yansıtan modern bir detayla güncellenmiş klasik binici çizmesi silueti. Diz hemen altında biter ve bilekten etek ucuna kadar pürüzsüz, kesintisiz bir hat oluşturur.
-
-Siyah deri, aynı İzmir tabakhanesinin farklı bir bölümünden temin edilmiştir — çizmenin formunu fermuara gerek duymadan dik tutacak kadar kalın ve yapılı bir deridir. İç kısımdaki fermuar kolay giyip çıkarmak için bilekten baldır hizasına kadar uzanır.
-
-Blok topuk, gün boyu giyilebilecek kadar alçak, ancak duruşunuza ince bir asalet katacak kadar yüksektir. Sonbahardan ilkbahara kadar süren o altı aylık dönemi şikayetsiz geçirmenizi sağlayacak bir çizme.`,
-    fabric: [{ name: "Full-Grain Leather", percentage: 100 }],
+Dayanıklı düz deri taban ve destekli iç tabanla el işçiliğiyle üretilen bu model, yıllarca kullanılmak üzere tasarlanmıştır ve zamanla kendine has güzel bir karakter kazanır.`,
+    fabric: [{ name: "Premium Calfskin Leather", percentage: 100 }],
     details: [
-      "Below-knee height — riding boot silhouette",
-      "Inside zip from ankle to calf",
-      "30mm block heel — all-day height",
-      "Square toe matching Mule No. 4",
-      "Leather sole with rubber grip",
-      "Pull tab at back for easy dressing"
+      "Seamless upper in soft black calfskin",
+      "Zipperless pull-on design",
+      "Flat leather sole with protective rubber grip",
+      "Cushioned leather insole",
+      "Below-knee classic height",
+      "Handcrafted in our workshop"
     ],
     details_tr: [
-      "Diz altı boy — binici çizmesi silueti",
-      "Bilekten baldıra kadar iç fermuar",
-      "30mm blok topuk — gün boyu rahatlık",
-      "Mule No. 4 ile uyumlu küt burun yapısı",
-      "Kauçuk tabanlı koruyucu deri taban",
-      "Kolay giyim için arkada çekme halkası"
+      "Yumuşak siyah dana derisinden dikişsiz saya",
+      "Fermuarsız, kolay giyilebilir tasarım",
+      "Koruyucu kauçuk eklemeli düz deri taban",
+      "Yumuşak dolgulu deri iç taban",
+      "Diz altı klasik boy",
+      "Atölyemizde el işçiliğiyle üretilmiştir"
     ],
-    care: ["Store with boot trees", "Condition leather seasonally", "Wipe with damp cloth after wear", "Protect with waterproofing spray"],
+    care: [
+      "Use boot trees to maintain shaft shape",
+      "Condition the leather seasonally",
+      "Wipe clean with a damp cloth after wear",
+      "Protect with a waterproofing spray"
+    ],
     care_tr: [
-      "Çizme kalıbıyla saklayın",
-      "Mevsimsel olarak deri bakımı yapın",
-      "Giyildikten sonra nemli bir bezle silin",
+      "Gövde formunu korumak için çizme kalıbı kullanın",
+      "Mevsimsel olarak deri bakımı uygulayın",
+      "Giyim sonrası nemli bir bezle silin",
       "Su geçirmez koruyucu sprey kullanın"
     ],
     sizes: ["37", "38", "39", "40", "41"],
     pairsWith: [{ slug: "atelier-mini", name: "Atelier Mini" }, { slug: "pleated-midi-skirt", name: "Pleated Midi Skirt" }, { slug: "double-breasted-blazer", name: "Double-Breasted Blazer" }]
   },
-  {
+    {
     slug: "woven-loafer",
-    name: "Woven Loafer",
-    name_tr: "Örgü Makosen",
-    subtitle: "camel leather · hand-woven",
-    subtitle_tr: "deve tüyü rengi deri · el örgüsü",
+    name: "Atelier Smooth Loafer",
+    name_tr: "Sade Deri Makosen",
+    subtitle: "camel calfskin · clean vamp · stitched leather sole",
+    subtitle_tr: "deve tüyü dana derisi · dikişsiz saya · kösele taban",
     price: "€ 460",
     category: "shoes",
     image: "/images/products/woven-loafer.png",
     detailImage: "/images/products/woven-loafer-detail.png",
-    story: `Intricately hand-woven leather gives this loafer a rich texture that no machine can replicate. Each pair takes a full day to weave — a single artisan in our Izmir workshop creates the lattice pattern strip by strip.
+    story: `The Atelier Smooth Loafer strip downs the traditional loafer to its absolute essence. Completely free of metal hardware, tassels, or heavy stitching, it offers a clean and modern silhouette. Cut from rich camel calfskin, it matches our leather accessories to create a unified aesthetic.
 
-The camel leather matches the Atelier Tote and Mini Crossbody, creating a unified accessories story. The open weave provides exceptional breathability for warmer months, while the leather sole keeps everything polished.
+Handcrafted with a hand-stitched welt and a soft leather sole, it molds to your foot with wear, offering the comfort of a slipper with the structure of a dress shoe.`,
+    story_tr: `Sade Deri Makosen, geleneksel loafer tasarımını en yalın haline indirger. Metal aksesuarlar, püsküller veya kaba dikişlerden tamamen arındırılmış, temiz ve modern bir siluet sunar. Zengin deve tüyü rengi dana derisinden kesilen bu model, deri aksesuarlarımızla mükemmel bir estetik uyum yakalar.
 
-Slip them on with the Wide Trouser and Tailored Vest for what we call the “Summer Friday.” It's the most relaxed outfit in the collection, and somehow the one that gets the most compliments.`,
-    story_tr: `İnce el işçiliğiyle örülmüş deri, bu makosene hiçbir makinenin taklit edemeyeceği zengin bir doku kazandırıyor. Her bir çiftin örülmesi tam bir gün sürüyor — İzmir atölyemizdeki tek bir zanaatkar kafes desenini şerit şerit örüyor.
-
-Deve tüyü rengi deri, Atelier Tote ve Mini Çapraz Çanta ile eşleşerek bütünsel bir aksesuar dili yaratır. Açık örgü yapısı sıcak aylar için olağanüstü nefes alabilirlik sağlarken, deri tabanı her an şık görünmenizi sağlar.
-
-"Yaz Cuması" adını verdiğimiz görünüm için Wide Atelier Pantolon ve Tailored Yelek ile giyin. Koleksiyonun en rahat kombini olmasına rağmen en çok iltifat alanıdır.`,
-    fabric: [{ name: "Vegetable-Tanned Leather", percentage: 100 }],
+Elde dikilmiş taban çerçevesi ve yumuşak deri tabanıyla el işçiliğiyle üretilen bu makosen, giyildikçe ayağınızın şeklini alır ve klasik bir ayakkabının şıklığını ev terliği konforuyla birleştirir.`,
+    fabric: [{ name: "Calfskin Leather", percentage: 100 }],
     details: [
-      "Hand-woven upper — one-day per pair",
-      "Leather sole with rubber grip",
-      "Slip-on construction",
-      "Camel leather matching Atelier Tote",
-      "Cushioned leather insole",
-      "Breathable open-weave design"
+      "Rich camel calfskin upper",
+      "Clean, hardware-free design",
+      "Hand-stitched leather sole",
+      "Cushioned leather footbed",
+      "Soft leather lining",
+      "Slip-on construction"
     ],
     details_tr: [
-      "El örgüsü üst yüzey — çift başına bir günlük el emeği",
-      "Kauçuk eklemeli deri taban",
-      "Kolay giyilebilir slip-on yapı",
-      "Atelier Tote ile uyumlu deve tüyü rengi deri",
+      "Zengin deve tüyü rengi dana derisi",
+      "Aksesuarsız, yalın tasarım",
+      "Elde dikilmiş deri taban",
       "Yumuşak dolgulu deri iç taban",
-      "Nefes alabilen açık örgü tasarım"
+      "Yumuşak deri iç astar",
+      "Kolay giyilebilir slip-on yapı"
     ],
-    care: ["Condition gently with leather cream", "Avoid water — leather is uncoated", "Store with shoe trees", "Use soft brush for cleaning"],
+    care: [
+      "Condition gently with leather cream",
+      "Store with shoe trees to preserve form",
+      "Avoid direct contact with water",
+      "Clean with a soft horsehair brush"
+    ],
     care_tr: [
-      "Deri bakım kremi ile nazikçe besleyin",
-      "Sudan kaçının — deri kaplamasızdır",
-      "Ayakkabı kalıbıyla saklayın",
-      "Temizlik için yumuşak uçlu bir fırça kullanın"
+      "Deri bakım kremiyle nazikçe nemlendirin",
+      "Formunu koruması için ayakkabı kalıbıyla saklayın",
+      "Suyla doğrudan temastan kaçının",
+      "Yumuşak at kılı fırçayla temizleyin"
     ],
     sizes: ["36", "37", "38", "39", "40"],
     pairsWith: [{ slug: "wide-trouser", name: "Wide Atelier Trouser" }, { slug: "tailored-vest", name: "Tailored Vest" }, { slug: "atelier-tote", name: "Atelier Tote" }]
   },
-  {
+    {
     slug: "chunky-derby",
-    name: "Chunky Sole Derby",
-    name_tr: "Kalın Tabanlı Derby Ayakkabı",
-    subtitle: "black leather · platform",
-    subtitle_tr: "siyah deri · platform taban",
+    name: "Slim Profile Derby",
+    name_tr: "Zarif Klasik Derby",
+    subtitle: "black boxcalf · thin leather sole · waxed laces",
+    subtitle_tr: "siyah dana derisi · ince kösele taban · vakslı bağcıklar",
     price: "€ 420",
     category: "shoes",
-    tag: "new",
     image: "/images/products/chunky-derby.png",
     detailImage: "/images/products/chunky-derby-detail.png",
-    story: `A robust take on the classic derby, designed for the woman who wants her footwear to make a statement. The lightweight platform sole adds 45mm of height while keeping the shoe surprisingly easy to walk in.
+    story: `A refined reimagining of the classic derby shoe. Replacing heavy platform soles with a slim, flexible leather sole, the Slim Profile Derby offers an elegant and lightweight silhouette. Cut from premium black boxcalf leather, it features a subtle natural sheen that complements tailored trousers and casual denim alike.
 
-The black leather upper is polished to a subtle sheen that catches light without screaming “shiny.” The lug sole provides grip on cobblestones, wet marble, and every other surface Istanbul throws at you.
+Waxed cotton laces and meticulous stitching define its clean aesthetic, while the cushioned arch support provides comfortable all-day wear.`,
+    story_tr: `Klasik derby ayakkabının rafine bir şekilde yeniden yorumlanması. Kaba platform tabanlar yerine ince ve esnek bir deri taban kullanan Zarif Klasik Derby, zarif ve hafif bir siluet sunar. Birinci sınıf siyah dana derisinden kesilen bu model, hem kumaş pantolonları hem de günlük denimleri tamamlayan hafif ve doğal bir cilaya sahiptir.
 
-Pair it with the Wide Trouser for an androgynous tailored look, or with the Atelier Mini for something more unexpected. Either way, people will hear you coming — in the best possible way.`,
-    story_tr: `Klasik derby tarzının, ayakkabısının bir duruş sergilemesini isteyen kadınlar için tasarlanmış güçlü bir yorumu. Hafif platform tabanı, şaşırtıcı derecede kolay bir yürüyüş deneyimi sunarken siluete 45 mm boy katar.
-
-Siyah deri üst kısım, aşırı parlak görünmeden ışığı yakalayan hafif bir cila ile işlenmiştir. Tırtıklı kalın taban; arnavut kaldırımlarında, ıslak mermerlerde ve İstanbul'un karşınıza çıkaracağı diğer tüm zeminlerde tam zemin tutuşu sağlar.
-
-Maskülen bir takım elbise görünümü için Wide Atelier Pantolon ile veya daha beklenmedik bir tarz için Atelier Mini Etek ile eşleştirin. Her iki şekilde de, adımlarınızın sesi —en asil şekilde— siz gelmeden önce duyulacaktır.`,
-    fabric: [{ name: "Polished Calfskin", percentage: 100 }],
+Vakslı pamuklu bağcıklar ve titiz dikişler bu temiz estetiği tanımlarken, ortopedik kavis destekli iç tabanı gün boyu rahat bir kullanım sağlar.`,
+    fabric: [{ name: "Premium Boxcalf Leather", percentage: 100 }],
     details: [
-      "Lace-up with waxed cotton laces",
-      "Lightweight rubber lug sole — 45mm platform",
-      "Full leather lining",
-      "Polished calfskin upper",
+      "Polished black boxcalf leather upper",
+      "Slim profile leather sole",
+      "Waxed organic cotton laces",
       "Cushioned insole with arch support",
+      "Full leather lining",
       "Goodyear welted construction"
     ],
     details_tr: [
-      "Vakslı pamuklu bağcıklarla bağcıklı tasarım",
-      "Hafif kauçuk tırtıklı taban — 45mm platform",
+      "Cilalı siyah dana derisi üst yüzey",
+      "İnce profilli deri taban",
+      "Vakslı organik pamuk bağcıklar",
+      "Ortopedik destekli yumuşak iç taban",
       "Tamamen deri iç astar",
-      "Cilalı dana derisi üst yüzey",
-      "Ortopedik destekli yastıklı iç taban",
       "Goodyear welt (çift dikişli) taban yapısı"
     ],
-    care: ["Polish regularly with black shoe cream", "Clean sole with stiff brush", "Use shoe trees when not wearing", "Re-wax laces as needed"],
+    care: [
+      "Polish regularly with black shoe cream",
+      "Store with shoe trees when not wearing",
+      "Wipe clean with a soft dry cloth",
+      "Re-wax laces as needed"
+    ],
     care_tr: [
-      "Siyah ayakkabı boyası ile düzenli olarak cilalayın",
-      "Tabanı sert uçlu bir fırça ile temizleyin",
-      "Kullanmadığınız zamanlarda ayakkabı kalıbı takın",
+      "Siyah ayakkabı boyası ile düzenli cilalayın",
+      "Kullanmadığınızda ayakkabı kalıbıyla saklayın",
+      "Yumuşak kuru bezle silerek temizleyin",
       "Gerektiğinde bağcıkları yeniden vakslayın"
     ],
     sizes: ["36", "37", "38", "39", "40", "41"],

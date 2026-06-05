@@ -418,6 +418,7 @@ export function AIAssistant({
             turnActiveRef.current ||
             Date.now() < aiTailUntilRef.current,
           aiPlaybackThreshold: 0.92,
+          aiPlaybackRmsThreshold: 0.22,
           onSpeechStart: () => {
             // Purely rely on Gemini's highly accurate server-side echo cancellation and interruption detection
             // to avoid client-side speaker echo from falsely cutting off the AI's voice mid-turn.

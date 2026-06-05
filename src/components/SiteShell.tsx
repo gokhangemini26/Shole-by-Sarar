@@ -236,8 +236,8 @@ export function Nav({
       {menuOpen && (
         <div style={{ position: "fixed", inset: 0, background: palette.bg, zIndex: 110, padding: "24px", overflowY: "auto", display: "flex", flexDirection: "column" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 48 }}>
-            <span style={{ fontFamily: TYPE.display, fontSize: 24, letterSpacing: "0.18em", color: palette.ink }}>
-              SHOLÉ
+            <span style={{ fontFamily: TYPE.display, fontSize: 20, color: palette.ink }}>
+              <strong style={{ fontWeight: 800, letterSpacing: "0.14em" }}>SHOLÉ</strong> <span style={{ fontSize: "0.65em", textTransform: "uppercase", opacity: 0.8, letterSpacing: "0.2em", verticalAlign: "middle", marginLeft: 4 }}>by SARAR</span>
             </span>
             <button onClick={() => setMenuOpen(false)} style={{ background: "transparent", border: 0, color: palette.ink, cursor: "pointer", padding: 8 }}>
               <X size={24} />
@@ -305,16 +305,15 @@ export function Nav({
           onClick={() => router.push("/")}
           style={{
             fontFamily: TYPE.display,
-            fontSize: 28,
-            fontWeight: 500,
-            letterSpacing: "0.18em",
+            fontSize: 22,
             color: palette.ink,
             textDecoration: "none",
             textAlign: "center",
             cursor: "pointer",
           }}
         >
-          SHOLÉ
+          <strong style={{ fontWeight: 850, letterSpacing: "0.14em" }}>SHOLÉ</strong>{" "}
+          <span style={{ fontSize: "0.65em", textTransform: "uppercase", opacity: 0.85, letterSpacing: "0.18em", verticalAlign: "middle", marginLeft: 4 }}>by SARAR</span>
         </a>
 
         <div

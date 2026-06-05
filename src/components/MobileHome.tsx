@@ -55,8 +55,8 @@ export default function MobileHome() {
       {menuOpen && (
         <div className="fixed inset-0 z-[110] bg-[#FAF8F5] flex flex-col px-6 py-6 transition-all duration-300">
           <div className="flex justify-between items-center mb-12">
-            <span className="font-display-xl text-2xl uppercase tracking-tighter">
-              SHOLÉ
+            <span className="font-display-xl text-xl tracking-tighter">
+              <strong className="font-extrabold tracking-normal">SHOLÉ</strong> <span className="text-[0.65em] uppercase opacity-80 tracking-widest align-middle ml-1">by SARAR</span>
             </span>
             <button onClick={() => setMenuOpen(false)} className="p-2 -mr-2 text-[#1C1814] hover:opacity-70">
               <X size={24} />
@@ -88,8 +88,8 @@ export default function MobileHome() {
         <button onClick={() => setMenuOpen(true)} className="hover:opacity-70 transition-opacity p-2 -ml-2">
           <Menu size={20} />
         </button>
-        <span className="font-display-xl text-2xl uppercase tracking-tighter absolute left-1/2 -translate-x-1/2 pointer-events-none">
-          SHOLÉ
+        <span className="font-display-xl text-xl tracking-tighter absolute left-1/2 -translate-x-1/2 pointer-events-none">
+          <strong className="font-extrabold tracking-normal">SHOLÉ</strong> <span className="text-[0.65em] uppercase opacity-80 tracking-widest align-middle ml-1">by SARAR</span>
         </span>
         <button className="hover:opacity-70 transition-opacity p-2 -mr-2">
           <ShoppingBag size={20} />
