@@ -9,8 +9,8 @@ export default function ShoesPage() {
       category="shoes"
       title={locale === "tr" ? "Ayakkabı" : "Footwear"}
       description={locale === "tr"
-        ? "İzmir'de elde üretildi. İkonik Mule No. 4'ten sivri burun babetlere kadar."
-        : "Cobblestone-tested and bench-made in Izmir. From our signature Mule No. 4 to the Pointed Flat."}
+        ? "İzmir'de elde üretildi. Atölye Süet Terlik'ten zarif slingback babetlere kadar."
+        : "Cobblestone-tested and bench-made in Izmir. From our Atelier Suede Mule to the Sleek Slingback Flat."}
     />
   );
 }

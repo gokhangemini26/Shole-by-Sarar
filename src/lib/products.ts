@@ -82,7 +82,7 @@ Her palto, kumaşın dokusuna uyması için tek bir toptan kesilir. Her seride o
     sizes: ["XS", "S", "M", "L", "XL"],
     pairsWith: [
       { slug: "wide-trouser", name: "Wide Atelier Trouser" },
-      { slug: "mule-no4", name: "Mule No. 4" },
+      { slug: "mule-no4", name: "Atelier Suede Mule" },
       { slug: "atelier-tote", name: "Atelier Tote" },
     ],
   },
@@ -141,7 +141,7 @@ Ona "Soft Rules" dedik çünkü ait olduğu giyim tarzı bu. Çok resmi ile tam 
     sizes: ["XS", "S", "M", "L", "XL"],
     pairsWith: [
       { slug: "atelier-mini", name: "Atelier Mini" },
-      { slug: "mule-no4", name: "Mule No. 4" },
+      { slug: "mule-no4", name: "Atelier Suede Mule" },
       { slug: "wide-trouser", name: "Wide Atelier Trouser" },
     ],
   },
@@ -546,7 +546,7 @@ Pensler, abartılı olmadan yapı kazandırır — kalçaya düz bir şekilde ot
     sizes: ["XS", "S", "M", "L", "XL"],
     pairsWith: [
       { slug: "soft-rules-shirt", name: "Soft Rules Shirt" },
-      { slug: "mule-no4", name: "Mule No. 4" },
+      { slug: "mule-no4", name: "Atelier Suede Mule" },
       { slug: "sun-up-knit", name: "Sun-Up Knit" },
     ],
   },
@@ -596,7 +596,7 @@ Ayarlanabilir askıları, farklı omuz genişliklerine uyum sağladığı anlam�
       "Tazelemek için düşük ısıda buhar uygulayın"
     ],
     sizes: ["XS", "S", "M", "L", "XL"],
-    pairsWith: [{ slug: "atelier-coat", name: "The Atelier Coat" }, { slug: "mule-no4", name: "Mule No. 4" }, { slug: "sculptural-cuff", name: "Sculptural Brass Cuff" }]
+    pairsWith: [{ slug: "atelier-coat", name: "The Atelier Coat" }, { slug: "mule-no4", name: "Atelier Suede Mule" }, { slug: "sculptural-cuff", name: "Sculptural Brass Cuff" }]
   },
   {
     slug: "draped-silk-blouse",
@@ -676,7 +676,7 @@ Gizli yan fermuar vücuda tam oturur ve arkadaki elastik bel bandı, farklı bed
       "Doğrudan pilelerin üzerine ütü yapmaktan kaçının"
     ],
     sizes: ["XS", "S", "M", "L"],
-    pairsWith: [{ slug: "sun-up-knit", name: "Sun-Up Knit" }, { slug: "draped-silk-blouse", name: "Draped Silk Blouse" }, { slug: "mule-no4", name: "Mule No. 4" }]
+    pairsWith: [{ slug: "sun-up-knit", name: "Sun-Up Knit" }, { slug: "draped-silk-blouse", name: "Draped Silk Blouse" }, { slug: "mule-no4", name: "Atelier Suede Mule" }]
   },
   {
     slug: "cashmere-wrap-sweater",
@@ -770,7 +770,7 @@ Ceketin fazla hissettirdiği anlar için gardırobun vazgeçilmezi olarak tasarl
       "Askıda saklayın"
     ],
     sizes: ["XS", "S", "M", "L"],
-    pairsWith: [{ slug: "wide-trouser", name: "Wide Atelier Trouser" }, { slug: "soft-rules-shirt", name: "Soft Rules Shirt" }, { slug: "mule-no4", name: "Mule No. 4" }]
+    pairsWith: [{ slug: "wide-trouser", name: "Wide Atelier Trouser" }, { slug: "soft-rules-shirt", name: "Soft Rules Shirt" }, { slug: "mule-no4", name: "Atelier Suede Mule" }]
   },
 
   // --- ACCESSORIES ---
@@ -819,7 +819,7 @@ Bu, bir kez satın alıp yirmi yıl boyunca takacağınız türden bir kemerdir.
       "Kuru bir bezle silin"
     ],
     sizes: ["S", "M", "L"],
-    pairsWith: [{ slug: "wide-trouser", name: "Wide Atelier Trouser" }, { slug: "tailored-vest", name: "Tailored Vest" }, { slug: "mule-no4", name: "Mule No. 4" }]
+    pairsWith: [{ slug: "wide-trouser", name: "Wide Atelier Trouser" }, { slug: "tailored-vest", name: "Tailored Vest" }, { slug: "mule-no4", name: "Atelier Suede Mule" }]
   },
   {
     slug: "oversized-sunglasses",
@@ -1340,7 +1340,7 @@ We think of tailored trousers as the most underrated piece in any wardrobe. They
       "Aşırı yıkamadan kaçının"
     ],
     sizes: ["XS", "S", "M", "L", "XL"],
-    pairsWith: [{ slug: "double-breasted-blazer", name: "Double-Breasted Blazer" }, { slug: "soft-rules-shirt", name: "Soft Rules Shirt" }, { slug: "pointed-flat", name: "Square-Toe Leather Flat" }]
+    pairsWith: [{ slug: "double-breasted-blazer", name: "Double-Breasted Blazer" }, { slug: "soft-rules-shirt", name: "Soft Rules Shirt" }, { slug: "pointed-flat", name: "Sleek Slingback Flat" }]
   },
   {
     slug: "silk-tuxedo-jacket",
@@ -1388,7 +1388,7 @@ Bu ceketi, akşam saat yedide yaşanan "ne giyeceğim" paniğine kesin bir çöz
       "Saten şal yakaya hassas davranın"
     ],
     sizes: ["XS", "S", "M", "L"],
-    pairsWith: [{ slug: "silk-slip-dress", name: "Silk Slip Dress" }, { slug: "strappy-sandal", name: "Minimalist Strappy Sandal" }, { slug: "sculptural-cuff", name: "Sculptural Brass Cuff" }]
+    pairsWith: [{ slug: "silk-slip-dress", name: "Silk Slip Dress" }, { slug: "strappy-sandal", name: "Kitten-Heel Strappy Sandal" }, { slug: "sculptural-cuff", name: "Sculptural Brass Cuff" }]
   },
   {
     slug: "wool-pencil-skirt",
@@ -1435,7 +1435,7 @@ Zahmetsizce asil bir "toplantı stili" için içine yerleştirilmiş Soft Rules 
       "Giyim aralarında narin giysi fırçasıyla temizleyin"
     ],
     sizes: ["XS", "S", "M", "L"],
-    pairsWith: [{ slug: "soft-rules-shirt", name: "Soft Rules Shirt" }, { slug: "draped-silk-blouse", name: "Draped Silk Blouse" }, { slug: "mule-no4", name: "Mule No. 4" }]
+    pairsWith: [{ slug: "soft-rules-shirt", name: "Soft Rules Shirt" }, { slug: "draped-silk-blouse", name: "Draped Silk Blouse" }, { slug: "mule-no4", name: "Atelier Suede Mule" }]
   },
   {
     slug: "trench-coat-reimagined",
@@ -1483,7 +1483,7 @@ Rüzgar kanadı sadece dekoratif değildir — gerçekten çalışır. İstanbul
       "Giyilme aralarında buhar ile tazeleyin"
     ],
     sizes: ["S", "M", "L"],
-    pairsWith: [{ slug: "wide-trouser", name: "Wide Atelier Trouser" }, { slug: "silk-slip-dress", name: "Silk Slip Dress" }, { slug: "pointed-flat", name: "Square-Toe Leather Flat" }]
+    pairsWith: [{ slug: "wide-trouser", name: "Wide Atelier Trouser" }, { slug: "silk-slip-dress", name: "Silk Slip Dress" }, { slug: "pointed-flat", name: "Sleek Slingback Flat" }]
   },
   {
     slug: "executive-navy-blazer",
@@ -1529,7 +1529,7 @@ Rüzgar kanadı sadece dekoratif değildir — gerçekten çalışır. İstanbul
     pairsWith: [
       { slug: "navy-tailored-trouser", name: "Navy Tailored Trouser" },
       { slug: "soft-rules-shirt", name: "Soft Rules Shirt" },
-      { slug: "mule-no4", name: "Mule No. 4" },
+      { slug: "mule-no4", name: "Atelier Suede Mule" },
     ],
   },
   {
@@ -1575,7 +1575,7 @@ Rüzgar kanadı sadece dekoratif değildir — gerçekten çalışır. İstanbul
     pairsWith: [
       { slug: "executive-navy-blazer", name: "The Executive Blazer" },
       { slug: "soft-rules-shirt", name: "Soft Rules Shirt" },
-      { slug: "mule-no4", name: "Mule No. 4" },
+      { slug: "mule-no4", name: "Atelier Suede Mule" },
     ],
   },
   {
@@ -1620,7 +1620,7 @@ Rüzgar kanadı sadece dekoratif değildir — gerçekten çalışır. İstanbul
     pairsWith: [
       { slug: "executive-navy-blazer", name: "The Executive Blazer" },
       { slug: "navy-tailored-trouser", name: "Navy Tailored Trouser" },
-      { slug: "mule-no4", name: "Mule No. 4" },
+      { slug: "mule-no4", name: "Atelier Suede Mule" },
     ],
   }
 ];

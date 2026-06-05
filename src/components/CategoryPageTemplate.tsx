@@ -66,9 +66,11 @@ export function CategoryPageTemplate({ category, title, description }: { categor
               </div>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginTop: 16 }}>
                 <div>
-                  <div style={{ fontFamily: TYPE.sans, fontSize: 16, fontWeight: 500 }}>{product.name}</div>
+                  <div style={{ fontFamily: TYPE.sans, fontSize: 16, fontWeight: 500 }}>
+                    {locale === "tr" && product.name_tr ? product.name_tr : product.name}
+                  </div>
                   <div style={{ fontFamily: TYPE.mono, fontSize: 11, color: palette.muted, marginTop: 4, letterSpacing: "0.04em" }}>
-                    {product.subtitle.split(" · ")[0]}
+                    {(locale === "tr" && product.subtitle_tr ? product.subtitle_tr : product.subtitle).split(" · ")[0]}
                   </div>
                 </div>
                 <div style={{ fontFamily: TYPE.display, fontSize: 18 }}>{product.price}</div>
