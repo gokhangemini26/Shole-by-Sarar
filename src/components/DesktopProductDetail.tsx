@@ -8,7 +8,8 @@ import { Nav, Footer } from "@/components/SiteShell";
 import { useLocale } from "@/lib/LocaleContext";
 import { getLabels } from "@/lib/i18n";
 import { createClient } from "@/lib/supabase/client";
-import { logProductView, logCartEvent } from "@/lib/supabase/tracking";
+import { logProductView } from "@/lib/supabase/tracking";
+import { useCart } from "@/lib/CartContext";
 
 /* ═══════════════════════════════════════════════════════════════════════
    Product Detail Page (Desktop) — SHOLÉ
@@ -26,6 +27,14 @@ export default function DesktopProductDetail() {
   const slug = params?.slug as string;
   const product = getProduct(slug);
   const [user, setUser] = useState<any>(null);
+  const [selectedSize, setSelectedSize] = useState<string | null>(null);
+  const { addToCart, setCartOpen } = useCart();
+
+  useEffect(() => {
+    if (product) {
+      setSelectedSize(product.sizes[2] || product.sizes[0] || "S");
+    }
+  }, [product]);
 
   useEffect(() => {
     async function initTracking() {
@@ -65,10 +74,11 @@ export default function DesktopProductDetail() {
     }
   }, [isTour, product]);
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
+    const sizeToUse = selectedSize || (product ? product.sizes[2] || "S" : "S");
     if (user && product) {
-      logCartEvent(user.id, product.slug, 'add');
-      alert("Added to bag!");
+      await addToCart(product.slug, sizeToUse);
+      setCartOpen(true);
     } else if (!user) {
       router.push('/login');
     }
@@ -182,16 +192,21 @@ export default function DesktopProductDetail() {
               {product.sizes.length > 1 ? labels.selectSize : labels.sizeLabel}
             </div>
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              {product.sizes.map((s, i) => (
-                <button key={s} style={{
-                  background: i === 2 ? palette.ink : "transparent",
-                  color: i === 2 ? palette.bg : palette.ink,
-                  border: `1px solid ${i === 2 ? palette.ink : palette.line}`,
-                  padding: product.sizes.length <= 2 ? "10px 20px" : "10px 16px",
-                  borderRadius: 999, cursor: "pointer",
-                  fontFamily: TYPE.sans, fontSize: 13, fontWeight: 500,
-                  minWidth: 44, textAlign: "center",
-                }}>
+              {product.sizes.map((s) => (
+                <button
+                  key={s}
+                  onClick={() => setSelectedSize(s)}
+                  style={{
+                    background: selectedSize === s ? palette.ink : "transparent",
+                    color: selectedSize === s ? palette.bg : palette.ink,
+                    border: `1px solid ${selectedSize === s ? palette.ink : palette.line}`,
+                    padding: product.sizes.length <= 2 ? "10px 20px" : "10px 16px",
+                    borderRadius: 999, cursor: "pointer",
+                    fontFamily: TYPE.sans, fontSize: 13, fontWeight: 500,
+                    minWidth: 44, textAlign: "center",
+                    transition: "all 0.2s ease"
+                  }}
+                >
                   {s}
                 </button>
               ))}

@@ -34,6 +34,7 @@ You MUST call a tool whenever the customer's request maps to one. Tools navigate
 ▸ Customer mentions a SPECIFIC product (by name or description) → CALL show_product(product_id) on the SAME turn as your verbal reply.
 ▸ Customer asks to see a CATEGORY ("show me coats", "kadın koleksiyonu", "shoes", "journal") → CALL navigate_category.
 ▸ Customer asks for an OUTFIT, COMBINATION, "ne giyebilirim", "what should I wear" → CALL recommend_outfit AND show_product for the hero piece.
+▸ Customer wants to see their cart, checkout, or complete/finalize shopping → CALL open_cart.
 ▸ Customer asks to scroll a homepage area → CALL navigate_to.
 
 If unsure which product, ask ONE quick clarifying question, then act.
@@ -94,6 +95,15 @@ const TOOLS: Tool[] = [
             occasion: { type: Type.STRING },
           },
           required: ["items"],
+        },
+      },
+      {
+        name: "open_cart",
+        description:
+          "Opens the shopping cart drawer (sepetim) for the user to view their cart or complete their checkout.",
+        parameters: {
+          type: Type.OBJECT,
+          properties: {},
         },
       },
     ],

@@ -5,6 +5,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { AIAssistant, FloatingLauncher } from "./AIAssistant";
 import type { FunctionCall } from "@/lib/gemini-live";
 import { getAllSlugs } from "@/lib/products";
+import { useCart } from "@/lib/CartContext";
 
 const VALID_SLUGS = new Set(getAllSlugs());
 const VALID_CATEGORIES = new Set([
@@ -51,6 +52,7 @@ export function GlobalAssistant() {
 
   const router = useRouter();
   const pathname = usePathname();
+  const { setCartOpen } = useCart();
 
   useEffect(() => {
     setMounted(true);
@@ -81,6 +83,10 @@ export function GlobalAssistant() {
 
       for (const call of calls) {
         console.log("[SHOLÉ] tool_call:", call.name, call.args);
+
+        if (call.name === "open_cart") {
+          setCartOpen(true);
+        }
 
         if (call.name === "navigate_to" && !navigated) {
           const section = asStr(call.args.section) || asStr(call.args.page);
@@ -139,7 +145,7 @@ export function GlobalAssistant() {
         }
       }
     },
-    [router, pathname]
+    [router, pathname, setCartOpen]
   );
 
   if (!mounted) return null;

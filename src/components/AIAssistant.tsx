@@ -40,6 +40,7 @@ TOOLS — call them silently, never mention names:
 - Customer mentions a specific item → CALL show_product with the exact slug.
 - Customer asks for a category → CALL navigate_category (women / accessories / shoes / tailoring / journal).
 - Customer asks for an outfit → CALL recommend_outfit AND show_product for the hero piece.
+- Customer wants to view their cart, checkout, or complete/finalize their shopping/purchase → CALL open_cart.
 - NEVER invent a slug; only use the catalog below.
 
 CATALOG (Spring/Summer 2026):

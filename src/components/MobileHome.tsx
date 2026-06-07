@@ -6,10 +6,13 @@ import { PRODUCTS } from "@/lib/products";
 import { useLocale } from "@/lib/LocaleContext";
 import { getLabels } from "@/lib/i18n";
 import { Sparkles, Menu, X, ShoppingBag } from "lucide-react";
+import { useCart } from "@/lib/CartContext";
 
 export default function MobileHome() {
   const { locale } = useLocale();
   const labels = getLabels(locale);
+  const { cartItems, setCartOpen } = useCart();
+  const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
   const openAI = () => window.dispatchEvent(new CustomEvent("open-ai"));
   const [menuOpen, setMenuOpen] = useState(false);
   const mobileVidRef = React.useRef<HTMLVideoElement>(null);
@@ -91,8 +94,13 @@ export default function MobileHome() {
         <span className="font-display-xl text-xl tracking-tighter absolute left-1/2 -translate-x-1/2 pointer-events-none">
           <strong className="font-extrabold tracking-normal">SHOLÉ</strong> <span className="text-[0.65em] uppercase opacity-80 tracking-widest align-middle ml-1">by SARAR</span>
         </span>
-        <button className="hover:opacity-70 transition-opacity p-2 -mr-2">
+        <button onClick={() => setCartOpen(true)} className="hover:opacity-70 transition-opacity p-2 -mr-2 relative">
           <ShoppingBag size={20} />
+          {totalItems > 0 && (
+            <span className="absolute -top-1 -right-1 bg-[#D48C51] text-black text-[9px] font-bold font-mono rounded-full w-4.5 h-4.5 flex items-center justify-center border border-white">
+              {totalItems}
+            </span>
+          )}
         </button>
       </header>
 

@@ -7,8 +7,9 @@ import { getProduct, PRODUCTS } from "@/lib/products";
 import { useLocale } from "@/lib/LocaleContext";
 import { getLabels } from "@/lib/i18n";
 import { createClient } from "@/lib/supabase/client";
-import { logProductView, logCartEvent } from "@/lib/supabase/tracking";
+import { logProductView } from "@/lib/supabase/tracking";
 import { Menu, Sparkles, ShoppingBag, ShoppingCart, ChevronDown } from "lucide-react";
+import { useCart } from "@/lib/CartContext";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function MobileProductDetail() {
@@ -24,6 +25,8 @@ export default function MobileProductDetail() {
   const product = getProduct(slug);
   const [user, setUser] = useState<any>(null);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
+  const { addToCart, setCartOpen, cartItems } = useCart();
+  const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
   
   // Accordion states
   const [detailsOpen, setDetailsOpen] = useState(false);
@@ -67,14 +70,14 @@ export default function MobileProductDetail() {
     }
   }, [isTour, product]);
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (!selectedSize) {
-      alert("Please select a size first.");
+      alert(locale === "tr" ? "Lütfen önce bir beden seçin." : "Please select a size first.");
       return;
     }
     if (user && product) {
-      logCartEvent(user.id, product.slug, 'add');
-      alert("Added to bag!");
+      await addToCart(product.slug, selectedSize);
+      setCartOpen(true);
     } else if (!user) {
       router.push('/login');
     }
@@ -238,9 +241,14 @@ export default function MobileProductDetail() {
           <ShoppingBag size={20} strokeWidth={1.5} />
           <span className="text-[9px] uppercase tracking-widest font-mono font-bold">SHOP</span>
         </button>
-        <button className="flex flex-col items-center gap-1 text-gray-500 hover:text-black transition-colors">
+        <button onClick={() => setCartOpen(true)} className="flex flex-col items-center gap-1 text-gray-500 hover:text-black transition-colors relative">
           <ShoppingCart size={20} strokeWidth={1.5} />
           <span className="text-[9px] uppercase tracking-widest font-mono font-bold">BAG</span>
+          {totalItems > 0 && (
+            <span className="absolute -top-1.5 right-1 bg-[#D48C51] text-black text-[8px] font-bold font-mono rounded-full w-4 h-4 flex items-center justify-center border border-white">
+              {totalItems}
+            </span>
+          )}
         </button>
       </div>
 

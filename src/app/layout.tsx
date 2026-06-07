@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { GlobalAssistant } from "@/components/GlobalAssistant";
 import { LocaleProvider } from "@/lib/LocaleContext";
+import { CartProvider } from "@/lib/CartContext";
+import { CartDrawer } from "@/components/CartDrawer";
 
 export const metadata: Metadata = {
   title: "SHOLÉ — Digital-First Luxury Atelier",
@@ -46,8 +48,11 @@ export default function RootLayout({
       </head>
       <body>
         <LocaleProvider>
-          {children}
-          <GlobalAssistant />
+          <CartProvider>
+            {children}
+            <CartDrawer />
+            <GlobalAssistant />
+          </CartProvider>
         </LocaleProvider>
       </body>
     </html>

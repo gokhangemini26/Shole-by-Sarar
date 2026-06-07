@@ -89,6 +89,14 @@ const DEFAULT_TOOLS: Tool[] = [
           required: ["items"],
         },
       },
+      {
+        name: "open_cart",
+        description: "Opens the shopping cart drawer (sepetim) for the user to view their cart or complete their checkout.",
+        parameters: {
+          type: Type.OBJECT,
+          properties: {},
+        },
+      },
     ],
   },
 ];

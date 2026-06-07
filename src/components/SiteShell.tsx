@@ -7,6 +7,7 @@ import { Menu, X } from "lucide-react";
 import { TYPE, Palette } from "@/lib/design";
 import { getLabels } from "@/lib/i18n";
 import { useLocale } from "@/lib/LocaleContext";
+import { useCart } from "@/lib/CartContext";
 
 /* ═══════════════════════════════════════════════════════════════════════
    Site Shell: Nav, Footer, MarqueeRow, TopAnnounce, Placeholder
@@ -198,6 +199,8 @@ export function Nav({
   const labels = getLabels(locale);
   const [scrolled, setScrolled] = React.useState(false);
   const [menuOpen, setMenuOpen] = React.useState(false);
+  const { cartItems, setCartOpen } = useCart();
+  const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
   
   React.useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -249,6 +252,7 @@ export function Nav({
             <a style={{...linkStyle, fontSize: 28}} onClick={() => { setMenuOpen(false); router.push("/shoes"); }}>{labels.navShoes}</a>
             <a style={{...linkStyle, fontSize: 28}} onClick={() => { setMenuOpen(false); router.push("/tailoring"); }}>{labels.navTailoring}</a>
             <a style={{...linkStyle, fontSize: 28}} onClick={() => { setMenuOpen(false); router.push("/journal"); }}>{labels.navJournal}</a>
+            <a style={{...linkStyle, fontSize: 28}} onClick={() => { setMenuOpen(false); setCartOpen(true); }}>{labels.bag} ({totalItems})</a>
             <div style={{ height: 1, background: palette.line, margin: "16px 0" }}></div>
             <Link href="/login" style={{...linkStyle, fontSize: 20}} onClick={() => setMenuOpen(false)}>{labels.account}</Link>
           </div>
@@ -356,10 +360,35 @@ export function Nav({
             />
             {labels.askShole}
           </button>
-          <a className="hide-mobile" style={{ ...linkStyle, position: "relative" }}>
+          <button
+            onClick={() => setCartOpen(true)}
+            style={{
+              ...linkStyle,
+              background: "transparent",
+              border: 0,
+              position: "relative",
+              cursor: "pointer",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 4
+            }}
+          >
             {labels.bag}{" "}
-            <sup style={{ fontFamily: TYPE.mono, fontSize: 10 }}>2</sup>
-          </a>
+            {totalItems > 0 && (
+              <sup style={{
+                fontFamily: TYPE.mono,
+                fontSize: 10,
+                background: palette.accent,
+                color: "#1C1814",
+                borderRadius: "50%",
+                padding: "2px 6px",
+                fontWeight: "bold",
+                transform: "translateY(-1px)"
+              }}>
+                {totalItems}
+              </sup>
+            )}
+          </button>
         </div>
       </div>
     </header>

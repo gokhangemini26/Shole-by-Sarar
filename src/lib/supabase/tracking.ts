@@ -37,14 +37,25 @@ export async function logProductView(userId: string, productId: string) {
   }
 }
 
-export async function logCartEvent(userId: string, productId: string, action: 'add' | 'remove') {
+export async function logCartEvent(userId: string, productId: string, action: 'add' | 'remove', size?: string) {
   const supabase = createClient();
   const { error } = await supabase
     .from('cart_events')
-    .insert([{ user_id: userId, product_id: productId, action }]);
+    .insert([{ user_id: userId, product_id: productId, action, size }]);
     
   if (error) {
     console.error('Error logging cart event:', error);
+  }
+}
+
+export async function logPurchase(userId: string, productId: string, size: string, price: string, quantity: number = 1) {
+  const supabase = createClient();
+  const { error } = await supabase
+    .from('purchases')
+    .insert([{ user_id: userId, product_id: productId, size, price, quantity }]);
+    
+  if (error) {
+    console.error('Error logging purchase:', error);
   }
 }
 
