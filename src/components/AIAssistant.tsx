@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
-import { X, Mic, MicOff, Send, Terminal, AlertTriangle, Sparkles } from "lucide-react";
+import { X, Mic, MicOff, Send, Terminal, AlertTriangle, Sparkles, ChevronUp } from "lucide-react";
 import { AIVoiceInput } from "@/components/ui/ai-voice-input";
 import { GeminiLiveClient, FunctionCall } from "@/lib/gemini-live";
 import { startVADMic, type VADMicHandle } from "@/lib/vad-mic";
@@ -834,7 +834,7 @@ export function AIAssistant({
       className={`fixed z-[100] flex flex-col overflow-hidden transition-all duration-500 ease-in-out ${
         isExpanded
           ? "inset-0 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 w-full h-full md:w-[800px] md:h-[80vh] md:max-h-[800px] bg-gradient-to-br from-[#352A22] to-[#1A1410] md:rounded-[32px] md:border border-white/20 shadow-2xl"
-          : "bottom-0 left-0 right-0 md:bottom-6 md:left-1/2 md:-translate-x-1/2 md:w-[760px] h-auto max-h-[25vh] md:max-h-[20vh] bg-white/50 backdrop-blur-2xl border-t md:border border-white/50 shadow-2xl md:rounded-[32px]"
+          : "bottom-0 left-0 right-0 md:bottom-6 md:left-1/2 md:-translate-x-1/2 md:w-[720px] h-auto bg-[#E8DFCF]/90 supports-[backdrop-filter]:bg-[#E8DFCF]/75 backdrop-blur-2xl border-t md:border border-[#1C1814]/10 shadow-[0_10px_40px_-12px_rgba(28,24,20,0.4)] rounded-t-[28px] md:rounded-[28px]"
       }`}
     >
       {/* Header for expanded view */}
@@ -877,122 +877,198 @@ export function AIAssistant({
         </div>
       )}
 
-      {/* Messages / Horizontal Flow */}
-      <div 
-        className={`flex-1 overflow-hidden flex flex-col relative bg-transparent min-h-[60px] ${!isExpanded ? "cursor-pointer" : ""}`}
-        onClick={() => !isExpanded && setIsExpanded(true)}
-      >
-        {isLive && isSpeaking && (
-          <button
-            onClick={interruptNow}
-            className="absolute top-1 left-1/2 -translate-x-1/2 z-10 bg-black/80 text-white text-[10px] px-3 py-1 rounded-full shadow-lg flex items-center gap-1.5 hover:bg-black transition-colors animate-pulse"
-          >
-            <span className="w-1.5 h-1.5 bg-red-400 rounded-full" />
-            interrupt
-          </button>
-        )}
-        <div ref={chatScrollRef} className={`flex-1 overflow-y-auto px-4 py-4 space-y-4 no-scrollbar flex flex-col ${!isExpanded && "justify-end pb-2"}`}>
-          {(isExpanded ? messages : messages.slice(-3)).map((m, i) => (
-            <div key={i} className={`flex flex-col gap-2 ${!isExpanded && "mb-0 space-y-0"}`}>
-              <div
-                className={`max-w-[90%] md:max-w-[80%] rounded-2xl px-4 py-3 text-sm whitespace-pre-wrap shadow-sm backdrop-blur-md ${
-                  m.role === "user"
-                    ? (isExpanded ? "bg-[#D48C51] text-black ml-auto rounded-br-sm" : "bg-black/80 text-white ml-auto rounded-br-sm")
-                    : (isExpanded ? "bg-white/10 text-white/90 border border-white/10 rounded-bl-sm mr-auto" : "bg-white/80 border border-white/40 text-black rounded-bl-sm mr-auto")
-                }`}
+      {/* ── İZLEME MODU AÇIK: flowing chat + product images ── */}
+      {isExpanded && (
+        <>
+          <div className="flex-1 overflow-hidden flex flex-col relative bg-transparent min-h-[60px]">
+            {isLive && isSpeaking && (
+              <button
+                onClick={interruptNow}
+                className="absolute top-1 left-1/2 -translate-x-1/2 z-10 bg-black/80 text-white text-[10px] px-3 py-1 rounded-full shadow-lg flex items-center gap-1.5 hover:bg-black transition-colors animate-pulse"
               >
-                {m.content || (isLoading && i === (isExpanded ? messages.length : messages.slice(-3).length) - 1 ? "…" : "")}
-              </div>
-              
-              {isExpanded && m.products && m.products.length > 0 && (
-                <div className="flex gap-3 overflow-x-auto no-scrollbar py-2 max-w-[90%] mr-auto pl-2">
-                  {m.products.map(slug => {
-                    const product = PRODUCTS.find(p => p.slug === slug);
-                    if (!product) return null;
-                    const imgSrc = `/images/products/${slug}.png`;
-                    return (
-                      <div key={slug} className="w-[120px] shrink-0 flex flex-col gap-2 cursor-pointer group" onClick={() => window.location.href = `/product/${slug}`}>
-                        <div className="w-full aspect-[4/5] bg-white/5 rounded-xl overflow-hidden border border-white/10 relative">
-                           <img src={imgSrc} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                        </div>
-                      </div>
-                    );
-                  })}
+                <span className="w-1.5 h-1.5 bg-red-400 rounded-full" />
+                interrupt
+              </button>
+            )}
+            <div ref={chatScrollRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-4 no-scrollbar flex flex-col">
+              {messages.map((m, i) => (
+                <div key={i} className="flex flex-col gap-2">
+                  <div
+                    className={`max-w-[90%] md:max-w-[80%] rounded-2xl px-4 py-3 text-sm whitespace-pre-wrap shadow-sm backdrop-blur-md ${
+                      m.role === "user"
+                        ? "bg-[#D48C51] text-black ml-auto rounded-br-sm"
+                        : "bg-white/10 text-white/90 border border-white/10 rounded-bl-sm mr-auto"
+                    }`}
+                  >
+                    {m.content || (isLoading && i === messages.length - 1 ? "…" : "")}
+                  </div>
+
+                  {m.products && m.products.length > 0 && (
+                    <div className="flex gap-3 overflow-x-auto no-scrollbar py-2 max-w-[90%] mr-auto pl-2">
+                      {m.products.map(slug => {
+                        const product = PRODUCTS.find(p => p.slug === slug);
+                        if (!product) return null;
+                        const imgSrc = `/images/products/${slug}.png`;
+                        return (
+                          <div key={slug} className="w-[120px] shrink-0 flex flex-col gap-2 cursor-pointer group" onClick={() => window.location.href = `/product/${slug}`}>
+                            <div className="w-full aspect-[4/5] bg-white/5 rounded-xl overflow-hidden border border-white/10 relative">
+                               <img src={imgSrc} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              ))}
+              {isLoading && messages[messages.length - 1]?.role === "user" && (
+                <div className="flex gap-1 p-2">
+                  <div className="w-1.5 h-1.5 rounded-full animate-bounce bg-white/40" />
+                  <div className="w-1.5 h-1.5 rounded-full animate-bounce [animation-delay:0.2s] bg-white/40" />
+                  <div className="w-1.5 h-1.5 rounded-full animate-bounce [animation-delay:0.4s] bg-white/40" />
                 </div>
               )}
             </div>
-          ))}
-          {isLoading && messages[messages.length - 1]?.role === "user" && (
-            <div className="flex gap-1 p-2">
-              <div className={`w-1.5 h-1.5 rounded-full animate-bounce ${isExpanded ? "bg-white/40" : "bg-black/40"}`} />
-              <div className={`w-1.5 h-1.5 rounded-full animate-bounce [animation-delay:0.2s] ${isExpanded ? "bg-white/40" : "bg-black/40"}`} />
-              <div className={`w-1.5 h-1.5 rounded-full animate-bounce [animation-delay:0.4s] ${isExpanded ? "bg-white/40" : "bg-black/40"}`} />
+          </div>
+
+          <div className="p-3 flex items-center gap-2 backdrop-blur-3xl shrink-0 bg-black/20 border-t border-white/10">
+            <AIVoiceInput
+              isActive={isLive}
+              isConnecting={isConnecting}
+              onStart={toggleVoice}
+              onStop={toggleVoice}
+              visualizerBars={32}
+              className="py-0 shrink-0"
+            />
+
+            <div className="flex-1 flex items-center gap-2 rounded-full px-4 py-1.5 border transition-all shadow-inner bg-white/5 border-white/10 focus-within:border-white/30 focus-within:bg-white/10">
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+                placeholder={isLive
+                  ? (locale === "tr" ? "ses aktif · veya yazın" : "voice live · or type")
+                  : labels.askShole + "..."}
+                className="flex-1 bg-transparent border-none focus:ring-0 text-sm py-1 outline-none text-white placeholder-white/40"
+                disabled={isLoading}
+              />
+              <button
+                onClick={() => sendMessage()}
+                disabled={isLoading || !input.trim()}
+                className="text-white disabled:opacity-30 transition-opacity"
+              >
+                <Send size={16} />
+              </button>
             </div>
-          )}
-        </div>
-      </div>
 
-      {/* Footer / Input Bar */}
-      <div className={`p-3 flex items-center gap-2 backdrop-blur-3xl shrink-0 ${
-        isExpanded ? "bg-black/20 border-t border-white/10" : "bg-white/40 border-t border-white/30"
-      }`}>
-        <AIVoiceInput
-          isActive={isLive}
-          isConnecting={isConnecting}
-          onStart={toggleVoice}
-          onStop={toggleVoice}
-          visualizerBars={32}
-          className="py-0 shrink-0"
-        />
+            <div className="flex items-center gap-1 shrink-0 ml-1">
+              <button
+                onClick={() => setShowLog((v) => !v)}
+                title="Activity log"
+                className={`hidden md:flex items-center gap-1 px-2 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-wider transition-colors border ${
+                  showLog
+                    ? "bg-emerald-400 text-black border-emerald-400"
+                    : "bg-white/5 text-white/50 border-white/10 hover:bg-white/10 hover:text-white"
+                }`}
+              >
+                <Terminal size={12} />
+              </button>
+              <button
+                onClick={onClose}
+                className="p-2 rounded-full transition-colors hover:bg-white/10 text-white/50 hover:text-white"
+              >
+                <X size={18} />
+              </button>
+            </div>
+          </div>
+        </>
+      )}
 
-        <div className={`flex-1 flex items-center gap-2 rounded-full px-4 py-1.5 border transition-all shadow-inner ${
-          isExpanded ? "bg-white/5 border-white/10 focus-within:border-white/30 focus-within:bg-white/10" : "bg-white/60 border-white/50 focus-within:border-black/20 focus-within:bg-white/80"
-        }`}>
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-            placeholder={isLive 
-              ? (locale === "tr" ? "ses aktif · veya yazın" : "voice live · or type") 
-              : labels.askShole + "..."}
-            className={`flex-1 bg-transparent border-none focus:ring-0 text-sm py-1 outline-none ${
-              isExpanded ? "text-white placeholder-white/40" : "text-black placeholder-black/50"
-            }`}
-            disabled={isLoading}
-          />
+      {/* ── İZLEME MODU KAPALI: sade & elegant bar (site paletinde) ── */}
+      {!isExpanded && (
+        <div className="flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2.5 md:py-3">
+          {/* Marka — dokununca izleme modunu açar */}
           <button
-            onClick={() => sendMessage()}
-            disabled={isLoading || !input.trim()}
-            className={`${isExpanded ? "text-white" : "text-black"} disabled:opacity-30 transition-opacity`}
+            onClick={() => setIsExpanded(true)}
+            title={locale === "tr" ? "İzleme modunu aç" : "Open watch mode"}
+            className="flex items-center gap-2.5 shrink-0"
           >
-            <Send size={16} />
+            <span className="w-9 h-9 rounded-full bg-[#C77A2D] text-[#1C1814] font-serif flex items-center justify-center text-lg shadow-inner shrink-0">S</span>
+            <span className="hidden sm:flex flex-col items-start leading-tight">
+              <span className="text-[#1C1814] text-[13px] font-medium tracking-wide">SHOLÉ</span>
+              <span className="text-[#1C1814]/50 text-[9px] font-mono uppercase tracking-[0.15em] flex items-center gap-1">
+                <span className={`w-1.5 h-1.5 rounded-full ${isLive ? "bg-[#C77A2D] animate-pulse" : "border border-[#1C1814]/40"}`} />
+                {isLive
+                  ? (isSpeaking ? (locale === "tr" ? "konuşuyor" : "speaking") : (locale === "tr" ? "dinliyor" : "listening"))
+                  : (locale === "tr" ? "ai stilist" : "ai stylist")}
+              </span>
+            </span>
           </button>
-        </div>
 
-        {/* Controls */}
-        <div className="flex items-center gap-1 shrink-0 ml-1">
+          {/* Metin girişi */}
+          <div className="flex-1 flex items-center gap-2 rounded-full px-4 py-1.5 bg-white/55 border border-[#1C1814]/10 focus-within:border-[#C77A2D]/50 focus-within:bg-white/80 transition-all">
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+              placeholder={isLive
+                ? (locale === "tr" ? "ses aktif · veya yazın" : "voice live · or type")
+                : labels.askShole + "..."}
+              className="flex-1 bg-transparent border-none focus:ring-0 text-sm py-1 outline-none text-[#1C1814] placeholder-[#1C1814]/40"
+              disabled={isLoading}
+            />
+            <button
+              onClick={() => sendMessage()}
+              disabled={isLoading || !input.trim()}
+              className="text-[#1C1814] disabled:opacity-30 transition-opacity"
+            >
+              <Send size={16} />
+            </button>
+          </div>
+
+          {/* Mikrofon (sesli) */}
+          <AIVoiceInput
+            isActive={isLive}
+            isConnecting={isConnecting}
+            onStart={toggleVoice}
+            onStop={toggleVoice}
+            visualizerBars={24}
+            className="py-0 shrink-0"
+          />
+
+          {/* İzleme modunu aç */}
+          <button
+            onClick={() => setIsExpanded(true)}
+            title={locale === "tr" ? "İzleme modu" : "Watch mode"}
+            className="hidden md:flex items-center gap-1 px-3 py-2 rounded-full text-[9px] font-bold uppercase tracking-wider border border-[#1C1814]/15 text-[#1C1814]/70 hover:bg-[#1C1814]/5 hover:text-[#1C1814] transition-colors shrink-0"
+          >
+            <Sparkles size={11} /> {locale === "tr" ? "izle" : "watch"} <ChevronUp size={12} />
+          </button>
+
+          {/* Log */}
           <button
             onClick={() => setShowLog((v) => !v)}
             title="Activity log"
-            className={`hidden md:flex items-center gap-1 px-2 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-wider transition-colors border ${
+            className={`hidden md:flex items-center px-2 py-2 rounded-full transition-colors border shrink-0 ${
               showLog
-                ? "bg-emerald-400 text-black border-emerald-400"
-                : isExpanded ? "bg-white/5 text-white/50 border-white/10 hover:bg-white/10 hover:text-white" : "bg-white/30 text-black/70 border-white/40 hover:bg-white/50"
+                ? "bg-emerald-500 text-white border-emerald-500"
+                : "bg-transparent text-[#1C1814]/50 border-[#1C1814]/15 hover:bg-[#1C1814]/5 hover:text-[#1C1814]"
             }`}
           >
-            <Terminal size={12} />
+            <Terminal size={13} />
           </button>
+
+          {/* Kapat */}
           <button
             onClick={onClose}
-            className={`p-2 rounded-full transition-colors ${
-              isExpanded ? "hover:bg-white/10 text-white/50 hover:text-white" : "hover:bg-black/10 text-black/70"
-            }`}
+            className="p-2 rounded-full hover:bg-[#1C1814]/10 text-[#1C1814]/60 hover:text-[#1C1814] transition-colors shrink-0"
           >
             <X size={18} />
           </button>
         </div>
-      </div>
+      )}
     </motion.div>
   );
 }
