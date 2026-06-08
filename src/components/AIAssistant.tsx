@@ -106,6 +106,7 @@ export function AIAssistant({
   const [audioLevel, setAudioLevel] = useState(0);
   const [logs, setLogs] = useState<LogLine[]>([]);
   const [showLog, setShowLog] = useState(false);
+  const [logCopied, setLogCopied] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   
   const [memoryContext, setMemoryContext] = useState("");
@@ -870,14 +871,39 @@ export function AIAssistant({
         </div>
       )}
 
-      {/* Debug log panel (Hidden on Mobile) */}
+      {/* Debug log panel */}
       {showLog && (
-        <div className="hidden md:block bg-black/80 backdrop-blur-md text-green-400 font-mono text-[10px] px-3 py-2 max-h-[100px] overflow-y-auto border-b border-green-900/50 shrink-0">
-          <div className="flex justify-between items-center mb-1 sticky top-0 bg-transparent pb-1">
+        <div className="bg-black/85 backdrop-blur-md text-green-400 font-mono text-[10px] px-3 py-2 max-h-[42vh] overflow-y-auto border-b border-green-900/50 shrink-0">
+          <div className="flex justify-between items-center gap-2 mb-1 sticky top-0 bg-black/85 pb-1 z-10">
             <span className="text-green-300 font-bold">activity log ({logs.length})</span>
-            <button onClick={() => setLogs([])} className="text-green-300 hover:text-white text-[9px]">clear</button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={async () => {
+                  const text = logs.map((l) => `${l.ts} ${l.text}`).join("\n");
+                  try {
+                    await navigator.clipboard.writeText(text);
+                    setLogCopied(true);
+                    setTimeout(() => setLogCopied(false), 1500);
+                  } catch {
+                    // Fallback: select-all the panel so the user can Ctrl+C
+                    const el = logScrollRef.current;
+                    if (el) {
+                      const range = document.createRange();
+                      range.selectNodeContents(el);
+                      const sel = window.getSelection();
+                      sel?.removeAllRanges();
+                      sel?.addRange(range);
+                    }
+                  }
+                }}
+                className="px-2 py-0.5 rounded bg-emerald-500 text-black font-bold text-[9px] hover:bg-emerald-400"
+              >
+                {logCopied ? "copied ✓" : "copy"}
+              </button>
+              <button onClick={() => setLogs([])} className="text-green-300 hover:text-white text-[9px]">clear</button>
+            </div>
           </div>
-          <div ref={logScrollRef}>
+          <div ref={logScrollRef} className="select-text">
             {logs.length === 0 && <div className="text-green-700">no activity yet...</div>}
             {logs.map((l, i) => <div key={i}><span className="text-green-700">{l.ts}</span> {l.text}</div>)}
           </div>
