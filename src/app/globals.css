@@ -75,6 +75,12 @@
 /* ── Reset ───────────────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
+
+/* Keep the sticky nav from clipping the top of any section/image the
+   assistant (or an anchor link) scrolls to — preserves image integrity
+   and page symmetry. */
+html { scroll-padding-top: 96px; }
+[id] { scroll-margin-top: 96px; }
 body {
   font-family: "Outfit", system-ui, sans-serif;
   background: #FAF7F0;

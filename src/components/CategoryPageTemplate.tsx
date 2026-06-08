@@ -29,7 +29,7 @@ export function CategoryPageTemplate({ category, title, description }: { categor
           </p>
         </header>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "48px 32px" }}>
+        <div id="collection" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "48px 32px" }}>
           {categoryProducts.map((product) => (
             <article
               key={product.slug}

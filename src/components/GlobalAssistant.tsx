@@ -19,27 +19,40 @@ const VALID_CATEGORIES = new Set([
 import { useLocale } from "@/lib/LocaleContext";
 import { getLabels } from "@/lib/i18n";
 
-// A cinematic, slow scroll function to gently reveal the page contents
-function slowScrollDown() {
-  // Try to find the main content area to scroll to, otherwise scroll 60vh
-  const distance = Math.min(window.innerHeight * 0.6, 600);
-  const duration = 2500; // 2.5 seconds for a very slow, elegant scroll
+// Height of the sticky nav (+ a small breathing gap) so we never scroll a
+// section's images partly under the header.
+function navOffset() {
+  const nav = document.getElementById("site-nav");
+  const h = nav ? nav.getBoundingClientRect().height : 72;
+  return h + 24;
+}
+
+// Cinematic slow scroll that lands cleanly: aligns a target element's top
+// just below the sticky nav (full images, symmetric framing). Falls back to a
+// gentle partial reveal if the element isn't on the page.
+function slowScrollToTarget(elementId?: string) {
+  let targetY: number;
+  const el = elementId ? document.getElementById(elementId) : null;
+  if (el) {
+    targetY = Math.max(0, el.getBoundingClientRect().top + window.scrollY - navOffset());
+  } else {
+    targetY = Math.min(window.innerHeight * 0.5, 480);
+  }
+
   const start = window.scrollY;
+  const distance = targetY - start;
+  if (Math.abs(distance) < 4) return;
+  const duration = 1800;
   const startTime = performance.now();
-  
+
   function step(time: number) {
     const elapsed = time - startTime;
     const progress = Math.min(elapsed / duration, 1);
-    // Cubic ease-in-out
-    const ease = progress < 0.5 
-      ? 4 * progress * progress * progress 
+    const ease = progress < 0.5
+      ? 4 * progress * progress * progress
       : 1 - Math.pow(-2 * progress + 2, 3) / 2;
-      
     window.scrollTo(0, start + distance * ease);
-    
-    if (progress < 1) {
-      window.requestAnimationFrame(step);
-    }
+    if (progress < 1) window.requestAnimationFrame(step);
   }
   window.requestAnimationFrame(step);
 }
@@ -85,13 +98,6 @@ export function GlobalAssistant() {
       const asStr = (v: unknown) => (typeof v === "string" ? v : "");
       
       let navigated = false;
-      const triggerScroll = () => {
-        if (!navigated) {
-          navigated = true;
-          // Wait for Next.js to mount the new page before scrolling
-          setTimeout(slowScrollDown, 600);
-        }
-      };
 
       for (const call of calls) {
         console.log("[SHOLÉ] tool_call:", call.name, call.args);
@@ -127,23 +133,24 @@ export function GlobalAssistant() {
           const section = asStr(call.args.section) || asStr(call.args.page);
           if (!section) continue;
           navigated = true;
-          const scrollToSection = () => {
-            const el = document.getElementById(section);
-            if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-          };
+          // Slow-scroll the section's top to just below the nav so its
+          // images are framed whole, never clipped at the top.
           if (pathname !== "/") {
             router.push("/");
-            setTimeout(scrollToSection, 600);
+            setTimeout(() => slowScrollToTarget(section), 650);
           } else {
-            scrollToSection();
+            slowScrollToTarget(section);
           }
         }
 
         if (call.name === "navigate_category" && !navigated) {
           const category = asStr(call.args.category);
           if (VALID_CATEGORIES.has(category)) {
+            navigated = true;
             router.push(`/${category}`);
-            triggerScroll();
+            // Reveal the product grid aligned under the nav (full, symmetric
+            // first row) instead of a blind partial scroll that halves images.
+            setTimeout(() => slowScrollToTarget("collection"), 650);
           } else {
             console.warn(`[SHOLÉ] invalid category: "${category}"`);
           }
