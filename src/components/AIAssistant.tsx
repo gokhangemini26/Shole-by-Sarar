@@ -842,7 +842,7 @@ export function AIAssistant({
       className={`fixed z-[100] flex flex-col transition-all duration-500 ease-in-out ${
         isExpanded
           ? "overflow-hidden inset-0 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 w-full h-full md:w-[800px] md:h-[80vh] md:max-h-[800px] bg-gradient-to-br from-[#352A22] to-[#1A1410] md:rounded-[32px] md:border border-white/20 shadow-2xl"
-          : "bottom-0 left-0 right-0 md:bottom-6 md:left-1/2 md:-translate-x-1/2 md:w-[600px] h-auto bg-[#E8DFCF]/55 supports-[backdrop-filter]:bg-[#E8DFCF]/40 backdrop-blur-xl border-t md:border border-[#1C1814]/10 shadow-[0_8px_30px_-14px_rgba(28,24,20,0.35)] rounded-t-[24px] md:rounded-full"
+          : "bottom-0 left-0 right-0 md:bottom-6 md:left-1/2 md:-translate-x-1/2 md:w-[680px] md:max-w-[calc(100vw-32px)] h-auto bg-[#E8DFCF]/55 supports-[backdrop-filter]:bg-[#E8DFCF]/40 backdrop-blur-xl border-t md:border border-[#1C1814]/10 shadow-[0_8px_30px_-14px_rgba(28,24,20,0.35)] rounded-t-[24px] md:rounded-full"
       }`}
     >
       {/* Header for expanded view */}
@@ -1051,7 +1051,7 @@ export function AIAssistant({
           </button>
 
           {/* Metin girişi */}
-          <div className="flex-1 flex items-center gap-2 rounded-full px-3.5 py-1 bg-white/45 border border-[#1C1814]/10 focus-within:border-[#C77A2D]/50 focus-within:bg-white/70 transition-all">
+          <div className="flex-1 min-w-0 flex items-center gap-2 rounded-full px-3.5 py-1 bg-white/45 border border-[#1C1814]/10 focus-within:border-[#C77A2D]/50 focus-within:bg-white/70 transition-all">
             <input
               type="text"
               value={input}
@@ -1060,7 +1060,7 @@ export function AIAssistant({
               placeholder={isLive
                 ? (locale === "tr" ? "ses aktif · veya yazın" : "voice live · or type")
                 : labels.askShole + "..."}
-              className="flex-1 bg-transparent border-none focus:ring-0 text-sm py-1 outline-none text-[#1C1814] placeholder-[#1C1814]/40"
+              className="flex-1 min-w-0 bg-transparent border-none focus:ring-0 text-sm py-1 outline-none text-[#1C1814] placeholder-[#1C1814]/40"
               disabled={isLoading}
             />
             <button
@@ -1095,13 +1095,13 @@ export function AIAssistant({
           <button
             onClick={() => setShowLog((v) => !v)}
             title="Activity log"
-            className={`hidden md:flex items-center px-1.5 py-1.5 rounded-full transition-colors border shrink-0 ${
+            className={`flex items-center px-1.5 py-1.5 rounded-full transition-colors border shrink-0 ${
               showLog
                 ? "bg-emerald-500 text-white border-emerald-500"
-                : "bg-transparent text-[#1C1814]/50 border-[#1C1814]/15 hover:bg-[#1C1814]/5 hover:text-[#1C1814]"
+                : "bg-[#1C1814]/8 text-[#1C1814]/70 border-[#1C1814]/20 hover:bg-[#1C1814]/15 hover:text-[#1C1814]"
             }`}
           >
-            <Terminal size={12} />
+            <Terminal size={13} />
           </button>
 
           {/* Kapat */}
