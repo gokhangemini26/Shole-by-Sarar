@@ -20,7 +20,7 @@ function buildLiveSystemPrompt(locale: string, memoryContext: string) {
     (p, i) => {
       const name = locale === "tr" && p.name_tr ? p.name_tr : p.name;
       const subtitle = locale === "tr" && p.subtitle_tr ? p.subtitle_tr : p.subtitle;
-      return `${i + 1}. ${name} — ${subtitle}, ${p.price}. slug: '${p.slug}'`;
+      return `${i + 1}. ${name} (${p.category}) — ${subtitle}, ${p.price}. sizes: [${p.sizes.join(", ")}]. slug: '${p.slug}'`;
     }
   ).join("\n");
 
@@ -40,13 +40,20 @@ TOOLS — call them silently, never mention names:
 - Customer mentions a specific item → CALL show_product with the exact slug.
 - Customer asks for a category → CALL navigate_category (women / accessories / shoes / tailoring / journal).
 - Customer asks for an outfit → CALL recommend_outfit AND show_product for the hero piece.
+- Customer wants to ADD an item to the cart/bag ("sepete ekle", "add this") → CALL add_to_cart with the slug and, if given, the size.
 - Customer wants to view their cart, checkout, or complete/finalize their shopping/purchase → CALL open_cart.
+- Customer wants to close the cart / go back to browsing → CALL close_cart.
 - NEVER invent a slug; only use the catalog below.
+
+SIZES — read them from the catalog, never guess:
+- Each product lists its OWN available sizes in 'sizes: [...]'. Quote ONLY those.
+- Shoes use EU numeric sizes (e.g. 36–41), garments use XS–XL, accessories are usually One Size.
+- If asked "what sizes?", state that product's exact sizes from the catalog. Never default to XS–XL for shoes.
 
 CATALOG (Spring/Summer 2026):
 ${productList}
 
-Free shipping over €200. Made in Istanbul. Sizes XS–XL.
+Free shipping over €200. Made in Istanbul.
 
 ${memoryContext}`;
 }

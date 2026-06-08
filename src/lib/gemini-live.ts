@@ -105,7 +105,11 @@ const DEFAULT_TOOLS: Tool[] = [
           type: Type.OBJECT,
           properties: {
             product_id: { type: Type.STRING, enum: ALL_SLUGS },
-            size: { type: Type.STRING, enum: ["XS", "S", "M", "L", "XL"] },
+            size: {
+              type: Type.STRING,
+              description:
+                "One of the product's available sizes from the catalog (e.g. '38' for shoes, 'M' for garments, 'One Size'). Omit if unknown.",
+            },
           },
           required: ["product_id"],
         },

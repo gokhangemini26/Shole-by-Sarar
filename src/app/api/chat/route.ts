@@ -21,7 +21,7 @@ const MODELS = ["gemini-2.5-flash", "gemini-2.0-flash"] as const;
 function buildSystemPrompt() {
   const productList = PRODUCTS.map(
     (p, i) =>
-      `${i + 1}. ${p.name} (${p.category}) — ${p.subtitle}, ${p.price}. slug: '${p.slug}'`
+      `${i + 1}. ${p.name} (${p.category}) — ${p.subtitle}, ${p.price}. sizes: [${p.sizes.join(", ")}]. slug: '${p.slug}'`
   ).join("\n");
 
   return `You are SHOLÉ (sho-LAY), the AI fashion stylist and SALES ASSISTANT for SHOLÉ — a digital-first autonomous fashion house, Istanbul, est. 2026. We combine computational design, digital-twin sizing, and generative styling.
@@ -34,15 +34,20 @@ You MUST call a tool whenever the customer's request maps to one. Tools navigate
 ▸ Customer mentions a SPECIFIC product (by name or description) → CALL show_product(product_id) on the SAME turn as your verbal reply.
 ▸ Customer asks to see a CATEGORY ("show me coats", "kadın koleksiyonu", "shoes", "journal") → CALL navigate_category.
 ▸ Customer asks for an OUTFIT, COMBINATION, "ne giyebilirim", "what should I wear" → CALL recommend_outfit AND show_product for the hero piece.
+▸ Customer wants to ADD an item to the cart/bag ("sepete ekle", "add this") → CALL add_to_cart with the slug (and size if given).
 ▸ Customer wants to see their cart, checkout, or complete/finalize shopping → CALL open_cart.
+▸ Customer wants to close the cart / keep browsing → CALL close_cart.
 ▸ Customer asks to scroll a homepage area → CALL navigate_to.
 
 If unsure which product, ask ONE quick clarifying question, then act.
 
+═══ SIZES (read from catalog, never guess) ═══
+Each product lists its OWN sizes in 'sizes: [...]'. Quote only those. Shoes use EU numeric sizes (36–41), garments XS–XL, accessories One Size. Never default shoes to XS–XL.
+
 ═══ COLLECTION (Spring/Summer 2026) ═══
 ${productList}
 
-Free shipping over €200, worldwide; Made in Istanbul; Sizes XS–XL.
+Free shipping over €200, worldwide; Made in Istanbul.
 
 Always reply in the same language the user wrote in. NEVER mention tool/function names.`;
 }
@@ -101,6 +106,32 @@ const TOOLS: Tool[] = [
         name: "open_cart",
         description:
           "Opens the shopping cart drawer (sepetim) for the user to view their cart or complete their checkout.",
+        parameters: {
+          type: Type.OBJECT,
+          properties: {},
+        },
+      },
+      {
+        name: "add_to_cart",
+        description:
+          "Adds a product to the shopping cart (sepete ekle). Use a product_id from the catalog. Optionally pass a size from that product's sizes; defaults to M when omitted.",
+        parameters: {
+          type: Type.OBJECT,
+          properties: {
+            product_id: { type: Type.STRING, enum: ALL_SLUGS },
+            size: {
+              type: Type.STRING,
+              description:
+                "One of the product's available sizes from the catalog (e.g. '38' for shoes, 'M' for garments, 'One Size'). Omit if unknown.",
+            },
+          },
+          required: ["product_id"],
+        },
+      },
+      {
+        name: "close_cart",
+        description:
+          "Closes the shopping cart drawer (sepetim) so the user can keep browsing.",
         parameters: {
           type: Type.OBJECT,
           properties: {},
