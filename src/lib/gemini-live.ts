@@ -97,6 +97,28 @@ const DEFAULT_TOOLS: Tool[] = [
           properties: {},
         },
       },
+      {
+        name: "add_to_cart",
+        description:
+          "Adds a product to the shopping cart (sepete ekle). Use a product_id from the catalog. Optionally pass a size; defaults to M. Call this whenever the user asks to add an item to their cart/bag.",
+        parameters: {
+          type: Type.OBJECT,
+          properties: {
+            product_id: { type: Type.STRING, enum: ALL_SLUGS },
+            size: { type: Type.STRING, enum: ["XS", "S", "M", "L", "XL"] },
+          },
+          required: ["product_id"],
+        },
+      },
+      {
+        name: "close_cart",
+        description:
+          "Closes the shopping cart drawer (sepetim) and returns to the page. Call this when the user wants to close the cart or go back to browsing.",
+        parameters: {
+          type: Type.OBJECT,
+          properties: {},
+        },
+      },
     ],
   },
 ];

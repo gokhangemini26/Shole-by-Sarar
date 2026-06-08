@@ -286,28 +286,6 @@ export function IntroVideo({
               }}
               dangerouslySetInnerHTML={{ __html: labels.introCue }}
             />
-            <button
-              onClick={exit}
-              style={{
-                background: accent,
-                color: "#1C1814",
-                border: 0,
-                padding: "14px 24px",
-                borderRadius: 999,
-                cursor: "pointer",
-                fontFamily: TYPE.sans,
-                fontSize: 13,
-                fontWeight: 600,
-                letterSpacing: "0.06em",
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 10,
-                boxShadow: `0 8px 30px ${accent}55`,
-              }}
-            >
-              <span>{labels.introEnter}</span>
-              <span style={{ fontSize: 16 }}>→</span>
-            </button>
           </div>
           <div
             style={{

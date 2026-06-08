@@ -52,7 +52,7 @@ export function GlobalAssistant() {
 
   const router = useRouter();
   const pathname = usePathname();
-  const { setCartOpen } = useCart();
+  const { setCartOpen, addToCart } = useCart();
 
   useEffect(() => {
     setMounted(true);
@@ -86,6 +86,21 @@ export function GlobalAssistant() {
 
         if (call.name === "open_cart") {
           setCartOpen(true);
+        }
+
+        if (call.name === "add_to_cart") {
+          const productId = asStr(call.args.product_id);
+          const size = asStr(call.args.size) || "M";
+          if (VALID_SLUGS.has(productId)) {
+            addToCart(productId, size);
+            setCartOpen(true);
+          } else {
+            console.warn(`[SHOLÉ] add_to_cart invalid slug: "${productId}"`);
+          }
+        }
+
+        if (call.name === "close_cart") {
+          setCartOpen(false);
         }
 
         if (call.name === "navigate_to" && !navigated) {
@@ -145,7 +160,7 @@ export function GlobalAssistant() {
         }
       }
     },
-    [router, pathname, setCartOpen]
+    [router, pathname, setCartOpen, addToCart]
   );
 
   if (!mounted) return null;

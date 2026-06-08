@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
-import { X, Mic, MicOff, Send, Terminal, AlertTriangle, Sparkles, ChevronUp } from "lucide-react";
+import { X, Mic, MicOff, Send, Terminal, AlertTriangle, Sparkles, ChevronUp, Square } from "lucide-react";
 import { AIVoiceInput } from "@/components/ui/ai-voice-input";
 import { GeminiLiveClient, FunctionCall } from "@/lib/gemini-live";
 import { startVADMic, type VADMicHandle } from "@/lib/vad-mic";
@@ -831,10 +831,10 @@ export function AIAssistant({
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 50 }}
-      className={`fixed z-[100] flex flex-col overflow-hidden transition-all duration-500 ease-in-out ${
+      className={`fixed z-[100] flex flex-col transition-all duration-500 ease-in-out ${
         isExpanded
-          ? "inset-0 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 w-full h-full md:w-[800px] md:h-[80vh] md:max-h-[800px] bg-gradient-to-br from-[#352A22] to-[#1A1410] md:rounded-[32px] md:border border-white/20 shadow-2xl"
-          : "bottom-0 left-0 right-0 md:bottom-6 md:left-1/2 md:-translate-x-1/2 md:w-[720px] h-auto bg-[#E8DFCF]/90 supports-[backdrop-filter]:bg-[#E8DFCF]/75 backdrop-blur-2xl border-t md:border border-[#1C1814]/10 shadow-[0_10px_40px_-12px_rgba(28,24,20,0.4)] rounded-t-[28px] md:rounded-[28px]"
+          ? "overflow-hidden inset-0 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 w-full h-full md:w-[800px] md:h-[80vh] md:max-h-[800px] bg-gradient-to-br from-[#352A22] to-[#1A1410] md:rounded-[32px] md:border border-white/20 shadow-2xl"
+          : "bottom-0 left-0 right-0 md:bottom-6 md:left-1/2 md:-translate-x-1/2 md:w-[600px] h-auto bg-[#E8DFCF]/55 supports-[backdrop-filter]:bg-[#E8DFCF]/40 backdrop-blur-xl border-t md:border border-[#1C1814]/10 shadow-[0_8px_30px_-14px_rgba(28,24,20,0.35)] rounded-t-[24px] md:rounded-full"
       }`}
     >
       {/* Header for expanded view */}
@@ -987,18 +987,29 @@ export function AIAssistant({
 
       {/* ── İZLEME MODU KAPALI: sade & elegant bar (site paletinde) ── */}
       {!isExpanded && (
-        <div className="flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2.5 md:py-3">
+        <div className="flex items-center gap-1.5 md:gap-2 px-2.5 md:px-3 py-1.5 md:py-2">
+          {/* Sohbeti durdur — AI konuşurken belirir (yarı-dubleks: sesle kesilemez) */}
+          {isLive && (
+            <button
+              onClick={isSpeaking ? interruptNow : toggleVoice}
+              title={locale === "tr" ? "Sohbeti durdur" : "Stop conversation"}
+              className="absolute left-1/2 -translate-x-1/2 -top-10 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#9E3B2E] text-white text-[10px] font-medium tracking-wide shadow-[0_6px_18px_-6px_rgba(158,59,46,0.7)] hover:bg-[#8a3328] transition-colors"
+            >
+              <Square size={9} fill="currentColor" /> {locale === "tr" ? "durdur" : "stop"}
+            </button>
+          )}
+
           {/* Marka — dokununca izleme modunu açar */}
           <button
             onClick={() => setIsExpanded(true)}
             title={locale === "tr" ? "İzleme modunu aç" : "Open watch mode"}
-            className="flex items-center gap-2.5 shrink-0"
+            className="flex items-center gap-2 shrink-0"
           >
-            <span className="w-9 h-9 rounded-full bg-[#C77A2D] text-[#1C1814] font-serif flex items-center justify-center text-lg shadow-inner shrink-0">S</span>
-            <span className="hidden sm:flex flex-col items-start leading-tight">
-              <span className="text-[#1C1814] text-[13px] font-medium tracking-wide">SHOLÉ</span>
-              <span className="text-[#1C1814]/50 text-[9px] font-mono uppercase tracking-[0.15em] flex items-center gap-1">
-                <span className={`w-1.5 h-1.5 rounded-full ${isLive ? "bg-[#C77A2D] animate-pulse" : "border border-[#1C1814]/40"}`} />
+            <span className="w-7 h-7 rounded-full bg-[#C77A2D] text-[#1C1814] font-serif flex items-center justify-center text-sm shadow-inner shrink-0">S</span>
+            <span className="hidden md:flex flex-col items-start leading-tight">
+              <span className="text-[#1C1814] text-[12px] font-medium tracking-wide">SHOLÉ</span>
+              <span className="text-[#1C1814]/50 text-[8px] font-mono uppercase tracking-[0.15em] flex items-center gap-1">
+                <span className={`w-1 h-1 rounded-full ${isLive ? "bg-[#C77A2D] animate-pulse" : "border border-[#1C1814]/40"}`} />
                 {isLive
                   ? (isSpeaking ? (locale === "tr" ? "konuşuyor" : "speaking") : (locale === "tr" ? "dinliyor" : "listening"))
                   : (locale === "tr" ? "ai stilist" : "ai stylist")}
@@ -1007,7 +1018,7 @@ export function AIAssistant({
           </button>
 
           {/* Metin girişi */}
-          <div className="flex-1 flex items-center gap-2 rounded-full px-4 py-1.5 bg-white/55 border border-[#1C1814]/10 focus-within:border-[#C77A2D]/50 focus-within:bg-white/80 transition-all">
+          <div className="flex-1 flex items-center gap-2 rounded-full px-3.5 py-1 bg-white/45 border border-[#1C1814]/10 focus-within:border-[#C77A2D]/50 focus-within:bg-white/70 transition-all">
             <input
               type="text"
               value={input}
@@ -1034,38 +1045,38 @@ export function AIAssistant({
             isConnecting={isConnecting}
             onStart={toggleVoice}
             onStop={toggleVoice}
-            visualizerBars={24}
-            className="py-0 shrink-0"
+            visualizerBars={18}
+            className="py-0 shrink-0 scale-90"
           />
 
           {/* İzleme modunu aç */}
           <button
             onClick={() => setIsExpanded(true)}
             title={locale === "tr" ? "İzleme modu" : "Watch mode"}
-            className="hidden md:flex items-center gap-1 px-3 py-2 rounded-full text-[9px] font-bold uppercase tracking-wider border border-[#1C1814]/15 text-[#1C1814]/70 hover:bg-[#1C1814]/5 hover:text-[#1C1814] transition-colors shrink-0"
+            className="hidden md:flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[8px] font-bold uppercase tracking-wider border border-[#1C1814]/15 text-[#1C1814]/70 hover:bg-[#1C1814]/5 hover:text-[#1C1814] transition-colors shrink-0"
           >
-            <Sparkles size={11} /> {locale === "tr" ? "izle" : "watch"} <ChevronUp size={12} />
+            <Sparkles size={10} /> {locale === "tr" ? "izle" : "watch"} <ChevronUp size={11} />
           </button>
 
           {/* Log */}
           <button
             onClick={() => setShowLog((v) => !v)}
             title="Activity log"
-            className={`hidden md:flex items-center px-2 py-2 rounded-full transition-colors border shrink-0 ${
+            className={`hidden md:flex items-center px-1.5 py-1.5 rounded-full transition-colors border shrink-0 ${
               showLog
                 ? "bg-emerald-500 text-white border-emerald-500"
                 : "bg-transparent text-[#1C1814]/50 border-[#1C1814]/15 hover:bg-[#1C1814]/5 hover:text-[#1C1814]"
             }`}
           >
-            <Terminal size={13} />
+            <Terminal size={12} />
           </button>
 
           {/* Kapat */}
           <button
             onClick={onClose}
-            className="p-2 rounded-full hover:bg-[#1C1814]/10 text-[#1C1814]/60 hover:text-[#1C1814] transition-colors shrink-0"
+            className="p-1.5 rounded-full hover:bg-[#1C1814]/10 text-[#1C1814]/60 hover:text-[#1C1814] transition-colors shrink-0"
           >
-            <X size={18} />
+            <X size={16} />
           </button>
         </div>
       )}
