@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { AIAssistant, FloatingLauncher } from "./AIAssistant";
 import type { FunctionCall } from "@/lib/gemini-live";
@@ -54,6 +54,18 @@ export function GlobalAssistant() {
   const pathname = usePathname();
   const { setCartOpen, addToCart } = useCart();
 
+  // After add_to_cart we preview the cart for 3s then auto-close so the page
+  // stays in focus. A follow-up open_cart (user keeps engaging the cart)
+  // cancels the auto-close and leaves it open.
+  const cartAutoCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const clearCartTimer = useCallback(() => {
+    if (cartAutoCloseTimer.current) {
+      clearTimeout(cartAutoCloseTimer.current);
+      cartAutoCloseTimer.current = null;
+    }
+  }, []);
+  useEffect(() => () => clearCartTimer(), [clearCartTimer]);
+
   useEffect(() => {
     setMounted(true);
     console.log("[SHOLÉ] GlobalAssistant mounted");
@@ -85,6 +97,7 @@ export function GlobalAssistant() {
         console.log("[SHOLÉ] tool_call:", call.name, call.args);
 
         if (call.name === "open_cart") {
+          clearCartTimer(); // user is engaging the cart → keep it open
           setCartOpen(true);
         }
 
@@ -94,12 +107,19 @@ export function GlobalAssistant() {
           if (VALID_SLUGS.has(productId)) {
             addToCart(productId, size);
             setCartOpen(true);
+            // Preview the cart for 3s, then close to return focus to the page.
+            clearCartTimer();
+            cartAutoCloseTimer.current = setTimeout(() => {
+              setCartOpen(false);
+              cartAutoCloseTimer.current = null;
+            }, 3000);
           } else {
             console.warn(`[SHOLÉ] add_to_cart invalid slug: "${productId}"`);
           }
         }
 
         if (call.name === "close_cart") {
+          clearCartTimer();
           setCartOpen(false);
         }
 
@@ -160,7 +180,7 @@ export function GlobalAssistant() {
         }
       }
     },
-    [router, pathname, setCartOpen, addToCart]
+    [router, pathname, setCartOpen, addToCart, clearCartTimer]
   );
 
   if (!mounted) return null;
