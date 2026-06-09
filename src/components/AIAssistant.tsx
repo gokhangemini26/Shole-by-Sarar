@@ -11,6 +11,7 @@ import { PRODUCTS } from "@/lib/products";
 import { getLabels } from "@/lib/i18n";
 import { createClient } from "@/lib/supabase/client";
 import { getAIMemoryContext, createChatSession, logChatMessage } from "@/lib/supabase/tracking";
+import { useLocale } from "@/lib/LocaleContext";
 
 // ms to keep the mic gated after the last audio sample plays out, covering
 // speaker output latency + room reverb so trailing echo never reaches Gemini.
@@ -129,9 +130,45 @@ export function AIAssistant({
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [isAuthed, setIsAuthed] = useState(false);
   const router = useRouter();
+  const { setLocale } = useLocale();
   
   const [isMobile, setIsMobile] = useState(false);
   const [showMobileOverlay, setShowMobileOverlay] = useState(false);
+
+  const detectAndSetLanguage = (text: string) => {
+    const clean = text.toLowerCase();
+    
+    // Turkish keywords & letters
+    const hasTrLetters = /[ığüşöçİĞÜŞÖÇ]/.test(text);
+    const trWords = ["merhaba", "nasılsın", "sepet", "ürün", "kıyafet", "elbise", "giysi", "pantolon", "ayakkabı", "kargo", "ücretsiz", "türkçe", "yardım", "göster", "öner", "tavsiye", "ekle", "almak", "istiyorum", "neler", "bunu", "şunu", "evet", "hayır", "lütfen", "nasıl", "bugün", "ayır"];
+    const trScore = (hasTrLetters ? 2 : 0) + trWords.filter(w => clean.includes(w)).length;
+
+    // Italian keywords
+    const itWords = ["ciao", "come", "stai", "carrello", "prodotto", "vestito", "cappotto", "scarpa", "pantalone", "italiano", "parli", "sì", "spedizione", "gratuita", "mostra", "consiglia", "comprare", "aggiungi", "apri", "chiudi", "aiuto", "buongiorno", "buonasera", "matrimonio", "oggi"];
+    const itScore = itWords.filter(w => clean.includes(w)).length;
+
+    // German keywords & letters
+    const hasDeLetters = /[äßÄ]/.test(text); // ö, ü are shared with TR, but ä and ß are German specific
+    const deWords = ["hallo", "wie", "geht", "warenkorb", "produkt", "kleid", "schuh", "hose", "deutsch", "sprichst", "bitte", "danke", "versand", "kostenlos", "zeigen", "empfehlen", "kaufen", "hinzufügen", "öffnen", "schließen", "hilfe", "guten", "tag", "morgen", "abend", "heute"];
+    const deScore = (hasDeLetters ? 2 : 0) + deWords.filter(w => clean.includes(w)).length;
+
+    // English keywords
+    const enWords = ["hello", "hi", "how", "are", "you", "cart", "bag", "product", "dress", "coat", "shoe", "pant", "trouser", "english", "speak", "please", "thanks", "shipping", "free", "show", "recommend", "suggest", "buy", "add", "open", "close", "help", "wedding", "today"];
+    const enScore = enWords.filter(w => clean.includes(w)).length;
+
+    const maxScore = Math.max(trScore, itScore, deScore, enScore);
+    if (maxScore >= 1) {
+      if (maxScore === trScore && locale !== "tr") {
+        setLocale("tr");
+      } else if (maxScore === itScore && locale !== "it") {
+        setLocale("it");
+      } else if (maxScore === deScore && locale !== "de") {
+        setLocale("de");
+      } else if (maxScore === enScore && locale !== "en") {
+        setLocale("en");
+      }
+    }
+  };
 
   useEffect(() => {
     const checkMobile = () => {
@@ -688,6 +725,7 @@ export function AIAssistant({
       onTranscription: (text, isUser) => {
         if (isUser) {
           currentUserTranscriptRef.current += text;
+          detectAndSetLanguage(currentUserTranscriptRef.current);
         } else {
           if (!turnActiveRef.current) {
             turnActiveRef.current = true;
@@ -810,6 +848,8 @@ export function AIAssistant({
   const sendMessage = async (textOverride?: string) => {
     const textToSend = textOverride || input;
     if (!textToSend.trim() || isLoading) return;
+
+    detectAndSetLanguage(textToSend);
 
     const userMessage: Msg = { role: "user", content: textToSend };
     setMessages((prev) => [...prev, userMessage]);
