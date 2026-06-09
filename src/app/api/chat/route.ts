@@ -1,7 +1,12 @@
 import { GoogleGenAI, Type } from "@google/genai";
-import type { Tool } from "@google/genai";
+import type { Tool, Content, GenerateContentResponse } from "@google/genai";
 import { NextResponse } from "next/server";
 import { PRODUCTS, getAllSlugs } from "@/lib/products";
+import {
+  prepareCachedGeneration,
+  minTokensForModel,
+  type GenerationPlan,
+} from "@/lib/supabase/cacheManager";
 
 const ALL_SLUGS = getAllSlugs();
 const CATEGORIES = ["women", "accessories", "shoes", "tailoring", "journal"];
@@ -173,12 +178,12 @@ export async function POST(req: Request) {
 
     const ai = new GoogleGenAI({ apiKey });
 
-    let contents = messages
+    const contents: Content[] = messages
       .map((m) => ({
         role: m.role === "user" ? ("user" as const) : ("model" as const),
         parts: [{ text: (m.content || m.text || "").toString() }],
       }))
-      .filter((c) => c.parts[0].text.trim().length > 0);
+      .filter((c) => (c.parts?.[0] as { text: string }).text.trim().length > 0);
 
     // Gemini requires history to begin with a `user` turn — strip any leading
     // model greeting (e.g. the "Welcome to SHOLÉ" placeholder).
@@ -190,75 +195,136 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Empty history" }, { status: 400 });
     }
 
-    let lastErr: unknown = null;
+    const systemInstruction = buildSystemPrompt();
+    const genConfig = { temperature: 0.85, topP: 0.92, maxOutputTokens: 512 };
+    const primaryModel = MODELS[0];
+
+    // ── Rolling Context Cache ──────────────────────────────────────────
+    // Build a plan for the primary model. `prepared.plan` either reuses the
+    // session's active cache (delta-only contents) or is the standard plan.
+    const prepared = await prepareCachedGeneration({
+      ai,
+      sessionId: typeof body.sessionId === "string" ? body.sessionId : null,
+      tenantId: typeof body.tenantId === "string" ? body.tenantId : null,
+      model: primaryModel,
+      systemInstruction,
+      tools: TOOLS,
+      history: contents,
+      options: { minTokensToCache: minTokensForModel(primaryModel) },
+    }).catch((e) => {
+      log("cache prepare failed → standard inference:", (e as Error)?.message);
+      return null;
+    });
+
+    // Attempt order (graceful fallback): cached → standard primary → fallbacks.
+    const attempts: GenerationPlan[] = [];
+    if (prepared?.plan.usedCache) attempts.push(prepared.plan);
     for (const model of MODELS) {
+      attempts.push({
+        model,
+        contents,
+        config: { systemInstruction, tools: TOOLS },
+        usedCache: false,
+      });
+    }
+
+    // Open the stream, pulling the FIRST chunk so cache/availability errors
+    // surface before any bytes reach the client — then we transparently retry.
+    let chosen:
+      | {
+          plan: GenerationPlan;
+          gen: AsyncGenerator<GenerateContentResponse>;
+          first: IteratorResult<GenerateContentResponse>;
+        }
+      | null = null;
+    let lastErr: unknown = null;
+
+    for (const plan of attempts) {
       try {
-        log("calling model:", model);
-        const result = await ai.models.generateContentStream({
-          model,
-          contents,
-          config: {
-            systemInstruction: buildSystemPrompt(),
-            temperature: 0.85,
-            topP: 0.92,
-            maxOutputTokens: 512,
-            tools: TOOLS,
-          },
+        log(`try model=${plan.model} cache=${plan.usedCache}`);
+        const gen = await ai.models.generateContentStream({
+          model: plan.model,
+          contents: plan.contents,
+          // CONSTRAINT: when cachedContent is set, systemInstruction & tools
+          // live INSIDE the cache and must be omitted here. `plan.config`
+          // already enforces this (cached plan carries only cachedContent).
+          config: { ...plan.config, ...genConfig },
         });
-
-        const stream = new ReadableStream({
-          async start(controller) {
-            let chars = 0;
-            let toolCalls = 0;
-            try {
-              for await (const chunk of result) {
-                const text = chunk.text || "";
-                if (text) {
-                  chars += text.length;
-                  controller.enqueue(ndjson({ text }));
-                }
-                const calls = chunk.functionCalls || [];
-                if (calls.length) {
-                  for (const c of calls) {
-                    toolCalls++;
-                    log("tool_call:", c.name, c.args);
-                    controller.enqueue(
-                      ndjson({ tool: { name: c.name, args: c.args } })
-                    );
-                  }
-                }
-              }
-              log(`stream done in ${Date.now() - t0}ms — ${chars} chars, ${toolCalls} tool_calls`);
-              controller.enqueue(ndjson({ done: true }));
-              controller.close();
-            } catch (e) {
-              const msg = e instanceof Error ? e.message : String(e);
-              log("stream error:", msg);
-              controller.enqueue(ndjson({ error: msg }));
-              controller.close();
-            }
-          },
-        });
-
-        return new Response(stream, {
-          headers: {
-            "Content-Type": "application/x-ndjson",
-            "Cache-Control": "no-store, no-transform",
-            "X-Request-Id": requestId,
-          },
-        });
+        const first = await gen.next();
+        chosen = { plan, gen, first };
+        break;
       } catch (err) {
         lastErr = err;
         const msg = err instanceof Error ? err.message : String(err);
-        log(`model ${model} failed:`, msg);
-        if (!/404|NOT_FOUND|UNAVAILABLE|not found/i.test(msg)) break;
+        log(`attempt failed (model=${plan.model} cache=${plan.usedCache}): ${msg}`);
+        // fall through to the next (standard / fallback-model) attempt
       }
     }
 
-    const errMsg =
-      lastErr instanceof Error ? lastErr.message : String(lastErr ?? "unknown");
-    log("ALL models failed:", errMsg);
-    return NextResponse.json({ error: errMsg }, { status: 500 });
+    if (!chosen) {
+      const errMsg =
+        lastErr instanceof Error ? lastErr.message : String(lastErr ?? "unknown");
+      log("ALL attempts failed:", errMsg);
+      return NextResponse.json({ error: errMsg }, { status: 500 });
+    }
+
+    const { plan, gen, first } = chosen;
+    log(`streaming via model=${plan.model} cache=${plan.usedCache}`);
+
+    const stream = new ReadableStream({
+      async start(controller) {
+        let chars = 0;
+        let toolCalls = 0;
+        const pump = (res: IteratorResult<GenerateContentResponse>) => {
+          const chunk = res.value;
+          const text = chunk?.text || "";
+          if (text) {
+            chars += text.length;
+            controller.enqueue(ndjson({ text }));
+          }
+          for (const c of chunk?.functionCalls || []) {
+            toolCalls++;
+            log("tool_call:", c.name, c.args);
+            controller.enqueue(ndjson({ tool: { name: c.name, args: c.args } }));
+          }
+        };
+        try {
+          if (!first.done) pump(first);
+          while (true) {
+            const r = await gen.next();
+            if (r.done) break;
+            pump(r);
+          }
+          log(
+            `stream done in ${Date.now() - t0}ms — ${chars} chars, ${toolCalls} tool_calls, cache=${plan.usedCache}`
+          );
+          controller.enqueue(ndjson({ done: true }));
+        } catch (e) {
+          const msg = e instanceof Error ? e.message : String(e);
+          log("stream error:", msg);
+          controller.enqueue(ndjson({ error: msg }));
+        } finally {
+          // Cold-path cache maintenance (create / refresh / delete) AFTER the
+          // answer has streamed. Best-effort; never delays the first token.
+          if (prepared) {
+            try {
+              await prepared.runMaintenance();
+            } catch {
+              /* swallowed — chat already delivered */
+            }
+          }
+          controller.close();
+        }
+      },
+    });
+
+    return new Response(stream, {
+      headers: {
+        "Content-Type": "application/x-ndjson",
+        "Cache-Control": "no-store, no-transform",
+        "X-Request-Id": requestId,
+      },
+    });
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : String(error);
     console.error(`[SHOLÉ API ${requestId}] FATAL:`, msg);

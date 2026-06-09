@@ -751,7 +751,7 @@ export function AIAssistant({
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: cleanHistory }),
+        body: JSON.stringify({ messages: cleanHistory, sessionId }),
       });
 
       pushLog(`HTTP ${response.status} ${response.statusText}`);
