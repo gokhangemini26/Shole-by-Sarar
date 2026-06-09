@@ -14,6 +14,7 @@ export interface Labels {
   askShole: string;
   search: string;
   account: string;
+  logout: string;
   bag: string;
   heroSubtitle: string;
   heroTagline: string;
@@ -106,6 +107,7 @@ const labels: Record<Locale, Labels> = {
     askShole: "Ask SHOLÉ",
     search: "Search",
     account: "Member Login",
+    logout: "Logout",
     bag: "Bag",
     heroSubtitle: "Spring / Summer 2026 — Chapter 01",
     heroTagline: "The future of tailoring. A digital-first atelier where neural networks meet master craftsmanship, fabric learns your movements, and your AI stylist is always by your side.",
@@ -196,6 +198,7 @@ const labels: Record<Locale, Labels> = {
     askShole: "SHOLÉ'ye Sor",
     search: "Ara",
     account: "Üye Girişi",
+    logout: "Çıkış",
     bag: "Sepetim",
     heroSubtitle: "İlkbahar / Yaz 2026 — Bölüm 01",
     heroTagline: "Terziliğin geleceği. Yapay sinir ağları ile usta zanaatkarlığın buluştuğu, kumaşın hareketlerinizi öğrendiği ve AI stilistinizin her an yanınızda olduğu dijital öncelikli bir atölye.",

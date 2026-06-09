@@ -276,7 +276,10 @@ export function Nav({
             <a style={{...linkStyle, fontSize: 28}} onClick={() => { setMenuOpen(false); setCartOpen(true); }}>{labels.bag} ({totalItems})</a>
             <div style={{ height: 1, background: palette.line, margin: "16px 0" }}></div>
             {authed ? (
-              <a style={{...linkStyle, fontSize: 20}} onClick={handleLogout}>{locale === "tr" ? "Çıkış" : "Logout"}</a>
+              <>
+                <Link href="/login" style={{...linkStyle, fontSize: 20}} onClick={() => setMenuOpen(false)}>{labels.account}</Link>
+                <a style={{...linkStyle, fontSize: 20, opacity: 0.7}} onClick={handleLogout}>{labels.logout}</a>
+              </>
             ) : (
               <Link href="/login" style={{...linkStyle, fontSize: 20}} onClick={() => setMenuOpen(false)}>{labels.account}</Link>
             )}
@@ -355,13 +358,16 @@ export function Nav({
         >
           <a className="hide-mobile" style={linkStyle}>{labels.search}</a>
           {authed ? (
-            <button
-              onClick={handleLogout}
-              className="hide-mobile"
-              style={{ ...linkStyle, background: "transparent", border: 0 }}
-            >
-              {locale === "tr" ? "Çıkış" : "Logout"}
-            </button>
+            <>
+              <Link href="/login" className="hide-mobile" style={linkStyle}>{labels.account}</Link>
+              <button
+                onClick={handleLogout}
+                className="hide-mobile"
+                style={{ ...linkStyle, background: "transparent", border: 0, opacity: 0.7 }}
+              >
+                {labels.logout}
+              </button>
+            </>
           ) : (
             <Link href="/login" className="hide-mobile" style={linkStyle}>{labels.account}</Link>
           )}
