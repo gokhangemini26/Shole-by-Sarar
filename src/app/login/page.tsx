@@ -11,18 +11,21 @@ export default function LoginPage() {
   const supabase = createClient();
 
   const [email, setEmail] = React.useState("");
-  const [emailSent, setEmailSent] = React.useState(false);
+  const [password, setPassword] = React.useState("");
+  const [mode, setMode] = React.useState<"signin" | "signup">("signin");
   const [busy, setBusy] = React.useState(false);
   const [error, setError] = React.useState("");
+  const [info, setInfo] = React.useState("");
 
-  // Carry the post-login destination (e.g. the page that asked for voice)
-  // through the OAuth / magic-link round-trip via ?next=.
-  const callbackUrl = () => {
+  const safeNext = () => {
     const next =
       new URLSearchParams(window.location.search).get("redirect") || "/";
-    const safe = next.startsWith("/") ? next : "/";
-    return `${window.location.origin}/auth/callback?next=${encodeURIComponent(safe)}`;
+    return next.startsWith("/") && !next.startsWith("//") ? next : "/";
   };
+
+  // Used by OAuth and the email-confirmation round-trip.
+  const callbackUrl = () =>
+    `${window.location.origin}/auth/callback?next=${encodeURIComponent(safeNext())}`;
 
   const handleGoogleLogin = async () => {
     setError("");
@@ -32,18 +35,35 @@ export default function LoginPage() {
     });
   };
 
-  const handleEmailLogin = async (e: React.FormEvent) => {
+  const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.trim() || busy) return;
+    if (!email.trim() || !password || busy) return;
     setBusy(true);
     setError("");
-    const { error: otpError } = await supabase.auth.signInWithOtp({
-      email: email.trim(),
-      options: { emailRedirectTo: callbackUrl() },
-    });
-    setBusy(false);
-    if (otpError) setError(otpError.message);
-    else setEmailSent(true);
+    setInfo("");
+
+    if (mode === "signin") {
+      const { error: e2 } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
+      });
+      setBusy(false);
+      if (e2) return setError(e2.message);
+      window.location.assign(safeNext()); // session persists in the browser
+    } else {
+      const { data, error: e2 } = await supabase.auth.signUp({
+        email: email.trim(),
+        password,
+        options: { emailRedirectTo: callbackUrl() },
+      });
+      setBusy(false);
+      if (e2) return setError(e2.message);
+      if (data.session) window.location.assign(safeNext());
+      else
+        setInfo(
+          "Hesabınızı doğrulamak için e-postanıza gönderdiğimiz bağlantıya tıklayın."
+        );
+    }
   };
 
   return (
@@ -112,60 +132,105 @@ export default function LoginPage() {
             <div style={{ flex: 1, height: 1, background: palette.line }} />
           </div>
 
-          {emailSent ? (
-            <p style={{ fontFamily: TYPE.sans, fontSize: 14, color: palette.ink, lineHeight: 1.6 }}>
-              ✦ Giriş bağlantısını <strong>{email}</strong> adresine gönderdik.
-              <br />
-              E-postanızdaki bağlantıya tıklayarak devam edin.
-            </p>
-          ) : (
-            <form onSubmit={handleEmailLogin} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="ornek@email.com"
-                style={{
-                  width: "100%",
-                  background: "#FFFFFF",
-                  color: "#1C1814",
-                  border: `1px solid ${palette.line}`,
-                  padding: "13px 16px",
-                  borderRadius: 8,
-                  fontFamily: TYPE.sans,
-                  fontSize: 14,
-                  outline: "none",
-                  boxSizing: "border-box",
-                }}
-              />
-              <button
-                type="submit"
-                disabled={busy}
-                style={{
-                  width: "100%",
-                  background: palette.ink,
-                  color: palette.bg,
-                  border: 0,
-                  padding: "14px 24px",
-                  borderRadius: 8,
-                  cursor: busy ? "default" : "pointer",
-                  opacity: busy ? 0.6 : 1,
-                  fontFamily: TYPE.sans,
-                  fontSize: 14,
-                  fontWeight: 500,
-                }}
-              >
-                {busy ? "Gönderiliyor…" : "E-posta ile giriş bağlantısı gönder"}
-              </button>
-              <p style={{ fontFamily: TYPE.mono, fontSize: 11, color: palette.muted, lineHeight: 1.5, margin: "4px 0 0" }}>
-                Şifre yok — size güvenli bir giriş bağlantısı e-postayla gelir. İlk girişte hesabınız otomatik oluşturulur.
-              </p>
-            </form>
-          )}
+          <form onSubmit={handleEmailAuth} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            <input
+              type="email"
+              required
+              autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="ornek@email.com"
+              style={{
+                width: "100%",
+                background: "#FFFFFF",
+                color: "#1C1814",
+                border: `1px solid ${palette.line}`,
+                padding: "13px 16px",
+                borderRadius: 8,
+                fontFamily: TYPE.sans,
+                fontSize: 14,
+                outline: "none",
+                boxSizing: "border-box",
+              }}
+            />
+            <input
+              type="password"
+              required
+              minLength={6}
+              autoComplete={mode === "signup" ? "new-password" : "current-password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Şifre (en az 6 karakter)"
+              style={{
+                width: "100%",
+                background: "#FFFFFF",
+                color: "#1C1814",
+                border: `1px solid ${palette.line}`,
+                padding: "13px 16px",
+                borderRadius: 8,
+                fontFamily: TYPE.sans,
+                fontSize: 14,
+                outline: "none",
+                boxSizing: "border-box",
+              }}
+            />
+            <button
+              type="submit"
+              disabled={busy}
+              style={{
+                width: "100%",
+                background: palette.ink,
+                color: palette.bg,
+                border: 0,
+                padding: "14px 24px",
+                borderRadius: 8,
+                cursor: busy ? "default" : "pointer",
+                opacity: busy ? 0.6 : 1,
+                fontFamily: TYPE.sans,
+                fontSize: 14,
+                fontWeight: 500,
+              }}
+            >
+              {busy
+                ? "Lütfen bekleyin…"
+                : mode === "signin"
+                ? "E-posta ile giriş yap"
+                : "Hesap oluştur"}
+            </button>
+          </form>
 
+          <p style={{ fontFamily: TYPE.sans, fontSize: 13, color: palette.muted, marginTop: 16 }}>
+            {mode === "signin" ? "Hesabınız yok mu? " : "Zaten hesabınız var mı? "}
+            <button
+              type="button"
+              onClick={() => {
+                setMode(mode === "signin" ? "signup" : "signin");
+                setError("");
+                setInfo("");
+              }}
+              style={{
+                background: "transparent",
+                border: 0,
+                color: palette.ink,
+                cursor: "pointer",
+                fontFamily: TYPE.sans,
+                fontSize: 13,
+                fontWeight: 600,
+                textDecoration: "underline",
+                padding: 0,
+              }}
+            >
+              {mode === "signin" ? "Kayıt olun" : "Giriş yapın"}
+            </button>
+          </p>
+
+          {info && (
+            <p style={{ fontFamily: TYPE.sans, fontSize: 13, color: palette.ink, marginTop: 12, lineHeight: 1.5 }}>
+              ✦ {info}
+            </p>
+          )}
           {error && (
-            <p style={{ fontFamily: TYPE.sans, fontSize: 13, color: "#9E3B2E", marginTop: 14 }}>
+            <p style={{ fontFamily: TYPE.sans, fontSize: 13, color: "#9E3B2E", marginTop: 12 }}>
               {error}
             </p>
           )}

@@ -131,18 +131,29 @@ export function AIAssistant({
   const currentUserTranscriptRef = useRef("");
 
   useEffect(() => {
-    async function initMemory() {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      setIsAuthed(!!user);
-      if (user) {
-        const ctx = await getAIMemoryContext(user.id);
-        setMemoryContext(ctx);
-        const sid = await createChatSession(user.id);
-        setSessionId(sid);
-      }
+    const supabase = createClient();
+    async function loadFor(userId: string) {
+      const ctx = await getAIMemoryContext(userId);
+      setMemoryContext(ctx);
+      const sid = await createChatSession(userId);
+      setSessionId(sid);
     }
-    initMemory();
+    // Session is persisted by Supabase → returning visitors are auto-authed.
+    supabase.auth.getUser().then(({ data }) => {
+      setIsAuthed(!!data.user);
+      if (data.user) loadFor(data.user.id);
+    });
+    // Keep the voice gate accurate if the user logs in / out mid-session.
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      setIsAuthed(!!session?.user);
+      if (event === "SIGNED_OUT") {
+        setMemoryContext("");
+        setSessionId(null);
+      }
+    });
+    return () => subscription.unsubscribe();
   }, []);
 
   // Tear down the session's Gemini context cache when the user leaves the page

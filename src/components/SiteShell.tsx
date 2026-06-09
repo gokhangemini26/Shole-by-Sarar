@@ -8,6 +8,7 @@ import { TYPE, Palette } from "@/lib/design";
 import { getLabels } from "@/lib/i18n";
 import { useLocale } from "@/lib/LocaleContext";
 import { useCart } from "@/lib/CartContext";
+import { createClient } from "@/lib/supabase/client";
 
 /* ═══════════════════════════════════════════════════════════════════════
    Site Shell: Nav, Footer, MarqueeRow, TopAnnounce, Placeholder
@@ -198,14 +199,35 @@ export function Nav({
   const labels = getLabels(locale);
   const [scrolled, setScrolled] = React.useState(false);
   const [menuOpen, setMenuOpen] = React.useState(false);
+  const [authed, setAuthed] = React.useState(false);
   const { cartItems, setCartOpen } = useCart();
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
-  
+
   React.useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  // Auth state — the session is persisted by Supabase (localStorage + cookies),
+  // so returning visitors are auto–signed-in until they explicitly log out.
+  React.useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data }) => setAuthed(!!data.user));
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_e, session) => setAuthed(!!session?.user));
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    setAuthed(false);
+    setMenuOpen(false);
+    router.push("/");
+    router.refresh();
+  };
 
   const linkStyle: React.CSSProperties = {
     fontFamily: TYPE.sans,
@@ -253,7 +275,11 @@ export function Nav({
             <a style={{...linkStyle, fontSize: 28}} onClick={() => { setMenuOpen(false); router.push("/journal"); }}>{labels.navJournal}</a>
             <a style={{...linkStyle, fontSize: 28}} onClick={() => { setMenuOpen(false); setCartOpen(true); }}>{labels.bag} ({totalItems})</a>
             <div style={{ height: 1, background: palette.line, margin: "16px 0" }}></div>
-            <Link href="/login" style={{...linkStyle, fontSize: 20}} onClick={() => setMenuOpen(false)}>{labels.account}</Link>
+            {authed ? (
+              <a style={{...linkStyle, fontSize: 20}} onClick={handleLogout}>{locale === "tr" ? "Çıkış" : "Logout"}</a>
+            ) : (
+              <Link href="/login" style={{...linkStyle, fontSize: 20}} onClick={() => setMenuOpen(false)}>{labels.account}</Link>
+            )}
           </div>
           <div style={{ marginTop: "auto", display: "flex", gap: 16, paddingTop: 40 }}>
              <button onClick={() => { setMenuOpen(false); setLocale("en"); }} style={{ ...linkStyle, border: 0, background: "transparent", opacity: locale === "en" ? 1 : 0.4, fontWeight: locale === "en" ? 700 : 400 }}>EN</button>
@@ -328,7 +354,17 @@ export function Nav({
           }}
         >
           <a className="hide-mobile" style={linkStyle}>{labels.search}</a>
-          <Link href="/login" className="hide-mobile" style={linkStyle}>{labels.account}</Link>
+          {authed ? (
+            <button
+              onClick={handleLogout}
+              className="hide-mobile"
+              style={{ ...linkStyle, background: "transparent", border: 0 }}
+            >
+              {locale === "tr" ? "Çıkış" : "Logout"}
+            </button>
+          ) : (
+            <Link href="/login" className="hide-mobile" style={linkStyle}>{labels.account}</Link>
+          )}
           <button
             onClick={() => setCartOpen(true)}
             style={{
