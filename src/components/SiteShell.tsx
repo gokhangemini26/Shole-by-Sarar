@@ -258,8 +258,8 @@ export function Nav({
     >
       {/* Mobile Drawer */}
       {menuOpen && (
-        <div style={{ position: "fixed", inset: 0, background: palette.bg, zIndex: 110, padding: "24px", overflowY: "auto", display: "flex", flexDirection: "column" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 48 }}>
+        <div style={{ position: "fixed", inset: 0, background: palette.bg, zIndex: 110, padding: "24px", overflowY: "auto", WebkitOverflowScrolling: "touch" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
             <span style={{ fontFamily: TYPE.display, fontSize: 20, color: palette.ink }}>
               <strong style={{ fontWeight: 800, letterSpacing: "0.14em" }}>SHOLÉ</strong> <span style={{ fontSize: "0.65em", textTransform: "uppercase", opacity: 0.8, letterSpacing: "0.2em", verticalAlign: "middle", marginLeft: 4 }}>by SARAR</span>
             </span>
@@ -267,24 +267,26 @@ export function Nav({
               <X size={24} />
             </button>
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+
+          {/* Account / Logout — pinned to the top of the drawer so it is always
+              visible on mobile (no scroll trap below the long nav list). */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 14, paddingBottom: 22, marginBottom: 22, borderBottom: `1px solid ${palette.line}` }}>
+            <Link href="/login" style={{...linkStyle, fontSize: 22}} onClick={() => setMenuOpen(false)}>{labels.account}</Link>
+            {authed && (
+              <a style={{...linkStyle, fontSize: 22, opacity: 0.7}} onClick={handleLogout}>{labels.logout}</a>
+            )}
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
             <a style={{...linkStyle, fontSize: 28}} onClick={() => { setMenuOpen(false); router.push("/women"); }}>{labels.navWomen}</a>
             <a style={{...linkStyle, fontSize: 28}} onClick={() => { setMenuOpen(false); router.push("/accessories"); }}>{labels.navAccessories}</a>
             <a style={{...linkStyle, fontSize: 28}} onClick={() => { setMenuOpen(false); router.push("/shoes"); }}>{labels.navShoes}</a>
             <a style={{...linkStyle, fontSize: 28}} onClick={() => { setMenuOpen(false); router.push("/tailoring"); }}>{labels.navTailoring}</a>
             <a style={{...linkStyle, fontSize: 28}} onClick={() => { setMenuOpen(false); router.push("/journal"); }}>{labels.navJournal}</a>
             <a style={{...linkStyle, fontSize: 28}} onClick={() => { setMenuOpen(false); setCartOpen(true); }}>{labels.bag} ({totalItems})</a>
-            <div style={{ height: 1, background: palette.line, margin: "16px 0" }}></div>
-            {authed ? (
-              <>
-                <Link href="/login" style={{...linkStyle, fontSize: 20}} onClick={() => setMenuOpen(false)}>{labels.account}</Link>
-                <a style={{...linkStyle, fontSize: 20, opacity: 0.7}} onClick={handleLogout}>{labels.logout}</a>
-              </>
-            ) : (
-              <Link href="/login" style={{...linkStyle, fontSize: 20}} onClick={() => setMenuOpen(false)}>{labels.account}</Link>
-            )}
           </div>
-          <div style={{ marginTop: "auto", display: "flex", gap: 16, paddingTop: 40 }}>
+
+          <div style={{ marginTop: 32, paddingTop: 22, borderTop: `1px solid ${palette.line}`, display: "flex", gap: 16 }}>
              <button onClick={() => { setMenuOpen(false); setLocale("en"); }} style={{ ...linkStyle, border: 0, background: "transparent", opacity: locale === "en" ? 1 : 0.4, fontWeight: locale === "en" ? 700 : 400 }}>EN</button>
              <button onClick={() => { setMenuOpen(false); setLocale("tr"); }} style={{ ...linkStyle, border: 0, background: "transparent", opacity: locale === "tr" ? 1 : 0.4, fontWeight: locale === "tr" ? 700 : 400 }}>TR</button>
           </div>
