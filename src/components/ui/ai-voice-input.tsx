@@ -4,6 +4,9 @@ import { Mic } from "lucide-react"
 import { useState, useEffect } from "react"
 import { cn } from "@/lib/utils"
 
+// Fixed waveform heights (%) for the compact signal animation.
+const COMPACT_BARS = [45, 75, 55, 90, 60, 85, 50, 70, 40]
+
 interface AIVoiceInputProps {
   onStart?: () => void
   onStop?: (duration: number) => void
@@ -13,6 +16,12 @@ interface AIVoiceInputProps {
   className?: string
   isActive?: boolean
   isConnecting?: boolean
+  /** Minimal inline layout: just the mic button + a small signal animation.
+   *  No timer, no "Click to speak" label. For the slim chat bar. */
+  compact?: boolean
+  /** When true (and active) the signal animation is emphasised — used while
+   *  the AI is speaking. */
+  isSpeaking?: boolean
 }
 
 export function AIVoiceInput({
@@ -24,6 +33,8 @@ export function AIVoiceInput({
   className,
   isActive = false,
   isConnecting = false,
+  compact = false,
+  isSpeaking = false,
 }: AIVoiceInputProps) {
   const [time, setTime] = useState(0)
   const [isClient, setIsClient] = useState(false)
@@ -73,6 +84,53 @@ export function AIVoiceInput({
     } else {
       isActive ? onStop?.(time) : onStart?.()
     }
+  }
+
+  if (compact) {
+    return (
+      <div className={cn("flex items-center gap-1.5", className)}>
+        <button
+          type="button"
+          onClick={handleClick}
+          disabled={isConnecting}
+          title={isActive ? "Konuşmayı durdur" : "Konuşmaya başla"}
+          className={cn(
+            "relative shrink-0 w-9 h-9 rounded-full flex items-center justify-center transition-colors",
+            isActive
+              ? "bg-[#C77A2D] text-white"
+              : "bg-[#1C1814]/8 text-[#1C1814]/70 hover:bg-[#1C1814]/15 hover:text-[#1C1814]"
+          )}
+        >
+          {isConnecting ? (
+            <div className="w-4 h-4 rounded-full border-2 border-current border-t-transparent animate-spin" />
+          ) : (
+            <Mic className="w-4 h-4" />
+          )}
+        </button>
+
+        {/* Inline signal animation — runs while the session is live; copper +
+            stronger while the AI is speaking. Heights are a fixed waveform
+            pattern; animate-pulse + staggered delays give the live feel. */}
+        {isActive && (
+          <div className="flex items-center gap-[2px] h-4">
+            {COMPACT_BARS.slice(0, Math.min(visualizerBars, COMPACT_BARS.length)).map((h, i) => (
+              <div
+                key={i}
+                className={cn(
+                  "w-[2px] rounded-full animate-pulse",
+                  isSpeaking ? "bg-[#C77A2D]" : "bg-[#1C1814]/40"
+                )}
+                style={{
+                  height: `${h}%`,
+                  animationDelay: `${i * 0.08}s`,
+                  animationDuration: isSpeaking ? "0.6s" : "1s",
+                }}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    )
   }
 
   return (

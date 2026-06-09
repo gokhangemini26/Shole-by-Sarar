@@ -31,6 +31,11 @@ VOICE STYLE — strict, this is a phone-call conversation:
 - ONE sentence per turn. Two max. Never lecture.
 - Calm, polished, professional. Not chatty, not casual filler.
 - Reply in the customer's language. Match formality.
+
+FORM OF ADDRESS — important:
+- ALWAYS use the formal "siz" form (Turkish) / formal register — never "sen". Formal yet warm and friendly, like a refined personal stylist.
+- FIRST GREETING when voice starts: say exactly "Merhaba, hoş geldiniz — size bugün nasıl yardımcı olabilirim?" (adapt to the interface language). Do NOT use the customer's name in this opening line, even if it is in memory.
+- You MAY address the customer by their name later in the conversation — sparingly, politely, once rapport is built — never in the first line.
 - No greeting filler after the first turn ("of course", "absolutely" once is fine, then drop it).
 - DO NOT ask too many questions to avoid overwhelming the user. Limit yourself to 2-3 questions max during the entire conversation.
 - After 2-3 questions, switch to passive prompts. Summarize what has been done and ask for their thoughts. For example: "So far we've looked at these options. I'd love to hear your thoughts before we explore further," or "I'm open to your suggestions and would love to continue with more suitable choices based on your feedback."
@@ -441,7 +446,9 @@ export function AIAssistant({
         vadHandleRef.current = handle;
         pushLog("VAD loaded and running ✓ — triggering bot greeting");
         clientRef.current?.triggerGreeting(
-          "Greet the customer warmly in their language and ask how you can help them shop today."
+          "Open with exactly: 'Merhaba, hoş geldiniz — size bugün nasıl yardımcı olabilirim?' " +
+            "(adapt to the interface language). Do NOT use the customer's name in this first greeting, " +
+            "even if you know it. Use the formal 'siz' form, warm but professional."
         );
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err);
@@ -842,7 +849,7 @@ export function AIAssistant({
       className={`fixed z-[100] flex flex-col transition-all duration-500 ease-in-out ${
         isExpanded
           ? "overflow-hidden inset-0 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 w-full h-full md:w-[800px] md:h-[80vh] md:max-h-[800px] bg-gradient-to-br from-[#352A22] to-[#1A1410] md:rounded-[32px] md:border border-white/20 shadow-2xl"
-          : "bottom-3 left-1/2 -translate-x-1/2 w-[64vw] max-w-[300px] md:bottom-6 md:w-[680px] md:max-w-[calc(100vw-32px)] h-auto bg-[#E8DFCF]/55 supports-[backdrop-filter]:bg-[#E8DFCF]/40 backdrop-blur-xl border border-[#1C1814]/10 shadow-[0_8px_30px_-14px_rgba(28,24,20,0.35)] rounded-full"
+          : "bottom-4 left-1/2 -translate-x-1/2 w-auto md:bottom-6 md:w-[680px] md:max-w-[calc(100vw-32px)] h-auto bg-[#E8DFCF]/45 supports-[backdrop-filter]:bg-[#E8DFCF]/30 md:supports-[backdrop-filter]:bg-[#E8DFCF]/40 backdrop-blur-xl border border-[#1C1814]/10 shadow-[0_8px_30px_-14px_rgba(28,24,20,0.35)] rounded-full"
       }`}
     >
       {/* Header for expanded view */}
@@ -999,7 +1006,7 @@ export function AIAssistant({
               <button
                 onClick={() => setShowLog((v) => !v)}
                 title="Activity log"
-                className={`hidden md:flex items-center gap-1 px-2 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-wider transition-colors border ${
+                className={`flex items-center gap-1 px-2 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-wider transition-colors border ${
                   showLog
                     ? "bg-emerald-400 text-black border-emerald-400"
                     : "bg-white/5 text-white/50 border-white/10 hover:bg-white/10 hover:text-white"
@@ -1050,8 +1057,8 @@ export function AIAssistant({
             </span>
           </button>
 
-          {/* Metin girişi */}
-          <div className="flex-1 min-w-0 flex items-center gap-1.5 rounded-full px-2.5 md:px-3.5 py-0.5 md:py-1 bg-white/45 border border-[#1C1814]/10 focus-within:border-[#C77A2D]/50 focus-within:bg-white/70 transition-all">
+          {/* Metin girişi — mobilde gizli (sadece konuşma); açmak için izleme moduna geç */}
+          <div className="hidden md:flex flex-1 min-w-0 items-center gap-1.5 rounded-full px-2.5 md:px-3.5 py-0.5 md:py-1 bg-white/45 border border-[#1C1814]/10 focus-within:border-[#C77A2D]/50 focus-within:bg-white/70 transition-all">
             <input
               type="text"
               value={input}
@@ -1072,14 +1079,16 @@ export function AIAssistant({
             </button>
           </div>
 
-          {/* Mikrofon (sesli) */}
+          {/* Mikrofon + sinyal animasyonu (kompakt) */}
           <AIVoiceInput
+            compact
+            isSpeaking={isSpeaking}
             isActive={isLive}
             isConnecting={isConnecting}
             onStart={toggleVoice}
             onStop={toggleVoice}
-            visualizerBars={18}
-            className="py-0 shrink-0 scale-[0.7] md:scale-90"
+            visualizerBars={9}
+            className="shrink-0"
           />
 
           {/* İzleme modunu aç */}
@@ -1091,11 +1100,11 @@ export function AIAssistant({
             <Sparkles size={10} /> {locale === "tr" ? "izle" : "watch"} <ChevronUp size={11} />
           </button>
 
-          {/* Log */}
+          {/* Log — mobilde collapsed'da gizli (sade); izleme modunda erişilebilir */}
           <button
             onClick={() => setShowLog((v) => !v)}
             title="Activity log"
-            className={`flex items-center px-1.5 py-1.5 rounded-full transition-colors border shrink-0 ${
+            className={`hidden md:flex items-center px-1.5 py-1.5 rounded-full transition-colors border shrink-0 ${
               showLog
                 ? "bg-emerald-500 text-white border-emerald-500"
                 : "bg-[#1C1814]/8 text-[#1C1814]/70 border-[#1C1814]/20 hover:bg-[#1C1814]/15 hover:text-[#1C1814]"
@@ -1136,19 +1145,19 @@ export function FloatingLauncher({
       }}
       whileHover={{ scale: 1.04 }}
       whileTap={{ scale: 0.97 }}
-      className="group fixed bottom-6 right-6 z-50 flex items-center justify-center w-14 h-14 md:w-auto md:px-5 md:py-3 md:h-12 rounded-full overflow-hidden bg-white/40 dark:bg-black/40 backdrop-blur-md shadow-lg border border-white/40"
+      className="group fixed bottom-5 right-5 md:bottom-6 md:right-6 z-50 flex items-center justify-center w-10 h-10 md:w-auto md:px-5 md:py-3 md:h-12 rounded-full overflow-hidden bg-white/20 md:bg-white/40 dark:bg-black/25 md:dark:bg-black/40 backdrop-blur-md shadow-sm md:shadow-lg border border-white/25 md:border-white/40"
     >
       <span className="relative flex items-center justify-center gap-2">
-        <Sparkles size={20} className="text-black dark:text-white md:mr-1" />
+        <Sparkles size={16} className="text-black dark:text-white md:mr-1 md:w-5 md:h-5 opacity-80 md:opacity-100" />
         <span
           className="hidden md:inline-block font-sans text-sm font-medium text-black dark:text-white"
         >
           {label}
         </span>
-        
-        {/* live dot */}
+
+        {/* live dot — desktop only for a cleaner mobile look */}
         <motion.span
-          className="absolute right-0 top-0 w-2 h-2 rounded-full bg-green-500 border-2 border-white dark:border-black md:-right-2 md:-top-1"
+          className="hidden md:block absolute right-0 top-0 w-2 h-2 rounded-full bg-green-500 border-2 border-white dark:border-black md:-right-2 md:-top-1"
           animate={{ scale: [1, 1.25, 1], opacity: [0.9, 1, 0.9] }}
           transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
         />
