@@ -8,7 +8,7 @@ import { AIVoiceInput } from "@/components/ui/ai-voice-input";
 import { GeminiLiveClient, FunctionCall } from "@/lib/gemini-live";
 import { startVADMic, type VADMicHandle } from "@/lib/vad-mic";
 import { PRODUCTS } from "@/lib/products";
-import { getLabels } from "@/lib/i18n";
+import { getLabels, Locale } from "@/lib/i18n";
 import { createClient } from "@/lib/supabase/client";
 import { getAIMemoryContext, createChatSession, logChatMessage } from "@/lib/supabase/tracking";
 import { useLocale } from "@/lib/LocaleContext";
@@ -135,38 +135,41 @@ export function AIAssistant({
   const [isMobile, setIsMobile] = useState(false);
   const [showMobileOverlay, setShowMobileOverlay] = useState(false);
 
-  const detectAndSetLanguage = (text: string) => {
+  const detectLanguageOfText = (text: string): Locale | null => {
     const clean = text.toLowerCase();
     
-    // Turkish keywords & letters
+    // Turkish detection
     const hasTrLetters = /[ığüşöçİĞÜŞÖÇ]/.test(text);
-    const trWords = ["merhaba", "nasılsın", "sepet", "ürün", "kıyafet", "elbise", "giysi", "pantolon", "ayakkabı", "kargo", "ücretsiz", "türkçe", "yardım", "göster", "öner", "tavsiye", "ekle", "almak", "istiyorum", "neler", "bunu", "şunu", "evet", "hayır", "lütfen", "nasıl", "bugün", "ayır"];
-    const trScore = (hasTrLetters ? 2 : 0) + trWords.filter(w => clean.includes(w)).length;
+    const trWords = ["türkçe", "turkce", "merhaba", "hoş geldiniz", "sepet", "ürün", "koleksiyon", "terzilik", "elbise", "ayakkabı", "stilist", "yardımcı", "güncelledim"];
+    const trScore = (hasTrLetters ? 3 : 0) + trWords.filter(w => clean.includes(w)).length * 2;
 
-    // Italian keywords
-    const itWords = ["ciao", "come", "stai", "carrello", "prodotto", "vestito", "cappotto", "scarpa", "pantalone", "italiano", "parli", "sì", "spedizione", "gratuita", "mostra", "consiglia", "comprare", "aggiungi", "apri", "chiudi", "aiuto", "buongiorno", "buonasera", "matrimonio", "oggi"];
-    const itScore = itWords.filter(w => clean.includes(w)).length;
+    // Italian detection
+    const itWords = ["italiano", "ciao", "benvenuto", "sartoria", "carrello", "prodotto", "collezione", "vestito", "scarpa", "cappotto", "stilista", "aiutarla", "italiana"];
+    const itScore = itWords.filter(w => clean.includes(w)).length * 2;
 
-    // German keywords & letters
-    const hasDeLetters = /[äßÄ]/.test(text); // ö, ü are shared with TR, but ä and ß are German specific
-    const deWords = ["hallo", "wie", "geht", "warenkorb", "produkt", "kleid", "schuh", "hose", "deutsch", "sprichst", "bitte", "danke", "versand", "kostenlos", "zeigen", "empfehlen", "kaufen", "hinzufügen", "öffnen", "schließen", "hilfe", "guten", "tag", "morgen", "abend", "heute"];
-    const deScore = (hasDeLetters ? 2 : 0) + deWords.filter(w => clean.includes(w)).length;
+    // German detection
+    const hasDeLetters = /[äßÄ]/.test(text);
+    const deWords = ["deutsch", "hallo", "willkommen", "schneiderei", "warenkorb", "produkt", "kollektion", "kleid", "schuh", "stilistin", "helfen", "deutsches"];
+    const deScore = (hasDeLetters ? 3 : 0) + deWords.filter(w => clean.includes(w)).length * 2;
 
-    // English keywords
-    const enWords = ["hello", "hi", "how", "are", "you", "cart", "bag", "product", "dress", "coat", "shoe", "pant", "trouser", "english", "speak", "please", "thanks", "shipping", "free", "show", "recommend", "suggest", "buy", "add", "open", "close", "help", "wedding", "today"];
-    const enScore = enWords.filter(w => clean.includes(w)).length;
+    // English detection
+    const enWords = ["english", "welcome", "tailoring", "knitwear", "trouser", "silhouette", "jacket", "blazer", "footwear", "stylist", "assistant", "collection"];
+    const enScore = enWords.filter(w => clean.includes(w)).length * 2;
 
     const maxScore = Math.max(trScore, itScore, deScore, enScore);
-    if (maxScore >= 1) {
-      if (maxScore === trScore && locale !== "tr") {
-        setLocale("tr");
-      } else if (maxScore === itScore && locale !== "it") {
-        setLocale("it");
-      } else if (maxScore === deScore && locale !== "de") {
-        setLocale("de");
-      } else if (maxScore === enScore && locale !== "en") {
-        setLocale("en");
-      }
+    if (maxScore >= 3) {
+      if (maxScore === trScore) return "tr";
+      if (maxScore === itScore) return "it";
+      if (maxScore === deScore) return "de";
+      if (maxScore === enScore) return "en";
+    }
+    return null;
+  };
+
+  const detectAndSetLanguage = (text: string) => {
+    const detected = detectLanguageOfText(text);
+    if (detected && detected !== locale) {
+      setLocale(detected);
     }
   };
 
@@ -732,6 +735,7 @@ export function AIAssistant({
             setIsTurnActive(true);
           }
           currentBotTranscriptRef.current += text;
+          detectAndSetLanguage(currentBotTranscriptRef.current);
         }
 
         // Display voice transcripts as text chat bubbles
