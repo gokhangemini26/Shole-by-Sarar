@@ -19,19 +19,31 @@ export default function JournalPage() {
       <main style={{ maxWidth: 800, margin: "0 auto", padding: "80px 32px 120px" }}>
         <header style={{ marginBottom: 80, textAlign: "center" }}>
           <div style={{ fontFamily: TYPE.mono, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase", color: accent, marginBottom: 24 }}>
-            {locale === "tr" ? "Editöryal" : "Editorial"}
+            {locale === "tr" ? "Editöryal" : locale === "de" ? "Editorial" : locale === "it" ? "Editoriale" : "Editorial"}
           </div>
           <h1 style={{ fontFamily: TYPE.display, fontSize: "clamp(48px, 6vw, 80px)", fontWeight: 400, margin: 0, letterSpacing: "-0.02em" }}>
-            {locale === "tr" ? "Dergi" : "The Journal"}
+            {locale === "tr" ? "Dergi" : locale === "de" ? "Das Journal" : locale === "it" ? "Il Journal" : "The Journal"}
           </h1>
         </header>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 120 }}>
           {ARTICLES.map((article) => {
-            const title = locale === "tr" ? article.title_tr || article.title : article.title;
-            const excerpt = locale === "tr" ? article.excerpt_tr || article.excerpt : article.excerpt;
-            const content = locale === "tr" ? article.content_tr || article.content : article.content;
-            const category = locale === "tr" ? article.category_tr || article.category : article.category;
+            const title = locale === "tr" ? article.title_tr || article.title
+                        : locale === "de" ? (article as any).title_de || article.title
+                        : locale === "it" ? (article as any).title_it || article.title
+                        : article.title;
+            const excerpt = locale === "tr" ? article.excerpt_tr || article.excerpt
+                          : locale === "de" ? (article as any).excerpt_de || article.excerpt
+                          : locale === "it" ? (article as any).excerpt_it || article.excerpt
+                          : article.excerpt;
+            const content = locale === "tr" ? article.content_tr || article.content
+                          : locale === "de" ? (article as any).content_de || article.content
+                          : locale === "it" ? (article as any).content_it || article.content
+                          : article.content;
+            const category = locale === "tr" ? article.category_tr || article.category
+                           : locale === "de" ? (article as any).category_de || article.category
+                           : locale === "it" ? (article as any).category_it || article.category
+                           : article.category;
 
             return (
               <article key={article.slug}>
@@ -53,7 +65,7 @@ export default function JournalPage() {
                      <img src={article.image} alt={title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                   ) : (
                     <span style={{ fontFamily: TYPE.mono, fontSize: 12, color: palette.muted }}>
-                      {locale === "tr" ? "Görsel yakında" : "Image coming soon"}
+                      {locale === "tr" ? "Görsel yakında" : locale === "de" ? "Bild folgt in Kürze" : locale === "it" ? "Immagine in arrivo" : "Image coming soon"}
                     </span>
                   )}
                 </div>
@@ -63,7 +75,7 @@ export default function JournalPage() {
                 </div>
 
                 <div style={{ display: "flex", flexDirection: "column", gap: 24, marginBottom: 40 }}>
-                  {content.map((para, i) => (
+                  {content?.map((para: string, i: number) => (
                     <p key={i} style={{ fontFamily: TYPE.sans, fontSize: 15.5, color: palette.ink, opacity: 0.85, lineHeight: 1.7, margin: 0 }}>
                       {para}
                     </p>
@@ -73,7 +85,7 @@ export default function JournalPage() {
                 {article.suggestedProducts && article.suggestedProducts.length > 0 && (
                   <div style={{ marginTop: 40 }}>
                     <h3 style={{ fontFamily: TYPE.mono, fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase", color: palette.muted, marginBottom: 20 }}>
-                      {locale === "tr" ? "Önerilen Parçalar" : "Suggested Pieces"}
+                      {locale === "tr" ? "Önerilen Parçalar" : locale === "de" ? "Empfohlene Stücke" : locale === "it" ? "Pezzi consigliati" : "Suggested Pieces"}
                     </h3>
                     <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
                       {article.suggestedProducts.map((pSlug) => {
