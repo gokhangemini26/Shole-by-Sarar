@@ -43,11 +43,11 @@ export default function MobileHome() {
   const featuredProducts = featuredSlugs.map(s => PRODUCTS.find(p => p.slug === s)).filter(Boolean) as typeof PRODUCTS;
 
   const categories = [
-    { label: locale === "tr" ? "Tüm Ürünler" : "All Collections", slug: "women" },
-    { label: locale === "tr" ? "Terzilik" : "Tailoring", slug: "tailoring" },
-    { label: locale === "tr" ? "Aksesuar" : "Accessories", slug: "accessories" },
-    { label: locale === "tr" ? "Ayakkabı" : "Shoes", slug: "shoes" },
-    { label: locale === "tr" ? "Dergi" : "Journal", slug: "journal" },
+    { label: labels.navWomen, slug: "women" },
+    { label: labels.navTailoring, slug: "tailoring" },
+    { label: labels.navAccessories, slug: "accessories" },
+    { label: labels.navShoes, slug: "shoes" },
+    { label: labels.navJournal, slug: "journal" },
     { label: labels.account, slug: "login" }
   ];
 
@@ -123,7 +123,7 @@ export default function MobileHome() {
                 <span className="font-utility-mono text-[10px] uppercase tracking-widest text-white/80">Atelier Intelligence</span>
               </div>
               <h1 className="font-headline-lg-mobile text-4xl text-white leading-[1.1] max-w-[90%]">
-                {locale === "tr" ? "Kendin gibi taşı — 1944'ten beri." : "Wear it like it's yours — since 1944."}
+                {labels.heroHeadlineMobile}
               </h1>
             </div>
             
@@ -137,7 +137,7 @@ export default function MobileHome() {
               </div>
               <div className="flex flex-col">
                 <span className="font-utility-mono text-[10px] uppercase tracking-widest text-white/70">Ask Sholé</span>
-                <span className="font-body-main text-white text-sm">&quot;{locale === "tr" ? "Galeri açılışı için bir kıyafet lazım..." : "I need an outfit for a gallery opening..."}&quot;</span>
+                <span className="font-body-main text-white text-sm">&quot;{labels.mobileGalleryQuote}&quot;</span>
               </div>
             </div>
           </div>
@@ -146,7 +146,7 @@ export default function MobileHome() {
         {/* Pictorial Product Showcase */}
         <section className="py-12 flex flex-col gap-2">
           <div className="px-6 mb-4 flex justify-between items-end">
-            <h2 className="font-headline-lg-mobile text-2xl text-[#1C1814]">{locale === "tr" ? "Yumuşak Dokunuş" : "The soft arrivals"}</h2>
+            <h2 className="font-headline-lg-mobile text-2xl text-[#1C1814]">{labels.mobileSoftArrivals}</h2>
           </div>
           <div className="w-full flex flex-col gap-1">
             {featuredProducts.map((p) => (
@@ -168,7 +168,7 @@ export default function MobileHome() {
           </div>
           <div className="px-6 mt-8">
             <Link href="/women" className="w-full border-b border-[#1C1814] text-[#1C1814] py-4 font-utility-mono text-xs uppercase tracking-widest flex items-center justify-between block">
-              <span>{locale === "tr" ? "Tüm Koleksiyonu Gör" : "View Complete Collection"}</span>
+              <span>{labels.mobileViewCollection}</span>
               <span className="material-symbols-outlined text-sm">arrow_forward</span>
             </Link>
           </div>
@@ -180,10 +180,10 @@ export default function MobileHome() {
              <Sparkles size={24} className="text-[#D48C51]" />
           </div>
           <h2 className="font-headline-lg-mobile text-3xl text-[#1C1814] leading-tight mb-4">
-            {locale === "tr" ? "Merhaba, ben SHOLÉ. Kişisel stilistiniz." : "Hi, I'm SHOLÉ. Your personal stylist."}
+            {labels.mobileIntroTitle}
           </h2>
           <p className="font-body-main text-[#1C1814]/70 mb-10 max-w-sm">
-            {locale === "tr" ? "Henüz ne olduğunu bilmediğinizde bile tam ihtiyacınız olanı bulmanıza yardım ederim." : "I help you find exactly what you need, even when you don't know what it is yet."}
+            {labels.mobileIntroDesc}
           </p>
           <div className="w-full bg-white rounded-2xl p-6 shadow-sm border border-[#1C1814]/10 flex flex-col gap-6 text-left relative overflow-hidden">
              {/* Small accent detail */}
@@ -194,7 +194,7 @@ export default function MobileHome() {
                 <span className="material-symbols-outlined text-[#1C1814]/50">person</span>
               </div>
               <div className="bg-[#FAF8F5] p-4 rounded-2xl rounded-tl-none text-body-main text-[#1C1814]">
-                {locale === "tr" ? "Cuma akşamı bir akşam yemeği. Çok abartılı değil. Bir elbiseye ihtiyacım var." : "A dinner Friday. Not too dressed up. Need a dress."}
+                {labels.mobileChatBubble1}
               </div>
             </div>
             <div className="flex gap-4 items-start flex-row-reverse relative z-10">
@@ -202,14 +202,14 @@ export default function MobileHome() {
                 <Sparkles size={14} className="text-[#D48C51]" />
               </div>
               <div className="bg-[#1C1814] p-4 rounded-2xl rounded-tr-none text-body-main text-white">
-                {locale === "tr" ? "Anlaşıldı. Hava 17°C — triko ağırlıklı gideceğim. Üç seçim, zahmetsiz ve şık. Birini denemek ister misin?" : "I have just the thing. Let's look at the bias cut silk slip, layered under the structured oversized blazer. Comfortable but very sharp."}
+                {labels.mobileChatBubble2}
               </div>
             </div>
             <button 
               onClick={openAI}
               className="w-full bg-[#1C1814] text-white py-4 mt-4 font-utility-mono text-xs uppercase tracking-widest rounded-full hover:bg-black transition-colors relative z-10"
             >
-              {locale === "tr" ? "Sohbete Devam Et" : "Continue Chat"}
+              {labels.mobileContinueChat}
             </button>
           </div>
         </section>

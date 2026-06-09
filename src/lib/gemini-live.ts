@@ -123,6 +123,21 @@ const DEFAULT_TOOLS: Tool[] = [
           properties: {},
         },
       },
+      {
+        name: "set_language",
+        description: "Changes the website's active language/locale. Call this when the user requests a change of language, or asks if you speak a certain language (e.g. 'Parli Italiano?', 'Almanca konuşur musun?', 'switch to English', etc.).",
+        parameters: {
+          type: Type.OBJECT,
+          properties: {
+            locale: { 
+              type: Type.STRING, 
+              enum: ["en", "tr", "de", "it"],
+              description: "The locale to switch to: 'en' for English, 'tr' for Turkish, 'de' for German, 'it' for Italian." 
+            }
+          },
+          required: ["locale"],
+        },
+      },
     ],
   },
 ];

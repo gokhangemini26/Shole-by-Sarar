@@ -118,13 +118,13 @@ export function Hero({
             color: palette.ink,
           }}
         >
-          {locale === "tr" ? "Kendin gibi" : "Wear it"}
+          {labels.heroHeadline1}
           <br />
           <em style={{ color: accent, fontStyle: "italic" }}>
-            {locale === "tr" ? "taşı" : "like it's"}
+            {labels.heroHeadline2}
           </em>
           <br />
-          {locale === "tr" ? "onu" : "yours"}{" "}
+          {labels.heroHeadline3}{" "}
           <span
             style={{
               display: "inline-block",
@@ -265,7 +265,7 @@ export function Hero({
           >
             {labels.lookSholeSays}
           </div>
-          &ldquo;{locale === "tr" ? "kol boyu bileğinde bitiyor — dar pantolonla kombinle." : "the sleeve crops at the wrist on you — pair with the slim trouser."}&rdquo;
+          &ldquo;{labels.lookSholeSaysQuote}&rdquo;
         </div>
       </div>
     </section>
@@ -287,9 +287,7 @@ export function CollectionGrid({
 }) {
   const { locale } = useLocale();
   const labels = getLabels(locale);
-  const categories = locale === "tr" 
-    ? ["Hepsi", "Terzilik", "Triko", "Ayakkabı", "Çanta"] 
-    : ["All", "Tailoring", "Knit", "Shoes", "Bags"];
+  const categories = labels.categoriesList;
 
   const featuredIds = [
     "atelier-coat",
@@ -338,7 +336,7 @@ export function CollectionGrid({
               marginBottom: 12,
             }}
           >
-            ◇ {labels.chapter01} — {locale === "tr" ? "on iki parça" : "twelve pieces"}
+            ◇ {labels.chapter01} — {labels.twelvePieces}
           </div>
           <h2
             style={{
@@ -351,7 +349,15 @@ export function CollectionGrid({
               color: palette.ink,
             }}
           >
-            {labels.collectionTitle.split(".")[0]} <em style={{ color: accent }}>{locale === "tr" ? "parçalar" : "soft"}</em>.
+            {locale === "tr" ? (
+              <>Yeni koleksiyonumuzdan <em style={{ color: accent, fontStyle: "italic" }}>parçalar</em></>
+            ) : locale === "de" ? (
+              <>Die <em style={{ color: accent, fontStyle: "italic" }}>sanften</em> Ankünfte</>
+            ) : locale === "it" ? (
+              <>I <em style={{ color: accent, fontStyle: "italic" }}>morbidi</em> arrivi</>
+            ) : (
+              <>The <em style={{ color: accent, fontStyle: "italic" }}>soft</em> arrivals</>
+            )}
           </h2>
         </div>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
@@ -624,9 +630,7 @@ export function StorySplit({
             maxWidth: 540,
           }}
         >
-          {locale === "tr" 
-            ? "SHOLÉ, lüks zanaatkarlık ile ileri yapay zeka teknolojilerinin kesişiminden doğan, tamamen dijital öncelikli ve otonom bir moda evidir. Geleneksel tedarik zincirlerini algoritmik tasarım, dijital ikiz bedenleme ve üretken estetikle yeniden yapılandırarak doğrudan vücudunuza ve hareketlerinize yanıt veren kıyafetler üretiyoruz. Sonuç; her an yanınızda olan bir yapay zeka stilistiyle tamamlanan, son derece premium ve sonsuz derecede modern tasarımlardır."
-            : "SHOLÉ is a fully digital-native, autonomous fashion house born from the intersection of luxury craftsmanship and advanced machine intelligence. By replacing traditional supply chains with algorithmic design, digital-twin sizing, and generative aesthetics, we craft garments that respond directly to your body and movement. The result is clothing that is highly premium and infinitely modern—complemented by an AI stylist that is always in your pocket."}
+          {labels.houseDescription}
         </p>
         <div
           style={{

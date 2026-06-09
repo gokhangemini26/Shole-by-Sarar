@@ -3,12 +3,13 @@
 import React from "react";
 import { PALETTES } from "@/lib/design";
 import { getLabels, Locale } from "@/lib/i18n";
+import { useLocale } from "@/lib/LocaleContext";
 import { TopAnnounce, Nav, MarqueeRow, Footer } from "@/components/SiteShell";
 import { Hero, CollectionGrid, PressStrip, AIInvite, StorySplit } from "@/components/Homepage";
 import { IntroVideo } from "@/components/IntroVideo";
 
 export default function DesktopHome() {
-  const [locale, setLocale] = React.useState<Locale>("en");
+  const { locale, setLocale } = useLocale();
   const [highlight, setHighlight] = React.useState<string | null>(null);
   const [highlightedProduct, setHighlightedProduct] = React.useState<string | null>(null);
   const [introOpen, setIntroOpen] = React.useState(true);

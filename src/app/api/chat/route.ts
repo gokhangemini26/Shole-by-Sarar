@@ -43,6 +43,7 @@ You MUST call a tool whenever the customer's request maps to one. Tools navigate
 ▸ Customer wants to see their cart, checkout, or complete/finalize shopping → CALL open_cart.
 ▸ Customer wants to close the cart / keep browsing → CALL close_cart.
 ▸ Customer asks to scroll a homepage area → CALL navigate_to.
+▸ Customer requests/speaks a different language or asks if you speak it (e.g., "Parli Italiano?", "Almanca konuş", "switch to English", "Deutsch sprechen") → CALL set_language(locale) immediately.
 
 If unsure which product, ask ONE quick clarifying question, then act.
 
@@ -141,6 +142,21 @@ const TOOLS: Tool[] = [
         parameters: {
           type: Type.OBJECT,
           properties: {},
+        },
+      },
+      {
+        name: "set_language",
+        description: "Changes the website's active language/locale. Call this when the user requests a change of language, or asks if you speak a certain language (e.g. 'Parli Italiano?', 'Almanca konuşur musun?', 'switch to English', etc.).",
+        parameters: {
+          type: Type.OBJECT,
+          properties: {
+            locale: { 
+              type: Type.STRING, 
+              enum: ["en", "tr", "de", "it"],
+              description: "The locale to switch to: 'en' for English, 'tr' for Turkish, 'de' for German, 'it' for Italian." 
+            }
+          },
+          required: ["locale"],
         },
       },
     ],

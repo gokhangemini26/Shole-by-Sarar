@@ -91,6 +91,24 @@ export interface Labels {
   introDesc: string;
   introCue: string;
   introEnter: string;
+  
+  // New keys for landing pages
+  heroHeadline1: string;
+  heroHeadline2: string;
+  heroHeadline3: string;
+  lookSholeSaysQuote: string;
+  categoriesList: string[];
+  twelvePieces: string;
+  houseDescription: string;
+  heroHeadlineMobile: string;
+  mobileGalleryQuote: string;
+  mobileSoftArrivals: string;
+  mobileViewCollection: string;
+  mobileIntroTitle: string;
+  mobileIntroDesc: string;
+  mobileChatBubble1: string;
+  mobileChatBubble2: string;
+  mobileContinueChat: string;
 }
 
 const labels: Record<Locale, Labels> = {
@@ -181,6 +199,24 @@ const labels: Record<Locale, Labels> = {
     introDesc: "step inside —<br />the door's been left open for you.",
     introCue: "◇ ss26 — chapter 01<br />directed by sholé ✦ ai stylist in residence",
     introEnter: "enter the atelier",
+    
+    // New keys for landing pages
+    heroHeadline1: "Wear it",
+    heroHeadline2: "like it's",
+    heroHeadline3: "yours",
+    lookSholeSaysQuote: "the sleeve crops at the wrist on you — pair with the slim trouser.",
+    categoriesList: ["All", "Tailoring", "Knit", "Shoes", "Bags"],
+    twelvePieces: "twelve pieces",
+    houseDescription: "SHOLÉ is a fully digital-native, autonomous fashion house born from the intersection of luxury craftsmanship and advanced machine intelligence. By replacing traditional supply chains with algorithmic design, digital-twin sizing, and generative aesthetics, we craft garments that respond directly to your body and movement. The result is clothing that is highly premium and infinitely modern—complemented by an AI stylist that is always in your pocket.",
+    heroHeadlineMobile: "Wear it like it's yours — since 1944.",
+    mobileGalleryQuote: "I need an outfit for a gallery opening...",
+    mobileSoftArrivals: "The soft arrivals",
+    mobileViewCollection: "View Complete Collection",
+    mobileIntroTitle: "Hi, I'm SHOLÉ. Your personal stylist.",
+    mobileIntroDesc: "I help you find exactly what you need, even when you don't know what it is yet.",
+    mobileChatBubble1: "A dinner Friday. Not too dressed up. Need a dress.",
+    mobileChatBubble2: "I have just the thing. Let's look at the bias cut silk slip, layered under the structured oversized blazer. Comfortable but very sharp.",
+    mobileContinueChat: "Continue Chat",
   },
   tr: {
     announce: "✦ €200 üzeri ücretsiz kargo · SHOLÉ ile tanışın — AI stilistiniz · Yeni koleksiyon: ilkbahar 26",
@@ -269,12 +305,30 @@ const labels: Record<Locale, Labels> = {
     introDesc: "içeriye adım atın,<br />kapımız size her zaman açık.",
     introCue: "◇ iy26 — bölüm 01<br />sholé ✦ misafir ai stilist yönetimiyle",
     introEnter: "atölyeye girin",
+    
+    // New keys for landing pages
+    heroHeadline1: "Kendin gibi",
+    heroHeadline2: "taşı",
+    heroHeadline3: "onu",
+    lookSholeSaysQuote: "kol boyu bileğinde bitiyor — dar pantolonla kombinle.",
+    categoriesList: ["Hepsi", "Terzilik", "Triko", "Ayakkabı", "Çanta"],
+    twelvePieces: "on iki parça",
+    houseDescription: "SHOLÉ, lüks zanaatkarlık ile ileri yapay zeka teknolojilerinin kesişiminden doğan, tamamen dijital öncelikli ve otonom bir moda evidir. Geleneksel tedarik zincirlerini algoritmik tasarım, dijital ikiz bedenleme ve üretken estetikle yeniden yapılandırarak doğrudan vücudunuza ve hareketlerinize yanıt veren kıyafetler üretiyoruz. Sonuç; her an yanınızda olan bir yapay zeka stilistiyle tamamlanan, son derece premium ve sonsuz derecede modern tasarımlardır.",
+    heroHeadlineMobile: "Kendin gibi taşı — 1944'ten beri.",
+    mobileGalleryQuote: "Galeri açılışı için bir kıyafet lazım...",
+    mobileSoftArrivals: "Yumuşak Dokunuş",
+    mobileViewCollection: "Tüm Koleksiyonu Gör",
+    mobileIntroTitle: "Merhaba, ben SHOLÉ. Kişisel stilistiniz.",
+    mobileIntroDesc: "Henüz ne olduğunu bilmediğinizde bile tam ihtiyacınız olanı bulmanıza yardım ederim.",
+    mobileChatBubble1: "Cuma akşamı bir akşam yemeği. Çok abartılı değil. Bir elbiseye ihtiyacım var.",
+    mobileChatBubble2: "Anlaşıldı. Hava 17°C — triko ağırlıklı gideceğim. Üç seçim, zahmetsiz ve şık. Birini denemek ister misin?",
+    mobileContinueChat: "Sohbete Devam Et",
   },
   de: {
     announce: "✦ Kostenloser Versand ab 200 € · Treffen Sie SHOLÉ — Ihre KI-Stylistin · Neuer Drop: Spätfrühling 26",
     navWomen: "Damen",
     navAccessories: "Accessoires",
-    navShoes: "Schuhe",
+    navShoes: "Schufe",
     navTailoring: "Schneiderei",
     navJournal: "Journal",
     askShole: "Fragen Sie SHOLÉ",
@@ -357,6 +411,24 @@ const labels: Record<Locale, Labels> = {
     introDesc: "treten sie ein —<br />die tür wurde für sie offengelassen.",
     introCue: "◇ hw26 — kapitel 01<br />präsentiert von sholé ✦ residierende ki-stylistin",
     introEnter: "das atelier betreten",
+    
+    // New keys for landing pages
+    heroHeadline1: "Trage es",
+    heroHeadline2: "als wäre es",
+    heroHeadline3: "deins",
+    lookSholeSaysQuote: "die Ärmellänge endet am Handgelenk — kombiniere es mit der schmalen Hose.",
+    categoriesList: ["Alle", "Schneiderei", "Strick", "Schuhe", "Taschen"],
+    twelvePieces: "zwölf Stücke",
+    houseDescription: "SHOLÉ ist ein vollständig digital natives, autonomes Modehaus, das an der Schnittstelle von luxuriöser Handwerkskunst und fortschrittlicher maschineller Intelligenz entstanden ist. Durch den Ersatz traditioneller Lieferketten durch algorithmisches Design, Digital-Twin-Sizing und generative Ästhetik entwerfen wir Kleidungsstücke, die direkt auf Ihren Körper und Ihre Bewegung reagieren. Das Ergebnis ist Kleidung, die hochkarätig und unendlich modern ist – ergänzt durch eine KI-Stylistin, die Sie immer in der Tasche haben.",
+    heroHeadlineMobile: "Trage es, als wäre es deins — seit 1944.",
+    mobileGalleryQuote: "Ich brauche ein Outfit für eine Galerieeröffnung...",
+    mobileSoftArrivals: "Die sanften Ankünfte",
+    mobileViewCollection: "Vollständige Kollektion ansehen",
+    mobileIntroTitle: "Hallo, ich bin SHOLÉ. Ihre persönliche Stylistin.",
+    mobileIntroDesc: "Ich helfe Ihnen, genau das zu finden, was Sie brauchen, selbst wenn Sie es selbst noch nicht wissen.",
+    mobileChatBubble1: "Ein Abendessen am Freitag. Nicht zu schick. Brauche ein Kleid.",
+    mobileChatBubble2: "Ich habe genau das Richtige. Schauen wir uns das schräg geschnittene Seiden-Slipkleid an, getragen unter dem strukturierten Oversize-Blazer. Bequem, aber sehr elegant.",
+    mobileContinueChat: "Chat fortsetzen",
   },
   it: {
     announce: "✦ Spedizione gratuita oltre €200 · Incontra SHOLÉ — il tuo stilista AI · Nuovo drop: tarda primavera 26",
@@ -445,6 +517,24 @@ const labels: Record<Locale, Labels> = {
     introDesc: "entra —<br />la porta è stata lasciata aperta per te.",
     introCue: "◇ pe26 — capitolo 01<br />diretto da sholé ✦ stilista AI in residenza",
     introEnter: "entra nell'atelier",
+    
+    // New keys for landing pages
+    heroHeadline1: "Indossalo",
+    heroHeadline2: "come se fosse",
+    heroHeadline3: "tuo",
+    lookSholeSaysQuote: "la manica si accorcia al polso — abbinala al pantalone aderente.",
+    categoriesList: ["Tutti", "Sartoria", "Maglieria", "Scarpe", "Borse"],
+    twelvePieces: "dodici pezzi",
+    houseDescription: "SHOLÉ è una maison di moda autonoma e nativa digitale, nata dall'intersezione tra artigianato di lusso e intelligenza artificiale avanzata. Sostituendo le tradizionali catene di fornitura con il design algoritmico, il dimensionamento tramite digital-twin e l'estetica generativa, creiamo capi che rispondono direttamente al corpo e al movimento. Il risultato è un abbigliamento altamente premium e infinitamente moderno, completato da uno stilista AI sempre a portata di mano.",
+    heroHeadlineMobile: "Indossalo come se fosse tuo — dal 1944.",
+    mobileGalleryQuote: "Ho bisogno di un outfit per l'inaugurazione di una galleria...",
+    mobileSoftArrivals: "I morbidi arrivi",
+    mobileViewCollection: "Visualizza collezione completa",
+    mobileIntroTitle: "Ciao, sono SHOLÉ. Il tuo stilista personale.",
+    mobileIntroDesc: "Ti aiuto a trovare esattamente quello di cui hai bisogno, anche quando non sai ancora cosa sia.",
+    mobileChatBubble1: "Una cena venerdì. Non troppo elegante. Ho bisogno di un abito.",
+    mobileChatBubble2: "Ho proprio quello che fa per te. Diamo un'occhiata all'abito slip in seta con taglio in sbieco, indossato sotto il blazer doppiopetto strutturato. Comodo ma molto sofisticato.",
+    mobileContinueChat: "Continua la chat",
   },
 };
 

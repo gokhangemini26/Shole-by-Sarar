@@ -61,7 +61,7 @@ export function GlobalAssistant() {
   const [aiOpen, setAiOpen] = useState(false);
   const [autoStartVoice, setAutoStartVoice] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const { locale } = useLocale();
+  const { locale, setLocale } = useLocale();
   const labels = getLabels(locale);
 
   const router = useRouter();
@@ -138,6 +138,13 @@ export function GlobalAssistant() {
         if (call.name === "open_cart") {
           clearCartTimer(); // user is engaging the cart → keep it open
           setCartOpen(true);
+        }
+
+        if (call.name === "set_language") {
+          const newLocale = asStr(call.args.locale);
+          if (newLocale === "en" || newLocale === "tr" || newLocale === "de" || newLocale === "it") {
+            setLocale(newLocale);
+          }
         }
 
         if (call.name === "add_to_cart") {
@@ -220,7 +227,7 @@ export function GlobalAssistant() {
         }
       }
     },
-    [router, pathname, setCartOpen, addToCart, clearCartTimer]
+    [router, pathname, setCartOpen, addToCart, clearCartTimer, setLocale]
   );
 
   if (!mounted) return null;
