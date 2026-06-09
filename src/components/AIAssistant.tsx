@@ -842,7 +842,7 @@ export function AIAssistant({
       className={`fixed z-[100] flex flex-col transition-all duration-500 ease-in-out ${
         isExpanded
           ? "overflow-hidden inset-0 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 w-full h-full md:w-[800px] md:h-[80vh] md:max-h-[800px] bg-gradient-to-br from-[#352A22] to-[#1A1410] md:rounded-[32px] md:border border-white/20 shadow-2xl"
-          : "bottom-0 left-0 right-0 md:bottom-6 md:left-1/2 md:-translate-x-1/2 md:w-[680px] md:max-w-[calc(100vw-32px)] h-auto bg-[#E8DFCF]/55 supports-[backdrop-filter]:bg-[#E8DFCF]/40 backdrop-blur-xl border-t md:border border-[#1C1814]/10 shadow-[0_8px_30px_-14px_rgba(28,24,20,0.35)] rounded-t-[24px] md:rounded-full"
+          : "bottom-3 left-1/2 -translate-x-1/2 w-[64vw] max-w-[300px] md:bottom-6 md:w-[680px] md:max-w-[calc(100vw-32px)] h-auto bg-[#E8DFCF]/55 supports-[backdrop-filter]:bg-[#E8DFCF]/40 backdrop-blur-xl border border-[#1C1814]/10 shadow-[0_8px_30px_-14px_rgba(28,24,20,0.35)] rounded-full"
       }`}
     >
       {/* Header for expanded view */}
@@ -1020,7 +1020,7 @@ export function AIAssistant({
 
       {/* ── İZLEME MODU KAPALI: sade & elegant bar (site paletinde) ── */}
       {!isExpanded && (
-        <div className="flex items-center gap-1.5 md:gap-2 px-2.5 md:px-3 py-1.5 md:py-2">
+        <div className="flex items-center gap-1 md:gap-2 px-1.5 md:px-3 py-1 md:py-2">
           {/* Sohbeti durdur — AI konuşurken belirir (yarı-dubleks: sesle kesilemez) */}
           {isLive && (
             <button
@@ -1038,7 +1038,7 @@ export function AIAssistant({
             title={locale === "tr" ? "İzleme modunu aç" : "Open watch mode"}
             className="flex items-center gap-2 shrink-0"
           >
-            <span className="w-7 h-7 rounded-full bg-[#C77A2D] text-[#1C1814] font-serif flex items-center justify-center text-sm shadow-inner shrink-0">S</span>
+            <span className="w-6 h-6 md:w-7 md:h-7 rounded-full bg-[#C77A2D] text-[#1C1814] font-serif flex items-center justify-center text-xs md:text-sm shadow-inner shrink-0">S</span>
             <span className="hidden md:flex flex-col items-start leading-tight">
               <span className="text-[#1C1814] text-[12px] font-medium tracking-wide">SHOLÉ</span>
               <span className="text-[#1C1814]/50 text-[8px] font-mono uppercase tracking-[0.15em] flex items-center gap-1">
@@ -1051,7 +1051,7 @@ export function AIAssistant({
           </button>
 
           {/* Metin girişi */}
-          <div className="flex-1 min-w-0 flex items-center gap-2 rounded-full px-3.5 py-1 bg-white/45 border border-[#1C1814]/10 focus-within:border-[#C77A2D]/50 focus-within:bg-white/70 transition-all">
+          <div className="flex-1 min-w-0 flex items-center gap-1.5 rounded-full px-2.5 md:px-3.5 py-0.5 md:py-1 bg-white/45 border border-[#1C1814]/10 focus-within:border-[#C77A2D]/50 focus-within:bg-white/70 transition-all">
             <input
               type="text"
               value={input}
@@ -1079,7 +1079,7 @@ export function AIAssistant({
             onStart={toggleVoice}
             onStop={toggleVoice}
             visualizerBars={18}
-            className="py-0 shrink-0 scale-90"
+            className="py-0 shrink-0 scale-[0.7] md:scale-90"
           />
 
           {/* İzleme modunu aç */}

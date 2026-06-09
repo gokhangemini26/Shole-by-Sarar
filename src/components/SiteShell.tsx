@@ -188,11 +188,10 @@ export function TopAnnounce({
 /* ── Navigation ──────────────────────────────────────────────────────── */
 export function Nav({
   palette,
-  onOpenAI,
 }: {
   palette: Palette;
   dark?: boolean;
-  onOpenAI: () => void;
+  onOpenAI?: () => void;
 }) {
   const router = useRouter();
   const { locale, setLocale } = useLocale();
@@ -330,36 +329,6 @@ export function Nav({
         >
           <a className="hide-mobile" style={linkStyle}>{labels.search}</a>
           <Link href="/login" className="hide-mobile" style={linkStyle}>{labels.account}</Link>
-          <button
-            id="nav-ask-shole"
-            onClick={onOpenAI}
-            style={{
-              background: palette.ink,
-              color: palette.bg,
-              border: 0,
-              fontFamily: TYPE.sans,
-              fontSize: 12,
-              fontWeight: 500,
-              padding: "9px 14px",
-              borderRadius: 999,
-              cursor: "pointer",
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 6,
-              letterSpacing: "0.04em",
-            }}
-          >
-            <span
-              style={{
-                width: 6,
-                height: 6,
-                borderRadius: "50%",
-                background: palette.accent,
-                boxShadow: `0 0 8px ${palette.accent}`,
-              }}
-            />
-            {labels.askShole}
-          </button>
           <button
             onClick={() => setCartOpen(true)}
             style={{
