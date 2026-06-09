@@ -1633,3 +1633,633 @@ export function getAllSlugs(): string[] {
   return PRODUCTS.map((p) => p.slug);
 }
 
+
+const PRODUCT_TRANSLATIONS: Record<string, {
+  de: { name: string; subtitle: string; story: string; details: string[]; care: string[] };
+  it: { name: string; subtitle: string; story: string; details: string[]; care: string[] };
+}> = {
+  "atelier-coat": {
+    de: {
+      name: "Atelier-Mantel",
+      subtitle: "Terra-gefärbte Wolle · strukturierte Schulter · verkürzter Ärmel",
+      story: "Der Mantel, mit dem alles begann. Als das Designteam von SHOLÉ unsere maßgeschneiderten Algorithmen auf klassische Mantelsilhouetten trainierte, war das Ziel einfach: ein autonomes Design zu entwerfen, das Sie zu jedem Abendessen, jedem Meeting und jedem Flug tragen können. Das Ergebnis ist der Atelier-Mantel – so berechnet, dass er perfekt fällt und in einem 72-stündigen Prozess in Terra gefärbt wird, was jedem Stück seine ganz eigene Wärme verleiht.",
+      details: [
+        "Strukturierte Schulter mit Canvas-Einlage",
+        "Verkürzter Ärmel, der am Handgelenk endet",
+        "Zweiknopf-Frontverschluss, Hornknöpfe",
+        "Vollständig gefüttert mit Seidenmischungsfutter",
+        "Innentasche mit SHOLÉ-Monogramm",
+        "Terra-Färbung — 72-stündiger natürlicher Pigmentprozess"
+      ],
+      care: [
+        "Nur chemische Reinigung",
+        "Auf einem gepolsterten Kleiderbügel aufbewahren",
+        "Dampfen, um zwischen den Tragezeiten aufzufrischen",
+        "Längere direkte Sonneneinstrahlung vermeiden"
+      ]
+    },
+    it: {
+      name: "Atelier Cappotto",
+      subtitle: "lana tinta in terra · spalla strutturata · manica corta",
+      story: "Il cappotto con cui tutto ha avuto inizio. Quando il team di design di SHOLÉ ha addestrato i nostri algoritmi di sartoria personalizzata sulle silhouette dei capispalla classici, l'obiettivo era semplice: progettare un design autonomo da indossare a ogni cena, ogni incontro, ogni aeroporto. Il risultato è il Cappotto Atelier — calcolato per drappeggiare perfettamente e tinto in terra con un processo che dura 72 ore e dona a ogni pezzo il suo calore unico.",
+      details: [
+        "Spalla strutturata con interfodera in tela",
+        "Manica corta che termina al polso",
+        "Chiusura frontale a due bottoni, bottoni in corno",
+        "Interamente foderato in misto seta",
+        "Tasca interna con monogramma SHOLÉ",
+        "Tintura in terra — processo con pigmenti naturali di 72 ore"
+      ],
+      care: [
+        "Solo lavaggio a secco",
+        "Conservare su una gruccia imbottita",
+        "Stirare a vapore per rinfrescare tra un utilizzo e l'altro",
+        "Evitare l'esposizione prolungata alla luce solare diretta"
+      ]
+    }
+  },
+  "soft-rules-shirt": {
+    de: {
+      name: "Soft Rules Seidenhemd",
+      subtitle: "Creme-Seide · französische Naht · entspannter Schnitt",
+      story: "Das Soft Rules Seidenhemd bricht mit allen klassischen Dresscodes. Geschnitten aus feinstem Seidenstoff aus Bursa – einer der ältesten Seidenstädte der Welt – fällt es schöner als alles, was Sie bisher getragen haben. Die französischen Nähte sind handgefertigt, so dass keine offenen Kanten Ihre Haut berühren. Perfekt für Meetings in die Wide Trouser gesteckt, oder leger über dem Atelier Minirock getragen.",
+      details: [
+        "Entspannter Schnitt mit überschnittener Schulter",
+        "Französische Nähte im gesamten Hemd",
+        "Echte Perlmuttknöpfe mit SHOLÉ-Gravur",
+        "Abgerundeter Saum — gesteckt oder offen tragbar",
+        "Brusttasche mit verdecktem Stich",
+        "Bursa-Seide — Familienmanufaktur seit 1890"
+      ],
+      care: [
+        "Kalt per Hand waschen oder chemisch reinigen",
+        "Bei niedriger Hitze mit Bügeltuch bügeln",
+        "Liegend trocknen — niemals im Trockner",
+        "In Seidenpapier gefaltet aufbewahren"
+      ]
+    },
+    it: {
+      name: "Camicia Soft Rules",
+      subtitle: "seta crema · cucitura francese · taglio comodo",
+      story: "La camicia Soft Rules rompe ogni codice d'ufficio che valga la pena rompere. Tagliata da seta color crema proveniente da una manifattura familiare di Bursa — una delle città di produzione della seta più antiche del mondo — cade in modo diverso da qualsiasi cosa tu abbia mai indossato prima. Le cuciture francesi sono rifinite a mano, il che significa che nessun bordo grezzo tocca la pelle. Funziona sia infilata nei pantaloni Wide Trouser per le riunioni, sia morbida sulla gonna Atelier Mini.",
+      details: [
+        "Taglio morbido con spalla scesa",
+        "Costruzione con cuciture francesi",
+        "Bottoni in madreperla incisi SHOLÉ",
+        "Orlo curvo — ideale sia dentro che fuori dai pantaloni",
+        "Tasca sul petto con cucitura invisibile",
+        "Seta di Bursa — mulino familiare, fondato nel 1890"
+      ],
+      care: [
+        "Lavare a mano a freddo o a secco",
+        "Stirare a bassa temperatura con un panno",
+        "Asciugare appeso — non usare l'asciugatrice",
+        "Conservare piegato in carta velina"
+      ]
+    }
+  },
+  "wide-trouser": {
+    de: {
+      name: "Wide Atelier Hose",
+      subtitle: "Sandfarbenes Leinen · hohe Taille · Bundfalten",
+      story: "Es gibt einen Grund, warum die Wide Atelier Hose das erste Stück war, das wir entworfen haben. Sie sollte fließend wirken und gleichzeitig eine moderne Struktur behalten. Hergestellt aus schwerem Leinen aus der Normandie, das nach jeder Wäsche eine wunderschöne Patina entwickelt. Die hohe Taille und die markanten Bundfalten sorgen für Form und Haltung.",
+      details: [
+        "Hohe Taille mit doppelten Bundfalten",
+        "Weites, gerades Bein — 28 cm Saumöffnung",
+        "Seitentaschen und eine Gesäßtasche",
+        "Verdeckter Haken- und Riegelverschluss",
+        "Schweres Leinen aus der Normandie — 280 g/m²",
+        "Vorgewaschen für Weichheit und minimales Einlaufen"
+      ],
+      care: [
+        "Kaltwäsche im Schonwaschgang",
+        "Asymmetrisch aufhängen zum Trocknen",
+        "Bügeln im leicht feuchten Zustand",
+        "Leinen wird mit jeder Wäsche weicher"
+      ]
+    },
+    it: {
+      name: "Pantalone Wide Atelier",
+      subtitle: "lino sabbia · vita alta · a pieghe",
+      story: "C'è un motivo per cui il pantalone Wide Atelier è stato il primo pezzo di cui il team ha realizzato il prototipo. Doveva muoversi con fluidità e al contempo mostrare una struttura impeccabile. Il lino proviene dalla Normandia — pesante, fiammato, il tipo che sviluppa una bella patina dopo pochi lavaggi. La vita alta e le doppie pieghe sul davanti donano struttura nei punti giusti.",
+      details: [
+        "Vita alta con doppie pieghe sul davanti",
+        "Gamba dritta e larga — apertura fondo 28cm",
+        "Tasche laterali, una tasca posteriore a filetto",
+        "Chiusura con gancio e barra a scomparsa",
+        "Lino pesante della Normandia — 280gsm",
+        "Pre-lavato per garantire morbidezza e restringimento minimo"
+      ],
+      care: [
+        "Lavare in lavatrice a freddo, ciclo delicato",
+        "Si consiglia di asciugare appeso",
+        "Stirare mentre è leggermente umido per risultati ottimali",
+        "Il lino si ammorbidisce magnificamente ad ogni lavaggio"
+      ]
+    }
+  },
+  "mule-no4": {
+    de: {
+      name: "Atelier Wildleder Mule",
+      subtitle: "Espresso-Wildleder · nahtlos · elegantes Profil",
+      story: "Eine studie in skulpturaler Einfachheit. Die Atelier Suede Mule zeichnet sich durch ihre nahtlose Konstruktion aus, die völlig frei von sichtbaren Nähten auf dem Oberleder ist. Geschnitten aus feinstem Espresso-Wildleder, verfügt sie über eine elegante spitze Silhouette, die die Beine optisch streckt, während die Ästhetik des leisen Luxus bewahrt bleibt.",
+      details: [
+        "Nahtloses Obermaterial aus sattem Espresso-Wildleder",
+        "Elegante Silhouette mit spitzer Kappe",
+        "Blake-genähte Echtledersohle",
+        "Weich gepolsterte Ledersohle",
+        "Vegetabil gegerbtes Lederfutter",
+        "Dezenter Blockabsatz"
+      ],
+      care: [
+        "Mit Imprägnierspray schützen",
+        "Mit einer Wildlederbürste reinigen",
+        "Im Staubbeutel mit Schuhspanner lagern",
+        "Direkten Kontakt mit Wasser vermeiden"
+      ]
+    },
+    it: {
+      name: "Mule Atelier in Camoscio",
+      subtitle: "camoscio espresso · senza cuciture · profilo elegante",
+      story: "Uno studio sulla semplicità scultorea. Il sabot Atelier Suede Mule si distingue per la sua costruzione senza cuciture visibili sulla tomaia. Tagliato da pregiato camoscio color espresso, presenta un raffinato profilo a punta che allunga naturalmente la linea della gamba, mantenendo un'estetica sobria di lusso discreto.",
+      details: [
+        "Tomaia senza cuciture in camoscio espresso",
+        "Silhouette elegante a punta",
+        "Suola in vero cuoio cucita Blake",
+        "Morbido sottopiede in pelle ammortizzato",
+        "Fodera in pelle conciata al vegetale",
+        "Tacco leggermente lamellato"
+      ],
+      care: [
+        "Proteggere con uno spray impermeabilizzante per camoscio",
+        "Pulire delicatamente con una spazzola apposita per camoscio",
+        "Conservare nella borsa antipolvere con tendiscarpe",
+        "Evitare l'esposizione diretta a pioggia battente e acqua"
+      ]
+    }
+  },
+  "sun-up-knit": {
+    de: {
+      name: "Sun-Up Strickpullover",
+      subtitle: "Safran-Merino · gerippt · leichter Cropped-Schnitt",
+      story: "Dieser Strickpullover fängt das goldene Morgenlicht ein. Gewebt aus extrafeiner Safran-Merinowolle, bietet er eine zeitlose Rippenstruktur, die sich dem Körper anpasst. Ideal kombinierbar mit unserer Wide Atelier Hose.",
+      details: [
+        "Extrafeines Safran-Merino-Garn",
+        "Elegante, vertikale Rippenstruktur",
+        "Rundhalsausschnitt mit Rippbündchen",
+        "Leicht verkürzte Länge",
+        "Nahtlose Saumverarbeitung"
+      ],
+      care: [
+        "Kalt per Hand waschen mit Wollwaschmittel",
+        "Liegend auf einem Handtuch trocknen",
+        "Nicht auswringen oder aufhängen",
+        "Liegend lagern, um Dehnung zu vermeiden"
+      ]
+    },
+    it: {
+      name: "Maglia Sun-Up",
+      subtitle: "merino zafferano · a coste · taglio leggermente corto",
+      story: "Un capo che cattura la luce calda del mattino. Lavorato a maglia in pura lana merino zafferano extra-fine, presenta una texture a coste raffinata che si adatta delicatamente alle forme. Si abbina perfettamente con i nostri pantaloni Wide Atelier.",
+      details: [
+        "Filato di pura lana merino zafferano",
+        "Struttura a coste verticali",
+        "Girocollo con finitura a coste",
+        "Lunghezza leggermente corta",
+        "Orlo senza cuciture visibili"
+      ],
+      care: [
+        "Lavare a mano a freddo con detersivo per lana",
+        "Asciugare in piano su un asciugamano",
+        "Non strizzare e non appendere",
+        "Conservare piegato per evitare deformazioni"
+      ]
+    }
+  },
+  "atelier-tote": {
+    de: {
+      name: "Atelier Shopper",
+      subtitle: "Kamelleder · ungefüttert · Alltagsbegleiter",
+      story: "Ein geräumiger Shopper aus geschmeidigem Kamelleder. Ungefüttert für einen minimalistischen Fall und ein extrem geringes Eigengewicht. Genug Platz für einen Laptop und alle täglichen Essentials.",
+      details: [
+        "Premium Kamelleder in warmem Ton",
+        "Ungefütterte, natürliche Innenseite",
+        "Innentasche mit Reißverschluss",
+        "Bequeme Schulterriemen",
+        "Robustes und langlebiges Leder"
+      ],
+      care: [
+        "Mit Lederbalsam pflegen",
+        "Feuchtigkeit sofort abtupfen",
+        "Im Staubbeutel lagern"
+      ]
+    },
+    it: {
+      name: "Tote Atelier",
+      subtitle: "pelle cammello · sfoderata · per tutti i giorni",
+      story: "Una borsa capiente in morbida pelle color cammello. Sfoderata per mantenere una silhouette flessibile e leggera. Ideale per contenere un laptop e tutti i tuoi oggetti quotidiani.",
+      details: [
+        "Pregiata pelle color cammello",
+        "Interno naturale non foderato",
+        "Tasca interna con zip",
+        "Comodi spallacci in pelle",
+        "Struttura durevole e resistente"
+      ],
+      care: [
+        "Trattare con balsamo per pelle",
+        "Asciugare immediatamente se bagnata",
+        "Conservare nella sacca protettiva"
+      ]
+    }
+  },
+  "sun-up-scarf": {
+    de: {
+      name: "Sun-Up Seidenschal",
+      subtitle: "Safrangelbe Seide · der leuchtende Akzent",
+      story: "Ein leuchtender Akzent für schlichte Outfits. Hergestellt aus reiner safrangelber Seide aus Bursa, handrolliert an den Kanten.",
+      details: [
+        "100% reine Maulbeerseide",
+        "Handrollierte Kanten",
+        "Dampfglätten empfohlen",
+        "Breite: 45 cm, Länge: 180 cm"
+      ],
+      care: [
+        "Nur chemische Reinigung",
+        "Liegend lagern",
+        "Vorsicht bei Schmuck, um Fädenziehen zu vermeiden"
+      ]
+    },
+    it: {
+      name: "Sciarpa Sun-Up",
+      subtitle: "seta zafferano · l'accento luminoso",
+      story: "Un tocco di luce per completare i tuoi outfit. Realizzata in pura seta zafferano di Bursa con bordi rifiniti a mano.",
+      details: [
+        "100% pura seta di gelso",
+        "Bordi arrotolati a mano",
+        "Si consiglia la stiratura a vapore",
+        "Larghezza: 45cm, Lunghezza: 180cm"
+      ],
+      care: [
+        "Solo lavaggio a secco",
+        "Conservare distesa",
+        "Prestare attenzione ai gioielli per evitare fili tirati"
+      ]
+    }
+  },
+  "soft-bomber": {
+    de: {
+      name: "Soft Bomberjacke",
+      subtitle: "Creme-Seide · leicht · gerollte Ärmelbündchen",
+      story: "Die Soft Bomberjacke interpretiert die klassische Sportjacke neu. Aus weicher creme-weißer Seide gefertigt, fällt sie locker und elegant über jedes Outfit.",
+      details: [
+        "Creme-weißer Seiden-Twill",
+        "Gerollte Ärmelbündchen und Saum",
+        "Verdeckter Zwei-Wege-Reißverschluss",
+        "Seitentaschen",
+        "Sehr leichtes Gewicht"
+      ],
+      care: [
+        "Schonende chemische Reinigung",
+        "Auf einem breiten Holzkleiderbügel hängen",
+        "Nicht waschen oder bleichen"
+      ]
+    },
+    it: {
+      name: "Soft Bomber",
+      subtitle: "seta crema · leggero · polsino arrotolato",
+      story: "La giacca Soft Bomber reinterpreta il classico modello sportivo in chiave sartoriale. Realizzata in morbida seta color crema, offre un fit leggero ed elegante su qualsiasi outfit.",
+      details: [
+        "Twill di seta color crema",
+        "Polsini e fondo arrotolati",
+        "Zip a doppio cursore a scomparsa",
+        "Tasche a filo laterali",
+        "Peso ultra leggero"
+      ],
+      care: [
+        "Lavaggio a secco delicato",
+        "Conservare su gruccia in legno larga",
+        "Non lavare ad acqua"
+      ]
+    }
+  },
+  "atelier-mini": {
+    de: {
+      name: "Atelier Minirock",
+      subtitle: "Strukturierte Wolle · A-Linie · minimalistisch",
+      story: "Ein klassischer Minirock in perfekter A-Linie. Aus strukturierter Wolle genäht, sorgt er für einen architektonischen Sitz bei maximalem Tragekomfort.",
+      details: [
+        "Strukturierter Woll-Crepe",
+        "Klassische A-Linien-Silhouette",
+        "Verdeckter Reißverschluss hinten",
+        "Komplett gefüttert",
+        "Seitliche Eingrifftaschen"
+      ],
+      care: [
+        "Nur chemische Reinigung",
+        "Hängend aufbewahren",
+        "Leicht dämpfen"
+      ]
+    },
+    it: {
+      name: "Atelier Mini",
+      subtitle: "lana strutturata · linea ad A · minimalista",
+      story: "Una minigonna classica con un taglio perfetto ad A. Realizzata in lana strutturata per offrire una silhouette definita e una vestibilità impeccabile.",
+      details: [
+        "Crepe di lana strutturata",
+        "Silhouette classica svasata ad A",
+        "Zip invisibile sul retro",
+        "Fodera interna completa",
+        "Tasche laterali a scomparsa"
+      ],
+      care: [
+        "Solo lavaggio a secco",
+        "Conservare appesa",
+        "Stirare leggermente a vapore"
+      ]
+    }
+  },
+  "silk-slip-dress": {
+    de: {
+      name: "Seiden-Slipkleid",
+      subtitle: "Schwarze Seide · Schrägschnitt · Midi-Länge",
+      story: "Der Inbegriff von müheloser Eleganz. Das Seiden-Slipkleid schmiegt sich durch den Schrägschnitt perfekt an den Körper an. Elegant für den Abend oder leger mit Strick.",
+      details: [
+        "100% schwerer Seidensatin",
+        "Fließender Schrägschnitt (Bias Cut)",
+        "Zarte Spaghettiträger",
+        "Midi-Länge mit seitlichem Schlitz",
+        "Fließender V-Ausschnitt"
+      ],
+      care: [
+        "Handwäsche kalt mit Seidenwaschmittel",
+        "Liegend im Schatten trocknen",
+        "Auf links bügeln bei niedrigster Temperatur"
+      ]
+    },
+    it: {
+      name: "Abito Slip in Seta",
+      subtitle: "seta nera · taglio in sbieco · lunghezza midi",
+      story: "L'essenza dell'eleganza senza sforzo. L'abito slip in seta segue le linee del corpo grazie al taglio in sbieco. Perfetto per la sera o abbinato a un morbido cardigan.",
+      details: [
+        "100% raso di seta pesante",
+        "Taglio in sbieco fluido",
+        "Spalline sottili regolabili",
+        "Lunghezza midi con spacco laterale",
+        "Scollo a V morbido"
+      ],
+      care: [
+        "Lavare a mano a freddo con detersivo per seta",
+        "Asciugare in piano all'ombra",
+        "Stirare al rovescio a temperatura minima"
+      ]
+    }
+  },
+  "pleated-trousers-navy": {
+    de: {
+      name: "Faltenhose Navy",
+      subtitle: "Feine Wolle · doppelte Bundfalte · klassisches Navy",
+      story: "Eine klassisch geschnittene Hose in sattem Navy. Die doppelte Bundfalte verleiht Haltung und Raum, während das Bein leicht konisch zuläuft.",
+      details: [
+        "Klassische im Aussehen, italienische Schurwolle",
+        "Doppelte Bundfalten vorne",
+        "Seitentaschen und zwei Gesäßtaschen",
+        "Leicht konischer Beinschnitt",
+        "Gürtelschlaufen"
+      ],
+      care: [
+        "Nur chemische Reinigung",
+        "Hängend aufbewahren",
+        "Nach dem Tragen auslüften"
+      ]
+    },
+    it: {
+      name: "Pantalone a Pieghe Navy",
+      subtitle: "lana fine · doppia piega · classico navy",
+      story: "Un pantalone sartoriale classico in un profondo blu navy. La doppia piega sul davanti offre comfort e una silhouette impeccabile, con una gamba leggermente affusolata.",
+      details: [
+        "Pura lana vergine italiana",
+        "Doppia piega frontale sartoriale",
+        "Tasche laterali e tasche posteriori a filo",
+        "Gamba leggermente affusolata",
+        "Passanti per cintura"
+      ],
+      care: [
+        "Solo lavaggio a secco",
+        "Conservare appeso in piega",
+        "Far arieggiare dopo l'uso"
+      ]
+    }
+  },
+  "double-breasted-blazer": {
+    de: {
+      name: "Zweireihiger Blazer",
+      subtitle: "Strukturierter Woll-Mix · klassisches Revers · entspannte Eleganz",
+      story: "Der zweireihige Blazer ist ein Statement moderner Schneiderkunst. Mit einer entspannten Silhouette und strukturierten Schultern wertet er jedes Outfit sofort auf.",
+      details: [
+        "Strukturierter Woll-Mischgewebe",
+        "Zweireihiges Knopfdesign",
+        "Klassisches fallendes Revers",
+        "Zwei aufgesetzte Taschen vorne",
+        "Komplett mit Seidenmischung gefüttert"
+      ],
+      care: [
+        "Nur chemische Reinigung",
+        "Auf einem breiten Formbügel hängen",
+        "Vorsichtig dämpfen zum Glätten"
+      ]
+    },
+    it: {
+      name: "Blazer Doppiopetto",
+      subtitle: "misto lana strutturato · rever classico · eleganza rilassata",
+      story: "Il blazer doppiopetto è l'emblema del tailoring contemporaneo. Con un taglio rilassato e spalle definite, aggiunge una nota di sofisticata eleganza a ogni outfit.",
+      details: [
+        "Tessuto strutturato in misto lana",
+        "Chiusura a doppiopetto con bottoni in corno",
+        "Rever classico a lancia",
+        "Tasche anteriori applicate",
+        "Fodera interna completa in misto seta"
+      ],
+      care: [
+        "Solo lavaggio a secco",
+        "Conservare su gruccia sagomata",
+        "Stirare a vapore delicatamente"
+      ]
+    }
+  },
+  "navy-tailored-trouser": {
+    de: {
+      name: "Klassische Navy Hose",
+      subtitle: "Terzi-Schnitt · feine Wolle · schmal zulaufend",
+      story: "Diese maßgeschneiderte Hose in Navy besticht durch ihre cleane Silhouette. Perfekt abgestimmt auf unseren Executive Blazer.",
+      details: [
+        "100% italienische Schurwolle",
+        "Schmal zulaufende Silhouette",
+        "Verdeckter Reißverschluss",
+        "Bügelfalte vorne und hinten",
+        "Seitentaschen"
+      ],
+      care: [
+        "Kalt reinigen lassen",
+        "Aufhängen, um Falten zu glätten",
+        "Nicht bleichen"
+      ]
+    },
+    it: {
+      name: "Pantalone Sartoriale Navy",
+      subtitle: "taglio sartoriale · lana fine · silhouette affusolata",
+      story: "Un pantalone sartoriale essenziale in navy, caratterizzato da una silhouette pulita e moderna. Si abbina perfettamente al nostro blazer Executive.",
+      details: [
+        "100% pura lana vergine italiana",
+        "Gamba affusolata sartoriale",
+        "Chiusura con zip a scomparsa",
+        "Piega stirata frontale e posteriore",
+        "Tasche laterali e posteriori"
+      ],
+      care: [
+        "Lavare solo a secco",
+        "Appendere subito dopo l'uso",
+        "Non candeggiare"
+      ]
+    }
+  },
+  "executive-navy-blazer": {
+    de: {
+      name: "Executive Blazer",
+      subtitle: "Strukturierte Wolle · Doppelreiher · navy",
+      story: "Der Executive Blazer ist die perfekte Balance zwischen formalem Business-Look und modernem Casual-Chic. Zweireihig geschnitten mit einer klassischen, zeitlosen Silhouette.",
+      details: [
+        "Schwere Schurwolle",
+        "Doppelreihiger Verschluss",
+        "Klassisches Navyblau",
+        "Feine Ziernähte an den Kanten",
+        "Innentaschen für Visitenkarten"
+      ],
+      care: [
+        "Nur professionelle Reinigung",
+        "Auf gepolstertem Bügel lagern",
+        "Regelmäßig dämpfen"
+      ]
+    },
+    it: {
+      name: "Blazer Executive",
+      subtitle: "lana strutturata · doppiopetto · navy",
+      story: "Il blazer Executive rappresenta l'equilibrio ideale tra abbigliamento formale da lavoro e tocco moderno. Taglio doppiopetto con una silhouette classica che non passa mai di moda.",
+      details: [
+        "Lana vergine pesante di alta qualità",
+        "Chiusura doppiopetto con bottoni metallici discreti",
+        "Colore blu navy profondo",
+        "Finiture sartoriali di pregio",
+        "Tasche interne funzionali"
+      ],
+      care: [
+        "Solo lavaggio a secco professionale",
+        "Conservare su gruccia imbottita",
+        "Stirare a vapore per rinfrescare"
+      ]
+    }
+  },
+  "briefcase-tote": {
+    de: {
+      name: "Briefcase Tote",
+      subtitle: "Espresso-Leder · strukturiert · passend für 15-Zoll-Laptops",
+      story: "Die Briefcase Tote vereint die Funktionalität einer Aktentasche mit dem lässigen Stil einer Tote-Bag. Aus edlem Espresso-Leder gefertigt, behält sie stets ihre elegante Form.",
+      details: [
+        "Formstabiles Design — steht von selbst aufrecht",
+        "Gepolstertes Fach für Laptops bis zu 15 Zoll",
+        "Bitkisel gegerbtes Espresso-Leder",
+        "Minimalistische Optik ohne sichtbare Beschläge",
+        "Stabile Tragegriffe",
+        "Ledergerberei aus Izmir — in 3. Generation"
+      ],
+      care: [
+        "Vierteljährlich mit Lederbalsam pflegen",
+        "Bei Nichtgebrauch mit Seidenpapier ausstopfen",
+        "Vor langanhaltendem direkten Sonnenlicht schützen"
+      ]
+    },
+    it: {
+      name: "Tote Portadocumenti",
+      subtitle: "pelle espresso · strutturata · per laptop da 15\\\"",
+      story: "La borsa Tote Portadocumenti unisce la funzionalità di una valigetta da lavoro con lo stile rilassato di una tote bag. Realizzata in pregiata pelle espresso, mantiene sempre la sua forma strutturata.",
+      details: [
+        "Design rigido — sta in piedi da sola",
+        "Scomparto adatto a laptop fino a 15 pollici",
+        "Pelle color espresso conciata al vegetale",
+        "Dettagli in metallo nascosti per un look pulito",
+        "Manici resistenti in pelle spessa",
+        "Pelle proveniente da conceria di Smirne — 3a generazione"
+      ],
+      care: [
+        "Trattare con balsamo per pelle ogni tre mesi",
+        "Riempire con carta quando non in uso",
+        "Evitare l'esposizione prolungata alla luce solare"
+      ]
+    }
+  }
+};
+
+PRODUCTS.forEach((p: any) => {
+  const translations = PRODUCT_TRANSLATIONS[p.slug];
+  if (!translations) return;
+
+  p._name = p.name;
+  p._subtitle = p.subtitle;
+  p._story = p.story;
+  p._details = p.details;
+  p._care = p.care;
+
+  const getLang = () => {
+    if (typeof document === 'undefined') return 'en';
+    return document.documentElement.lang || 'en';
+  };
+
+  Object.defineProperty(p, 'name', {
+    get() {
+      const lang = getLang();
+      if (lang === 'de' && translations.de.name) return translations.de.name;
+      if (lang === 'it' && translations.it.name) return translations.it.name;
+      return this._name;
+    },
+    set(v) { this._name = v; }
+  });
+
+  Object.defineProperty(p, 'subtitle', {
+    get() {
+      const lang = getLang();
+      if (lang === 'de' && translations.de.subtitle) return translations.de.subtitle;
+      if (lang === 'it' && translations.it.subtitle) return translations.it.subtitle;
+      return this._subtitle;
+    },
+    set(v) { this._subtitle = v; }
+  });
+
+  Object.defineProperty(p, 'story', {
+    get() {
+      const lang = getLang();
+      if (lang === 'de' && translations.de.story) return translations.de.story;
+      if (lang === 'it' && translations.it.story) return translations.it.story;
+      return this._story;
+    },
+    set(v) { this._story = v; }
+  });
+
+  Object.defineProperty(p, 'details', {
+    get() {
+      const lang = getLang();
+      if (lang === 'de' && translations.de.details) return translations.de.details;
+      if (lang === 'it' && translations.it.details) return translations.it.details;
+      return this._details;
+    },
+    set(v) { this._details = v; }
+  });
+
+  Object.defineProperty(p, 'care', {
+    get() {
+      const lang = getLang();
+      if (lang === 'de' && translations.de.care) return translations.de.care;
+      if (lang === 'it' && translations.it.care) return translations.it.care;
+      return this._care;
+    },
+    set(v) { this._care = v; }
+  });
+});

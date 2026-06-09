@@ -4,7 +4,7 @@ import React from "react";
 import type { Locale } from "./i18n";
 
 /* ═══════════════════════════════════════════════════════════════════════
-   Locale Context — auto-detects TR vs EN based on browser / IP
+   Locale Context — auto-detects TR, DE, IT vs EN based on browser / IP
    ═══════════════════════════════════════════════════════════════════════ */
 
 interface LocaleContextValue {
@@ -21,11 +21,13 @@ export function useLocale() {
   return React.useContext(LocaleCtx);
 }
 
-/** Detect if the user is likely Turkish via navigator.language */
+/** Detect if the user is likely Turkish, German, or Italian via navigator.language */
 function detectFromBrowser(): Locale | null {
   if (typeof navigator === "undefined") return null;
   const lang = (navigator.language || "").toLowerCase();
   if (lang.startsWith("tr")) return "tr";
+  if (lang.startsWith("de")) return "de";
+  if (lang.startsWith("it")) return "it";
   return null;
 }
 
@@ -45,7 +47,7 @@ export function LocaleProvider({ children }: { children: React.ReactNode }) {
     // 1. Check localStorage for saved preference
     try {
       const saved = localStorage.getItem("shole-locale") as Locale | null;
-      if (saved && (saved === "en" || saved === "tr")) {
+      if (saved && (saved === "en" || saved === "tr" || saved === "de" || saved === "it")) {
         setLocaleRaw(saved);
         document.documentElement.lang = saved;
         setReady(true);
@@ -67,8 +69,13 @@ export function LocaleProvider({ children }: { children: React.ReactNode }) {
     fetch("https://ipapi.co/json/", { signal: AbortSignal.timeout(3000) })
       .then((r) => r.json())
       .then((data) => {
-        if (data?.country_code === "TR") {
+        const country = data?.country_code;
+        if (country === "TR") {
           setLocale("tr");
+        } else if (country === "DE") {
+          setLocale("de");
+        } else if (country === "IT") {
+          setLocale("it");
         }
       })
       .catch(() => {

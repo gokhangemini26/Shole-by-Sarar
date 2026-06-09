@@ -920,12 +920,12 @@ export function AIAssistant({
   if (!open) return null;
 
   const statusText = isConnecting
-    ? (locale === "tr" ? "◌ sese bağlanıyor..." : "◌ connecting voice...")
+    ? (locale === "tr" ? "◌ sese bağlanıyor..." : locale === "de" ? "◌ Sprachverbindung wird hergestellt..." : locale === "it" ? "◌ connessione voce in corso..." : "◌ connecting voice...")
     : isLive
     ? isSpeaking
-      ? (locale === "tr" ? "🔊 SHOLÉ konuşuyor · bölmek için konuşun" : "🔊 SHOLÉ speaking · just talk to interrupt")
-      : (locale === "tr" ? "🔴 canlı ses · dinliyor" : "🔴 live voice · listening")
-    : (locale === "tr" ? "◇ gemini tarafından destekleniyor" : "◇ powered by gemini");
+      ? (locale === "tr" ? "🔊 SHOLÉ konuşuyor · bölmek için konuşun" : locale === "de" ? "🔊 SHOLÉ spricht · zum Unterbrechen sprechen" : locale === "it" ? "🔊 SHOLÉ parla · parla per interrompere" : "🔊 SHOLÉ speaking · just talk to interrupt")
+      : (locale === "tr" ? "🔴 canlı ses · dinliyor" : locale === "de" ? "🔴 Live-Sprache · hört zu" : locale === "it" ? "🔴 voce in tempo reale · in ascolto" : "🔴 live voice · listening")
+    : (locale === "tr" ? "◇ gemini tarafından destekleniyor" : locale === "de" ? "◇ unterstützt von gemini" : locale === "it" ? "◇ supportato da gemini" : "◇ powered by gemini");
 
   const interruptNow = () => {
     pushLog("user pressed interrupt → fading out audio");
@@ -1021,12 +1021,16 @@ export function AIAssistant({
               </div>
               
               <h3 className="text-white text-xl font-serif tracking-wide mb-3">
-                {locale === "tr" ? "Giriş Başarılı" : "Login Successful"}
+                {locale === "tr" ? "Giriş Başarılı" : locale === "de" ? "Anmeldung erfolgreich" : locale === "it" ? "Accesso effettuato" : "Login Successful"}
               </h3>
               
               <p className="text-white/75 text-sm max-w-[280px] leading-relaxed mb-8">
                 {locale === "tr" 
                   ? "SHOLÉ sesli stilist asistanını başlatmak ve mikrofon bağlantısını kurmak için lütfen dokunun." 
+                  : locale === "de"
+                  ? "Bitte tippen Sie, um die SHOLÉ KI-Stylistin zu starten und die Mikrofonverbindung herzustellen."
+                  : locale === "it"
+                  ? "Tocca per avviare lo stilista vocale AI SHOLÉ e stabilire la connessione al microfono."
                   : "Please tap to launch the SHOLÉ voice stylist assistant and establish a microphone connection."}
               </p>
               
@@ -1038,7 +1042,7 @@ export function AIAssistant({
                 className="w-full max-w-[260px] py-4 bg-[#D48C51] hover:bg-[#c37b42] active:scale-95 transition-all text-[#1C1814] font-medium rounded-full shadow-lg flex items-center justify-center gap-2 text-sm tracking-wider uppercase"
               >
                 <Sparkles size={16} />
-                {locale === "tr" ? "SESLİ ASİSTANI BAŞLAT" : "START VOICE ASSISTANT"}
+                {locale === "tr" ? "SESLİ ASİSTANI BAŞLAT" : locale === "de" ? "SPRACH-ASSISTENTIN STARTEN" : locale === "it" ? "AVVIA ASSISTENTE VOCALE" : "START VOICE ASSISTANT"}
               </button>
               
               <button
@@ -1047,7 +1051,7 @@ export function AIAssistant({
                 }}
                 className="mt-4 text-white/50 hover:text-white text-xs tracking-wider uppercase font-mono py-2"
               >
-                {locale === "tr" ? "Metin ile devam et" : "Continue with text"}
+                {locale === "tr" ? "Metin ile devam et" : locale === "de" ? "Mit Text fortfahren" : locale === "it" ? "Continua con testo" : "Continue with text"}
               </button>
             </div>
           )}

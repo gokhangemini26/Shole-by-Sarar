@@ -289,6 +289,8 @@ export function Nav({
           <div style={{ marginTop: 32, paddingTop: 22, borderTop: `1px solid ${palette.line}`, display: "flex", gap: 16 }}>
              <button onClick={() => { setMenuOpen(false); setLocale("en"); }} style={{ ...linkStyle, border: 0, background: "transparent", opacity: locale === "en" ? 1 : 0.4, fontWeight: locale === "en" ? 700 : 400 }}>EN</button>
              <button onClick={() => { setMenuOpen(false); setLocale("tr"); }} style={{ ...linkStyle, border: 0, background: "transparent", opacity: locale === "tr" ? 1 : 0.4, fontWeight: locale === "tr" ? 700 : 400 }}>TR</button>
+             <button onClick={() => { setMenuOpen(false); setLocale("de"); }} style={{ ...linkStyle, border: 0, background: "transparent", opacity: locale === "de" ? 1 : 0.4, fontWeight: locale === "de" ? 700 : 400 }}>DE</button>
+             <button onClick={() => { setMenuOpen(false); setLocale("it"); }} style={{ ...linkStyle, border: 0, background: "transparent", opacity: locale === "it" ? 1 : 0.4, fontWeight: locale === "it" ? 700 : 400 }}>IT</button>
           </div>
         </div>
       )}
@@ -331,6 +333,16 @@ export function Nav({
               onClick={() => setLocale("tr")}
               style={{ ...linkStyle, border: 0, background: "transparent", opacity: locale === "tr" ? 1 : 0.4, fontWeight: locale === "tr" ? 700 : 400 }}
             >TR</button>
+            <span style={{ opacity: 0.2 }}>|</span>
+            <button 
+              onClick={() => setLocale("de")}
+              style={{ ...linkStyle, border: 0, background: "transparent", opacity: locale === "de" ? 1 : 0.4, fontWeight: locale === "de" ? 700 : 400 }}
+            >DE</button>
+            <span style={{ opacity: 0.2 }}>|</span>
+            <button 
+              onClick={() => setLocale("it")}
+              style={{ ...linkStyle, border: 0, background: "transparent", opacity: locale === "it" ? 1 : 0.4, fontWeight: locale === "it" ? 700 : 400 }}
+            >IT</button>
           </div>
         </nav>
         </div>
