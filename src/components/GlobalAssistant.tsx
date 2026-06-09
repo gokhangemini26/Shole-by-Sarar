@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState, useCallback } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { AIAssistant, FloatingLauncher } from "./AIAssistant";
 import type { FunctionCall } from "@/lib/gemini-live";
 import { getAllSlugs } from "@/lib/products";
@@ -66,6 +66,7 @@ export function GlobalAssistant() {
   const router = useRouter();
   const pathname = usePathname();
   const { setCartOpen, addToCart } = useCart();
+  const searchParams = useSearchParams();
 
   // After add_to_cart we preview the cart for 3s then auto-close so the page
   // stays in focus. A follow-up open_cart (user keeps engaging the cart)
@@ -78,6 +79,16 @@ export function GlobalAssistant() {
     }
   }, []);
   useEffect(() => () => clearCartTimer(), [clearCartTimer]);
+
+  useEffect(() => {
+    if (searchParams?.get("login_success") === "true") {
+      setAiOpen(true);
+      // Clean up search param
+      const url = new URL(window.location.href);
+      url.searchParams.delete("login_success");
+      router.replace(url.pathname + url.search);
+    }
+  }, [searchParams, router]);
 
   useEffect(() => {
     setMounted(true);

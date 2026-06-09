@@ -4,6 +4,7 @@ import { GlobalAssistant } from "@/components/GlobalAssistant";
 import { LocaleProvider } from "@/lib/LocaleContext";
 import { CartProvider } from "@/lib/CartContext";
 import { CartDrawer } from "@/components/CartDrawer";
+import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "SHOLÉ — Digital-First Luxury Atelier",
@@ -51,7 +52,9 @@ export default function RootLayout({
           <CartProvider>
             {children}
             <CartDrawer />
-            <GlobalAssistant />
+            <Suspense fallback={null}>
+              <GlobalAssistant />
+            </Suspense>
           </CartProvider>
         </LocaleProvider>
       </body>

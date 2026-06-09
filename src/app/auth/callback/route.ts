@@ -34,5 +34,7 @@ export async function GET(request: Request) {
     }
   }
 
-  return NextResponse.redirect(`${url.origin}${safeNext}`)
+  const redirectUrl = new URL(safeNext, url.origin)
+  redirectUrl.searchParams.set('login_success', 'true')
+  return NextResponse.redirect(redirectUrl.toString())
 }
