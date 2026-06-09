@@ -23,7 +23,7 @@ export const maxDuration = 30;
 
 const MODELS = ["gemini-2.5-flash", "gemini-2.0-flash"] as const;
 
-function buildSystemPrompt() {
+function buildSystemPrompt(memoryContext = "") {
   const productList = PRODUCTS.map(
     (p, i) =>
       `${i + 1}. ${p.name} (${p.category}) — ${p.subtitle}, ${p.price}. sizes: [${p.sizes.join(", ")}]. slug: '${p.slug}'`
@@ -54,7 +54,8 @@ ${productList}
 
 Free shipping over €200, worldwide; Made in Istanbul.
 
-Always reply in the same language the user wrote in. NEVER mention tool/function names.`;
+Always reply in the same language the user wrote in. NEVER mention tool/function names.
+${memoryContext}`;
 }
 
 const TOOLS: Tool[] = [
@@ -195,7 +196,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Empty history" }, { status: 400 });
     }
 
-    const systemInstruction = buildSystemPrompt();
+    const memoryContext =
+      typeof body.memoryContext === "string" ? body.memoryContext : "";
+    const systemInstruction = buildSystemPrompt(memoryContext);
     const genConfig = { temperature: 0.85, topP: 0.92, maxOutputTokens: 512 };
     const primaryModel = MODELS[0];
 

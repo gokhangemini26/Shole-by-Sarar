@@ -141,6 +141,25 @@ export function AIAssistant({
     initMemory();
   }, []);
 
+  // Tear down the session's Gemini context cache when the user leaves the page
+  // (session end) to zero out cache storage cost. Durable history in Supabase
+  // is untouched — returning customers stay personalised.
+  useEffect(() => {
+    if (!sessionId) return;
+    const cleanup = () => {
+      try {
+        navigator.sendBeacon?.(
+          "/api/cache",
+          new Blob([JSON.stringify({ sessionId })], { type: "application/json" })
+        );
+      } catch {
+        /* ignore */
+      }
+    };
+    window.addEventListener("pagehide", cleanup);
+    return () => window.removeEventListener("pagehide", cleanup);
+  }, [sessionId]);
+
   const chatScrollRef = useRef<HTMLDivElement>(null);
   const logScrollRef = useRef<HTMLDivElement>(null);
 
@@ -751,7 +770,7 @@ export function AIAssistant({
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: cleanHistory, sessionId }),
+        body: JSON.stringify({ messages: cleanHistory, sessionId, memoryContext }),
       });
 
       pushLog(`HTTP ${response.status} ${response.statusText}`);

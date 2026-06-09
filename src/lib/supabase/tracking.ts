@@ -87,23 +87,40 @@ export async function getAIMemoryContext(userId: string): Promise<string> {
     .eq('action', 'add')
     .order('created_at', { ascending: false })
     .limit(5);
-    
+
+  // Get Past Purchases (what the customer actually bought)
+  const { data: pastPurchases } = await supabase
+    .from('purchases')
+    .select('product_id, size')
+    .eq('user_id', userId)
+    .order('purchased_at', { ascending: false })
+    .limit(10);
+
   // Format Context
   let contextStr = `\n\n--- AI MEMORY LAYER (SYSTEM DIRECTIVE) ---\n`;
   contextStr += `Kullanıcının Adı: ${userName}\n`;
-  
+
   const viewedIds = Array.from(new Set(recentViews?.map(v => v.product_id) || []));
   if (viewedIds.length > 0) {
     contextStr += `Son incelediği ürünlerin ID'leri: ${viewedIds.join(', ')}\n`;
   }
-  
+
   const cartIds = Array.from(new Set(recentCart?.map(c => c.product_id) || []));
   if (cartIds.length > 0) {
     contextStr += `Sepetine eklediği ürünlerin ID'leri: ${cartIds.join(', ')}\n`;
   }
-  
-  contextStr += `Görev: Kullanıcıya hitap ederken adını kullan (sadece gerektiğinde, doğal bir şekilde) ve bu geçmiş etkileşimlerini göz önünde bulundurarak zevkini anla. Eğer "bana ne önerirsin" gibi bir soru sorarsa bu ürünlere benzer veya tamamlayıcı ürünler sun.\n`;
+
+  const purchased = Array.from(
+    new Set((pastPurchases || []).map(p => (p.size ? `${p.product_id} (beden ${p.size})` : p.product_id)))
+  );
+  if (purchased.length > 0) {
+    contextStr += `Daha önce SATIN ALDIĞI ürünler: ${purchased.join(', ')}\n`;
+  }
+
+  const isReturning = viewedIds.length > 0 || cartIds.length > 0 || purchased.length > 0;
+  contextStr += `Müşteri tipi: ${isReturning ? 'GERİ DÖNEN müşteri — geçmişini hatırla' : 'YENİ müşteri'}\n`;
+  contextStr += `Görev: Adını sadece gerektiğinde, doğal bir şekilde kullan. Geçmiş etkileşimlerine göre zevkini anla; daha önce satın aldığı parçaları TAMAMLAYAN veya onlara yakışan ürünler öner, aynı ürünü tekrar almayı önerme. "Bana ne önerirsin" derse bu geçmişe göre kişiselleştir.\n`;
   contextStr += `------------------------------------------\n`;
-  
+
   return contextStr;
 }
