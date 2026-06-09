@@ -4,11 +4,13 @@ import React from "react";
 import { createClient } from "@/lib/supabase/client";
 import { PALETTES, TYPE } from "@/lib/design";
 import { TopAnnounce, Nav, Footer } from "@/components/SiteShell";
+import { useLocale } from "@/lib/LocaleContext";
 
 export default function LoginPage() {
   const palette = PALETTES.warmCream;
   const accent = palette.accent;
   const supabase = createClient();
+  const { locale } = useLocale();
 
   const [error, setError] = React.useState("");
 
@@ -30,6 +32,21 @@ export default function LoginPage() {
     if (e) setError(e.message);
   };
 
+  const welcomeText = locale === "tr" ? "Tekrar Hoş Geldiniz"
+                    : locale === "de" ? "Willkommen zurück"
+                    : locale === "it" ? "Bentornato"
+                    : "Welcome Back";
+
+  const descText = locale === "tr" ? "Görünümlerinizi kaydetmek ve SHOLÉ'den kişiselleştirilmiş stil önerileri almak için giriş yapın."
+                 : locale === "de" ? "Melden Sie sich an, um Ihre Looks zu speichern und personalisiertes Styling von SHOLÉ zu erhalten."
+                 : locale === "it" ? "Accedi per salvare i tuoi look e ottenere uno styling personalizzato da SHOLÉ."
+                 : "Sign in to save your looks and get personalized styling from SHOLÉ.";
+
+  const buttonText = locale === "tr" ? "Google ile Devam Et"
+                   : locale === "de" ? "Weiter mit Google"
+                   : locale === "it" ? "Continua con Google"
+                   : "Continue with Google";
+
   return (
     <div style={{ background: palette.bg, color: palette.ink, minHeight: "100vh", display: "flex", flexDirection: "column" }}>
       <TopAnnounce accent={accent} />
@@ -49,10 +66,10 @@ export default function LoginPage() {
           }}
         >
           <h1 style={{ fontFamily: TYPE.display, fontSize: 36, margin: "0 0 16px", fontWeight: 400 }}>
-            Welcome Back
+            {welcomeText}
           </h1>
           <p style={{ fontFamily: TYPE.sans, fontSize: 14, color: palette.muted, marginBottom: 32, lineHeight: 1.5 }}>
-            Sign in to save your looks and get personalized styling from SHOLÉ.
+            {descText}
           </p>
 
           <button
@@ -84,7 +101,7 @@ export default function LoginPage() {
               <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
               <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
             </svg>
-            Continue with Google
+            {buttonText}
           </button>
 
           {error && (
