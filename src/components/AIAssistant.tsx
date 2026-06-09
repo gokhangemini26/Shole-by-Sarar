@@ -15,6 +15,13 @@ import { getAIMemoryContext, createChatSession, logChatMessage } from "@/lib/sup
 // speaker output latency + room reverb so trailing echo never reaches Gemini.
 const SPEAKER_DRAIN_TAIL_MS = 450;
 
+// Fired the moment the live session connects — the assistant opens the
+// conversation itself instead of waiting for the user to speak.
+const GREETING_PROMPT =
+  "Open with exactly: 'Merhaba, hoş geldiniz — size bugün nasıl yardımcı olabilirim?' " +
+  "(adapt to the interface language). Do NOT use the customer's name in this first greeting, " +
+  "even if you know it. Use the formal 'siz' form, warm but professional.";
+
 function buildLiveSystemPrompt(locale: string, memoryContext: string) {
   const productList = PRODUCTS.map(
     (p, i) => {
@@ -444,12 +451,7 @@ export function AIAssistant({
           },
         });
         vadHandleRef.current = handle;
-        pushLog("VAD loaded and running ✓ — triggering bot greeting");
-        clientRef.current?.triggerGreeting(
-          "Open with exactly: 'Merhaba, hoş geldiniz — size bugün nasıl yardımcı olabilirim?' " +
-            "(adapt to the interface language). Do NOT use the customer's name in this first greeting, " +
-            "even if you know it. Use the formal 'siz' form, warm but professional."
-        );
+        pushLog("VAD loaded and running ✓ (mic listening)");
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err);
         pushLog(`VAD load FAILED: ${msg}`);
@@ -692,6 +694,11 @@ export function AIAssistant({
       await clientRef.current.connect();
       setIsLive(true);
       setIsConnecting(false);
+      // Greet immediately on connect — don't wait for the Silero VAD model to
+      // finish downloading. The assistant should open the conversation, not
+      // sit listening for the user to speak first.
+      pushLog("connected → triggering greeting");
+      clientRef.current.triggerGreeting(GREETING_PROMPT);
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       pushLog(`connect FAILED: ${msg}`);
