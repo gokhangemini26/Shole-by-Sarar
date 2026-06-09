@@ -59,6 +59,7 @@ function slowScrollToTarget(elementId?: string) {
 
 export function GlobalAssistant() {
   const [aiOpen, setAiOpen] = useState(false);
+  const [autoStartVoice, setAutoStartVoice] = useState(false);
   const [mounted, setMounted] = useState(false);
   const { locale } = useLocale();
   const labels = getLabels(locale);
@@ -83,6 +84,7 @@ export function GlobalAssistant() {
   useEffect(() => {
     if (searchParams?.get("login_success") === "true") {
       setAiOpen(true);
+      setAutoStartVoice(true);
       // Clean up search param
       const url = new URL(window.location.href);
       url.searchParams.delete("login_success");
@@ -107,6 +109,7 @@ export function GlobalAssistant() {
       const params = new URLSearchParams(window.location.search);
       if (params.get("voice") === "1") {
         setAiOpen(true);
+        setAutoStartVoice(true);
         params.delete("voice");
         const qs = params.toString();
         window.history.replaceState(
@@ -232,9 +235,13 @@ export function GlobalAssistant() {
       )}
       <AIAssistant
         open={aiOpen}
-        onClose={() => setAiOpen(false)}
+        onClose={() => {
+          setAiOpen(false);
+          setAutoStartVoice(false);
+        }}
         onToolCall={handleToolCall}
         locale={locale}
+        autoStartVoice={autoStartVoice}
       />
     </div>
   );

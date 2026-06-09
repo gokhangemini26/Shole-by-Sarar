@@ -100,11 +100,13 @@ export function AIAssistant({
   onClose,
   onToolCall,
   locale = "en",
+  autoStartVoice = false,
 }: {
   open: boolean;
   onClose: () => void;
   onToolCall?: ToolCallHandler;
   locale?: string;
+  autoStartVoice?: boolean;
 }) {
   const labels = getLabels(locale as any);
   const [messages, setMessages] = useState<Msg[]>([
@@ -126,6 +128,29 @@ export function AIAssistant({
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [isAuthed, setIsAuthed] = useState(false);
   const router = useRouter();
+  
+  const [isMobile, setIsMobile] = useState(false);
+  const [showMobileOverlay, setShowMobileOverlay] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      const ua = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      const width = window.innerWidth < 768;
+      setIsMobile(ua || width);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  useEffect(() => {
+    if (open && autoStartVoice && isMobile) {
+      setShowMobileOverlay(true);
+      setIsExpanded(true);
+    } else {
+      setShowMobileOverlay(false);
+    }
+  }, [open, autoStartVoice, isMobile]);
   
   const currentBotTranscriptRef = useRef("");
   const currentUserTranscriptRef = useRef("");
@@ -259,6 +284,12 @@ export function AIAssistant({
     if (!hasVoiceKey) return;
     if (!isAuthed) return; // voice requires sign-in — don't auto-start for guests
     if (isLive || isConnecting) return;
+
+    if (isMobile && autoStartVoice) {
+      autoStartedRef.current = true;
+      return;
+    }
+
     autoStartedRef.current = true;
     // Defer to next tick so the dialog's intro animation isn't competing
     // with the AudioContext + WebSocket setup.
@@ -266,7 +297,7 @@ export function AIAssistant({
       toggleVoiceRef.current?.();
     }, 200);
     return () => clearTimeout(t);
-  }, [open, hasVoiceKey, isAuthed, isLive, isConnecting]);
+  }, [open, hasVoiceKey, isAuthed, isLive, isConnecting, isMobile, autoStartVoice]);
 
   // toggleVoice is defined further down; we read it through a ref so the
   // auto-start effect doesn't have to worry about hoisting.
@@ -981,6 +1012,45 @@ export function AIAssistant({
       {/* ── İZLEME MODU AÇIK: flowing chat + product images ── */}
       {isExpanded && (
         <>
+          {showMobileOverlay && (
+            <div className="absolute inset-0 z-[110] flex flex-col items-center justify-center p-6 bg-gradient-to-b from-[#352A22]/98 to-[#1A1410]/98 backdrop-blur-md text-center md:rounded-[32px] overflow-hidden">
+              <div className="w-20 h-20 rounded-full bg-[#D48C51]/10 flex items-center justify-center mb-6 border border-[#D48C51]/30 relative">
+                {/* Pulsing ring */}
+                <span className="absolute inset-0 rounded-full bg-[#D48C51]/20 animate-ping opacity-75"></span>
+                <Mic size={36} className="text-[#D48C51] relative z-10" />
+              </div>
+              
+              <h3 className="text-white text-xl font-serif tracking-wide mb-3">
+                {locale === "tr" ? "Giriş Başarılı" : "Login Successful"}
+              </h3>
+              
+              <p className="text-white/75 text-sm max-w-[280px] leading-relaxed mb-8">
+                {locale === "tr" 
+                  ? "SHOLÉ sesli stilist asistanını başlatmak ve mikrofon bağlantısını kurmak için lütfen dokunun." 
+                  : "Please tap to launch the SHOLÉ voice stylist assistant and establish a microphone connection."}
+              </p>
+              
+              <button
+                onClick={async () => {
+                  setShowMobileOverlay(false);
+                  await toggleVoice();
+                }}
+                className="w-full max-w-[260px] py-4 bg-[#D48C51] hover:bg-[#c37b42] active:scale-95 transition-all text-[#1C1814] font-medium rounded-full shadow-lg flex items-center justify-center gap-2 text-sm tracking-wider uppercase"
+              >
+                <Sparkles size={16} />
+                {locale === "tr" ? "SESLİ ASİSTANI BAŞLAT" : "START VOICE ASSISTANT"}
+              </button>
+              
+              <button
+                onClick={() => {
+                  setShowMobileOverlay(false);
+                }}
+                className="mt-4 text-white/50 hover:text-white text-xs tracking-wider uppercase font-mono py-2"
+              >
+                {locale === "tr" ? "Metin ile devam et" : "Continue with text"}
+              </button>
+            </div>
+          )}
           <div className="flex-1 overflow-hidden flex flex-col relative bg-transparent min-h-[60px]">
             {isLive && isSpeaking && (
               <button
