@@ -89,6 +89,25 @@ export function GlobalAssistant() {
     };
 
     window.addEventListener("open-ai", handleOpen);
+
+    // Returning from login with ?voice=1 → reopen the assistant so it can
+    // start voice now that the user is authenticated. Strip the flag after.
+    try {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("voice") === "1") {
+        setAiOpen(true);
+        params.delete("voice");
+        const qs = params.toString();
+        window.history.replaceState(
+          {},
+          "",
+          window.location.pathname + (qs ? `?${qs}` : "")
+        );
+      }
+    } catch {
+      /* ignore */
+    }
+
     return () => window.removeEventListener("open-ai", handleOpen);
   }, []);
 

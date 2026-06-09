@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { X, Mic, MicOff, Send, Terminal, AlertTriangle, Sparkles, ChevronUp, Square } from "lucide-react";
 import { AIVoiceInput } from "@/components/ui/ai-voice-input";
@@ -123,6 +124,8 @@ export function AIAssistant({
   
   const [memoryContext, setMemoryContext] = useState("");
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const [isAuthed, setIsAuthed] = useState(false);
+  const router = useRouter();
   
   const currentBotTranscriptRef = useRef("");
   const currentUserTranscriptRef = useRef("");
@@ -131,6 +134,7 @@ export function AIAssistant({
     async function initMemory() {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
+      setIsAuthed(!!user);
       if (user) {
         const ctx = await getAIMemoryContext(user.id);
         setMemoryContext(ctx);
@@ -242,6 +246,7 @@ export function AIAssistant({
     }
     if (autoStartedRef.current) return;
     if (!hasVoiceKey) return;
+    if (!isAuthed) return; // voice requires sign-in — don't auto-start for guests
     if (isLive || isConnecting) return;
     autoStartedRef.current = true;
     // Defer to next tick so the dialog's intro animation isn't competing
@@ -250,7 +255,7 @@ export function AIAssistant({
       toggleVoiceRef.current?.();
     }, 200);
     return () => clearTimeout(t);
-  }, [open, hasVoiceKey, isLive, isConnecting]);
+  }, [open, hasVoiceKey, isAuthed, isLive, isConnecting]);
 
   // toggleVoice is defined further down; we read it through a ref so the
   // auto-start effect doesn't have to worry about hoisting.
@@ -542,6 +547,25 @@ export function AIAssistant({
     }
 
     pushLog("voice ON requested");
+
+    // Gate: the voice assistant requires a signed-in account. Redirect guests
+    // to login/register first; bounce them back here (with ?voice=1 so the
+    // assistant re-opens and starts) after they authenticate.
+    if (!isAuthed) {
+      pushLog("voice blocked — not signed in → /login");
+      const here =
+        typeof window !== "undefined" ? window.location.pathname : "/";
+      setMessages((m) => [
+        ...m,
+        {
+          role: "model",
+          content:
+            "Sesli asistanı kullanmak için lütfen giriş yapın ◇ sizi giriş sayfasına yönlendiriyorum.",
+        },
+      ]);
+      router.push(`/login?redirect=${encodeURIComponent(here + "?voice=1")}`);
+      return;
+    }
 
     // Initialize/resume the AudioContext synchronously within the user gesture to bypass browser autoplay blocks.
     ensurePlayerNode().catch((err) => pushLog(`player warm-up error: ${err.message}`));

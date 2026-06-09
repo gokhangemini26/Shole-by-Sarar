@@ -4,6 +4,12 @@ import { createClient } from '@/lib/supabase/server'
 export async function GET(request: Request) {
   const url = new URL(request.url)
   const code = url.searchParams.get('code')
+  const nextParam = url.searchParams.get('next')
+  // Only same-site relative paths (guard against open-redirect).
+  const safeNext =
+    nextParam && nextParam.startsWith('/') && !nextParam.startsWith('//')
+      ? nextParam
+      : '/'
 
   const supabase = await createClient()
 
@@ -28,5 +34,5 @@ export async function GET(request: Request) {
     }
   }
 
-  return NextResponse.redirect(url.origin)
+  return NextResponse.redirect(`${url.origin}${safeNext}`)
 }
