@@ -340,6 +340,65 @@ export function AIAssistant({
     return () => clearTimeout(t);
   }, [open, hasVoiceKey, isAuthed, isLive, isConnecting, isMobile, autoStartVoice]);
 
+  // 5-minute session limit + closing cleanup
+  useEffect(() => {
+    if (!open) {
+      // Cleanup voice session when assistant is closed by the user
+      if (clientRef.current) {
+        pushLog("voice OFF (popup closed)");
+        clientRef.current.close();
+        clientRef.current = null;
+        streamRef.current?.getTracks().forEach((t) => t.stop());
+        vadHandleRef.current?.destroy().catch(() => {});
+        vadHandleRef.current = null;
+        stopAudio();
+        setIsLive(false);
+        setIsConnecting(false);
+        setAudioLevel(0);
+      }
+      return;
+    }
+
+    // Start 5-minute session timer
+    const timer = setTimeout(() => {
+      pushLog("Session timeout reached (5 minutes). Terminating session.");
+
+      // 1. Speak the termination message
+      if (typeof window !== "undefined" && window.speechSynthesis) {
+        const utterance = new SpeechSynthesisUtterance("Test oturumunuz sona ermiştir. Teşekkürler");
+        utterance.lang = "tr-TR";
+        window.speechSynthesis.speak(utterance);
+      }
+
+      // 2. Display the final message in chat
+      setMessages((prev) => [
+        ...prev,
+        { role: "model", content: "Test oturumunuz sona ermiştir. Teşekkürler" },
+      ]);
+
+      // 3. Stop voice session
+      if (clientRef.current) {
+        clientRef.current.close();
+        clientRef.current = null;
+      }
+      streamRef.current?.getTracks().forEach((t) => t.stop());
+      vadHandleRef.current?.destroy().catch(() => {});
+      vadHandleRef.current = null;
+      stopAudio();
+      setIsLive(false);
+      setIsConnecting(false);
+      setAudioLevel(0);
+
+      // 4. Close the popup window after 4 seconds
+      setTimeout(() => {
+        onClose();
+      }, 4000);
+
+    }, 5 * 60 * 1000); // 5 minutes
+
+    return () => clearTimeout(timer);
+  }, [open, onClose, pushLog]);
+
   // toggleVoice is defined further down; we read it through a ref so the
   // auto-start effect doesn't have to worry about hoisting.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
